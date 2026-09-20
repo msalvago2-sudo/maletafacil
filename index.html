@@ -581,7 +581,7 @@
       <div class="step-label"><span class="step-num">1</span> Destino y fechas</div>
       <label class="field-label" for="destino">Destino</label>
       <div style="position:relative;">
-        <input type="text" id="destino" placeholder="Ej. Lisboa, Cancún, los Alpes..." autocomplete="off">
+        <input type="text" id="destino" placeholder="Ej. Lisboa, Cancún, los Alpes..." autocomplete="off" onfocus="this.select();">
         <div id="destinoSugerencias" class="suggest-list"></div>
       </div>
 
@@ -717,7 +717,7 @@
     <h3 style="font-family:'Fraunces',serif;font-size:20px;color:var(--teal-900);margin:0 0 6px;">Confirma tu vuelo</h3>
     <p class="hint" style="margin-bottom:14px;">Escribe tu número de vuelo y comprobamos si sigue en hora. Solo funciona para vuelos de <strong>hoy</strong>.</p>
     <label class="field-label" for="vueloNumero">Número de vuelo</label>
-    <input type="text" id="vueloNumero" placeholder="Ej. IB3160" autocomplete="off">
+    <input type="text" id="vueloNumero" placeholder="Ej. IB3160" autocomplete="off" style="text-transform:uppercase;" oninput="this.value=this.value.toUpperCase();">
     <button type="button" id="vueloConsultarBtn" class="generate-btn" style="margin-top:12px;">Consultar vuelo</button>
     <div id="vueloResultado"></div>
   </div>

@@ -826,6 +826,10 @@
         </span>
       </div>
     </div>
+    <div id="agenciaSello" style="display:none;align-items:center;gap:10px;margin:0 auto 20px;padding:8px 14px 8px 12px;border:1px solid rgba(246,241,228,.22);border-radius:14px;width:fit-content;max-width:100%;">
+      <span style="font-size:11px;color:#8FA9A4;white-space:nowrap;">Te lo recomienda</span>
+      <span id="agenciaSelloLogo" style="display:flex;align-items:center;"></span>
+    </div>
     <p id="poweredByWrap" style="display:none;font-size:10px;letter-spacing:.03em;color:#8FA9A4;margin:-10px 0 18px;">Tecnología de Maleta Fácil</p>
     <h1>Prepara tu maleta<br>en un minuto</h1>
     <div id="recientesWrap" style="display:none;margin-bottom:8px;width:100%;">
@@ -2357,6 +2361,7 @@ async function restaurarDesdeEnlace(){
 
 // ---------- Autocompletar desde la URL (enlaces de agencias): maletafacil.com/viena o ?destino=viena ----------
 // ---------- Marca blanca: las agencias se gestionan en /agencias/agencias.json (no hace falta tocar este archivo) ----------
+// Modo por agencia: sin "modo" = marca compartida (sello bajo la cabecera); "modo": "completo" = marca blanca total.
 // Enlace para cada agencia: maletafacil.com/?agencia=SLUG  (también vale ?utm_source=SLUG)
 // La agencia se recuerda 30 días en el navegador del cliente aunque vuelva sin el enlace.
 let agenciaActiva = null;
@@ -2388,18 +2393,30 @@ async function aplicarAgenciaDesdeURL(){
   // Su propio tracking ID de Amazon (opcional) para saber qué ventas vienen de cada agencia
   if(agencia.tag && /^[a-z0-9-]+-21$/i.test(agencia.tag)) AMAZON_TAG = agencia.tag;
 
-  const fila = document.getElementById('logoHeaderRow');
   const nombre = escapeHtml(agencia.nombre || slug);
   const logoSrc = agencia.logo ? '/agencias/' + encodeURIComponent(agencia.logo) : '';
-  fila.innerHTML = logoSrc
-    ? `<img src="${logoSrc}" alt="${nombre}" style="max-height:56px;max-width:220px;object-fit:contain;">`
-    : `<span style="font-size:1.4rem;font-weight:700;">${nombre}</span>`;
-  // Si el logo no carga, se muestra el nombre en vez del cuadrado roto
-  const img = fila.querySelector('img');
-  if(img) img.onerror = () => { fila.innerHTML = `<span style="font-size:1.4rem;font-weight:700;">${nombre}</span>`; };
+  const textoNombre = `<span style="font-size:15px;font-weight:700;color:var(--paper);">${nombre}</span>`;
 
-  document.getElementById('poweredByWrap').style.display = 'block';
-  gtag('event', 'vista_marca_blanca', {agencia: slug});
+  if(agencia.modo === 'completo'){
+    // Marca blanca total: el logo de la agencia sustituye la cabecera de Maleta Fácil
+    const fila = document.getElementById('logoHeaderRow');
+    fila.innerHTML = logoSrc
+      ? `<img src="${logoSrc}" alt="${nombre}" style="max-height:56px;max-width:220px;object-fit:contain;">`
+      : textoNombre;
+    const img = fila.querySelector('img');
+    if(img) img.onerror = () => { fila.innerHTML = textoNombre; };
+    document.getElementById('poweredByWrap').style.display = 'block';
+  } else {
+    // Marca compartida (por defecto): cabecera de Maleta Fácil + sello de la agencia
+    const hueco = document.getElementById('agenciaSelloLogo');
+    hueco.innerHTML = logoSrc
+      ? `<img src="${logoSrc}" alt="${nombre}" style="height:30px;max-width:150px;object-fit:contain;border-radius:3px;">`
+      : textoNombre;
+    const img = hueco.querySelector('img');
+    if(img) img.onerror = () => { hueco.innerHTML = textoNombre; };
+    document.getElementById('agenciaSello').style.display = 'flex';
+  }
+  gtag('event', 'vista_marca_blanca', {agencia: slug, modo: agencia.modo === 'completo' ? 'completo' : 'compartido'});
 }
 aplicarAgenciaDesdeURL();
 

@@ -33,19 +33,29 @@ Estructura en estas secciones, con títulos claros:
 
 Escribe en español, en un tono cercano y directo, sin relleno ni frases genéricas de "espero que disfrutes tu viaje". Máximo 300 palabras en total. No uses markdown con almohadillas (#), usa los títulos en mayúscula seguidos de dos puntos.`;
 
+  // Si un modelo está saturado o no existe, probamos el siguiente (sin pasarnos de tiempo)
+  const MODELOS = ['gemini-3.8-flash', 'gemini-flash-latest', 'gemini-flash-lite-latest'];
+  const inicio = Date.now();
+
   try {
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${key}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: { maxOutputTokens: 2048, temperature: 0.8 }
-        })
-      }
-    );
-    const data = await res.json();
+    let data = null;
+    for (const modelo of MODELOS) {
+      if (Date.now() - inicio > 6000) break;
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${modelo}:generateContent`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: { maxOutputTokens: 2048, temperature: 0.8 }
+          })
+        }
+      );
+      data = await res.json().catch(() => ({ error: { message: 'Respuesta no válida de Gemini.' } }));
+      if (!data.error && data?.candidates?.[0]?.content?.parts?.[0]?.text) break;
+      console.error(`Gemini (${modelo}):`, data?.error?.message || 'sin texto');
+    }
 
     if (data.error) {
       return { statusCode: 502, body: JSON.stringify({ error: data.error.message || 'Gemini devolvió un error.' }) };

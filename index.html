@@ -1334,7 +1334,7 @@ actualizarFechasTrigger();
 // ---------- Tu enlace de afiliado de Amazon (fijo para todos los visitantes) ----------
 // Edita estas tres constantes con tus propios datos antes de publicar la web.
 const AMAZON_DOMAIN = 'amazon.es';        // ej. 'amazon.com', 'amazon.com.mx', 'amazon.de'...
-const AMAZON_TAG = 'maletafacil02-21'; // tu tracking ID de Amazon Afiliados
+let AMAZON_TAG = 'maletafacil02-21'; // tu tracking ID de Amazon Afiliados
 const APP_URL = 'https://maletafacil.com'; // tu web (usada en la invitación por WhatsApp)
 
 // ---------- Trip type selection ----------
@@ -2254,7 +2254,7 @@ function construirEnlaceMaleta(){
     nin: numNinos,
     c: recopilarChecked()
   };
-  const agenciaActual = (new URLSearchParams(window.location.search).get('utm_source') || '').trim();
+  const agenciaActual = agenciaActiva ? agenciaActiva.slug : (new URLSearchParams(window.location.search).get('utm_source') || '').trim();
   const extraAgencia = agenciaActual ? `&utm_source=${encodeURIComponent(agenciaActual)}` : '';
   return `${APP_URL}/?m=${encodeURIComponent(JSON.stringify(state))}${extraAgencia}`;
 }
@@ -2356,23 +2356,50 @@ async function restaurarDesdeEnlace(){
 }
 
 // ---------- Autocompletar desde la URL (enlaces de agencias): maletafacil.com/viena o ?destino=viena ----------
-// ---------- Marca blanca: si el enlace trae una agencia conocida (utm_source), se muestra su logo ----------
-const AGENCIAS = {
-  coraltour: { nombre: 'Viajes Coraltour', logo: 'logo-coraltour.jpeg' }
-  // Para añadir otra agencia: su-slug: { nombre: 'Nombre visible', logo: 'archivo-subido-a-netlify.png' }
-};
+// ---------- Marca blanca: las agencias se gestionan en /agencias/agencias.json (no hace falta tocar este archivo) ----------
+// Enlace para cada agencia: maletafacil.com/?agencia=SLUG  (también vale ?utm_source=SLUG)
+// La agencia se recuerda 30 días en el navegador del cliente aunque vuelva sin el enlace.
+let agenciaActiva = null;
 
-function aplicarAgenciaDesdeURL(){
+async function aplicarAgenciaDesdeURL(){
   const params = new URLSearchParams(window.location.search);
-  const fuente = (params.get('utm_source') || params.get('agencia') || '').toLowerCase().trim();
-  const agencia = AGENCIAS[fuente];
-  if(!agencia) return;
+  let slug = (params.get('agencia') || params.get('utm_source') || '').toLowerCase().trim();
 
-  document.getElementById('logoHeaderRow').innerHTML = `
-    <img src="${agencia.logo}" alt="${escapeHtml(agencia.nombre)}" style="max-height:56px;max-width:220px;object-fit:contain;">
-  `;
+  // Recordar la agencia 30 días (si el navegador lo permite)
+  try {
+    if(slug){
+      localStorage.setItem('mf_agencia', JSON.stringify({slug, t: Date.now()}));
+    } else {
+      const guardada = JSON.parse(localStorage.getItem('mf_agencia') || 'null');
+      if(guardada && Date.now() - guardada.t < 30*24*60*60*1000) slug = guardada.slug;
+    }
+  } catch(e){}
+  if(!slug || !/^[a-z0-9-]+$/.test(slug)) return;
+
+  let lista = {};
+  try {
+    const r = await fetch('/agencias/agencias.json', {cache: 'no-cache'});
+    if(r.ok) lista = await r.json();
+  } catch(e){ return; }
+  const agencia = lista[slug];
+  if(!agencia) return;
+  agenciaActiva = {slug, ...agencia};
+
+  // Su propio tracking ID de Amazon (opcional) para saber qué ventas vienen de cada agencia
+  if(agencia.tag && /^[a-z0-9-]+-21$/i.test(agencia.tag)) AMAZON_TAG = agencia.tag;
+
+  const fila = document.getElementById('logoHeaderRow');
+  const nombre = escapeHtml(agencia.nombre || slug);
+  const logoSrc = agencia.logo ? '/agencias/' + encodeURIComponent(agencia.logo) : '';
+  fila.innerHTML = logoSrc
+    ? `<img src="${logoSrc}" alt="${nombre}" style="max-height:56px;max-width:220px;object-fit:contain;">`
+    : `<span style="font-size:1.4rem;font-weight:700;">${nombre}</span>`;
+  // Si el logo no carga, se muestra el nombre en vez del cuadrado roto
+  const img = fila.querySelector('img');
+  if(img) img.onerror = () => { fila.innerHTML = `<span style="font-size:1.4rem;font-weight:700;">${nombre}</span>`; };
+
   document.getElementById('poweredByWrap').style.display = 'block';
-  gtag('event', 'vista_marca_blanca', {agencia: fuente});
+  gtag('event', 'vista_marca_blanca', {agencia: slug});
 }
 aplicarAgenciaDesdeURL();
 

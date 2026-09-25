@@ -623,6 +623,7 @@
   .amz-link:hover{background:#F0BC38;}
   .guia-link{background:#2E827C;border-color:#1F5F5B;color:#fff;cursor:pointer;font-family:inherit;line-height:inherit;}
   .guia-link:hover{background:#1F5F5B;}
+  @media (max-width:360px){ .fila-compartida{gap:8px !important;} .fila-compartida .tag{display:none !important;} }
 
   .actions{
     display:flex;
@@ -827,9 +828,6 @@
           Equipaje sin estrés
         </span>
       </div>
-    </div>
-    <div id="agenciaSello" style="display:none;justify-content:center;align-items:center;margin:0 auto 20px;max-width:100%;">
-      <span id="agenciaSelloLogo" style="display:flex;align-items:center;"></span>
     </div>
     <p id="poweredByWrap" style="display:none;font-size:10px;letter-spacing:.03em;color:#8FA9A4;margin:-10px 0 18px;">Tecnología de Maleta Fácil</p>
     <h1>Prepara tu maleta<br>en un minuto</h1>
@@ -2418,14 +2416,30 @@ async function aplicarAgenciaDesdeURL(){
     if(img) img.onerror = () => { fila.innerHTML = textoNombre; };
     document.getElementById('poweredByWrap').style.display = 'block';
   } else {
-    // Marca compartida (por defecto): cabecera de Maleta Fácil + sello de la agencia
-    const hueco = document.getElementById('agenciaSelloLogo');
+    // Marca compartida (por defecto): Maleta Fácil a la izquierda | logo de la agencia a la derecha, en una fila
+    const fila = document.getElementById('logoHeaderRow');
+    const [icono, textos] = [fila.children[0], fila.children[1]];
+    icono.setAttribute('width', '48'); icono.setAttribute('height', '48');
+    const titulo = textos.querySelector('p');
+    titulo.style.fontSize = '16px'; titulo.style.marginBottom = '5px';
+    const etiqueta = textos.querySelector('.tag');
+    etiqueta.style.fontSize = '10.5px'; etiqueta.style.padding = '4px 9px'; etiqueta.style.whiteSpace = 'nowrap';
+    const marca = document.createElement('div');
+    marca.style.cssText = 'display:flex;align-items:center;gap:9px;flex-shrink:0;';
+    marca.append(icono, textos);
+    const separador = document.createElement('div');
+    separador.style.cssText = 'width:1px;height:44px;background:rgba(246,241,228,.25);flex-shrink:0;';
+    const hueco = document.createElement('div');
+    hueco.style.cssText = 'display:flex;align-items:center;min-width:0;';
     hueco.innerHTML = logoSrc
-      ? `<img src="${logoSrc}" alt="${nombre}" style="height:48px;max-width:240px;object-fit:contain;border-radius:4px;">`
+      ? `<img src="${logoSrc}" alt="${nombre}" style="height:36px;max-width:120px;object-fit:contain;border-radius:4px;">`
       : textoNombre;
     const img = hueco.querySelector('img');
     if(img) img.onerror = () => { hueco.innerHTML = textoNombre; };
-    document.getElementById('agenciaSello').style.display = 'flex';
+    fila.innerHTML = '';
+    fila.append(marca, separador, hueco);
+    fila.style.gap = '12px';
+    fila.classList.add('fila-compartida');
   }
   gtag('event', 'vista_marca_blanca', {agencia: slug, modo: agencia.modo === 'completo' ? 'completo' : 'compartido'});
 }

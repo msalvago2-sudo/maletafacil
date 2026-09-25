@@ -826,8 +826,7 @@
         </span>
       </div>
     </div>
-    <div id="agenciaSello" style="display:none;align-items:center;gap:10px;margin:0 auto 20px;padding:8px 14px 8px 12px;border:1px solid rgba(246,241,228,.22);border-radius:14px;width:fit-content;max-width:100%;">
-      <span style="font-size:11px;color:#8FA9A4;white-space:nowrap;">Te lo recomienda</span>
+    <div id="agenciaSello" style="display:none;justify-content:center;align-items:center;margin:0 auto 20px;max-width:100%;">
       <span id="agenciaSelloLogo" style="display:flex;align-items:center;"></span>
     </div>
     <p id="poweredByWrap" style="display:none;font-size:10px;letter-spacing:.03em;color:#8FA9A4;margin:-10px 0 18px;">Tecnología de Maleta Fácil</p>
@@ -2410,7 +2409,7 @@ async function aplicarAgenciaDesdeURL(){
     // Marca compartida (por defecto): cabecera de Maleta Fácil + sello de la agencia
     const hueco = document.getElementById('agenciaSelloLogo');
     hueco.innerHTML = logoSrc
-      ? `<img src="${logoSrc}" alt="${nombre}" style="height:30px;max-width:150px;object-fit:contain;border-radius:3px;">`
+      ? `<img src="${logoSrc}" alt="${nombre}" style="height:48px;max-width:240px;object-fit:contain;border-radius:4px;">`
       : textoNombre;
     const img = hueco.querySelector('img');
     if(img) img.onerror = () => { hueco.innerHTML = textoNombre; };

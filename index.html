@@ -621,6 +621,8 @@
     white-space:nowrap;
   }
   .amz-link:hover{background:#F0BC38;}
+  .guia-link{background:#2E827C;border-color:#1F5F5B;color:#fff;cursor:pointer;font-family:inherit;line-height:inherit;}
+  .guia-link:hover{background:#1F5F5B;}
 
   .actions{
     display:flex;
@@ -1444,6 +1446,14 @@ function civitatisLink(destinoLabel){
 }
 
 // ---------- Guía de viaje con IA (Gemini) + captura de email (Brevo) ----------
+function irAGuia(){
+  const card = document.getElementById('guiaCard');
+  if(!card) return;
+  card.scrollIntoView({behavior:'smooth', block:'center'});
+  setTimeout(()=>{ const i = document.getElementById('guiaEmailInput'); if(i) i.focus({preventScroll:true}); }, 600);
+  gtag('event', 'ir_a_guia');
+}
+
 async function pedirGuiaViaje(){
   const emailInput = document.getElementById('guiaEmailInput');
   const btn = document.getElementById('guiaEnviarBtn');
@@ -1898,7 +1908,7 @@ function buildList(dias, temporada, tipo, climaFlags, numBebes, numNinos, numHom
   add('accesorios','Accesorios de viaje','🎒','Báscula de maleta', 1, 'báscula maleta digital viaje');
   add('accesorios','Accesorios de viaje','🎒','Mochila pequeña del día a día', 1, 'mochila antirrobo urbana');
   add('accesorios','Accesorios de viaje','🎒','Botella de agua plegable', 1, 'botella agua plegable viaje');
-  add('accesorios','Accesorios de viaje','🎒','Guía o mapa offline descargado', 1, null);
+  add('accesorios','Accesorios de viaje','🎒','Guía o mapa offline descargado', 1, null, '#guia');
 
   // ---- ESPECÍFICO DEL TIPO DE VIAJE ----
   const specific = {
@@ -2175,11 +2185,13 @@ async function generarMaleta(){
         <ul class="item-list">`;
       cat.items.forEach((it, idx)=>{
         const id = `${key}-${idx}`;
+        if(it.directLink==='#guia') it.name = `Guía personalizada de ${destinoLabel.split(',')[0].trim()}`;
         html += `<li id="li-${id}">
           <input type="checkbox" id="${id}" onchange="toggleItem('${id}')">
           <label for="${id}">${escapeHtml(it.name)}</label>
           ${it.qty>1?`<span class="qty">×${it.qty}</span>`:''}
-          ${it.directLink?`<a class="amz-link" style="background:#EAE1CB;border-color:#D8CDB0;color:#12302E;" target="_blank" rel="noopener" href="${it.directLink}">Consultar</a>`
+          ${it.directLink==='#guia'?`<button type="button" class="amz-link guia-link" onclick="irAGuia()">Recíbela gratis</button>`
+            : it.directLink?`<a class="amz-link" style="background:#EAE1CB;border-color:#D8CDB0;color:#12302E;" target="_blank" rel="noopener" href="${it.directLink}">Consultar</a>`
             : it.shopQuery?`<a class="amz-link" target="_blank" rel="noopener sponsored" href="${amazonLink(it.shopQuery)}">Ver en Amazon</a>`:''}
         </li>`;
       });
@@ -2188,7 +2200,7 @@ async function generarMaleta(){
 
     html += `<button class="civitatis-btn" onclick="window.open('${civitatisLink(destinoLabel)}','_blank','noopener')">Civitatis · Tours gratis en ${escapeHtml(destinoLabel.split(',')[0].trim())}</button>`;
 
-    html += `<div class="guia-card">
+    html += `<div class="guia-card" id="guiaCard">
       <p class="guia-card-titulo">¿Quieres una guía de viaje para tu destino?</p>
       <p class="guia-card-texto">Te la mandamos a tu correo, con lo imprescindible que ver, un consejo local y cómo moverte.</p>
       <div id="guiaFormWrap" style="display:flex;gap:8px;">

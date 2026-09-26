@@ -627,6 +627,10 @@
   .tarjeta-verde{display:block;background:#E3F1EC;border:1.5px solid #9CCBBF;border-radius:14px;padding:12px 14px;}
   .barra-maletas{gap:6px;flex-wrap:wrap;color:#3F8F5F;margin:4px 0 2px;}
   .barra-maletas svg{width:30px;height:30px;}
+.modal-maleta-icono{width:22px;height:22px;vertical-align:-5px;margin-right:4px;flex-shrink:0;}
+  .icono-cabina{color:#3F8F5F;} .icono-facturada{color:var(--rust);} .icono-personal{color:var(--teal-900);}
+  .titulo-bandera{display:inline-block;width:26px;height:auto;border-radius:3px;vertical-align:middle;margin-left:8px;box-shadow:0 0 0 1px rgba(0,0,0,.15);position:relative;top:-2px;}
+  .titulo-pais{font-weight:400;opacity:.7;font-size:.7em;}
   .aviso-destino{background:#FBEFD9;border:1.5px solid #E6C77E;color:#6B4E12;border-radius:14px;padding:12px 14px;margin:0 0 16px;font-size:14px;line-height:1.45;}
   .tv-fila{display:flex;gap:12px;align-items:center;}
   .tv-panel{margin-top:12px;}
@@ -1463,6 +1467,15 @@ function amazonLink(query){
   return `https://www.${AMAZON_DOMAIN}/s?k=${encodeURIComponent(query)}&tag=${encodeURIComponent(AMAZON_TAG)}`;
 }
 
+// ---------- Seguro de viaje: pon aquí tu enlace (de tu agencia o de afiliado). Vacío = no sale botón. ----------
+// Cada agencia puede tener el suyo en agencias.json con "seguro": "https://..."
+var SEGURO_URL = ''; // var (no const): se usa antes de llegar a esta línea al cargar la página
+function enlaceSeguro(){
+  let ag = null; try{ ag = agenciaActiva; }catch(e){} // puede no estar lista aún al cargar
+  const url = (ag && ag.seguro) || SEGURO_URL;
+  return /^https:\/\//.test(url || '') ? url : null;
+}
+
 // ---------- Civitatis (tours y actividades) — enlace de afiliado por ciudad ----------
 const CIVITATIS_AID = '38639';
 function civitatisSlug(nombre){
@@ -1473,6 +1486,21 @@ function civitatisSlug(nombre){
     .trim()
     .replace(/\s+/g, '-');
 }
+// "4 días · 3 noches": la gente piensa la ropa (y el pijama) por noches
+function textoDiasNoches(dias){
+  const noches = Math.max(0, dias - 1);
+  return `${dias} día${dias>1?'s':''}` + (noches > 0 ? ` · ${noches} noche${noches>1?'s':''}` : '');
+}
+// Ciudad + bandera pequeña (imagen, no emoji). Sin código de país, ciudad y país en pequeño.
+function tituloDestino(destinoLabel, geo){
+  const [ciudad, ...resto] = (destinoLabel || '').split(',').map(t=> t.trim());
+  const pais = resto.join(', ');
+  if(geo && geo.cc && /^[a-z]{2}$/.test(geo.cc)){
+    return `${escapeHtml(ciudad)}<img class="titulo-bandera" src="https://flagcdn.com/w40/${geo.cc}.png" srcset="https://flagcdn.com/w80/${geo.cc}.png 2x" alt="${escapeHtml(pais)}" title="${escapeHtml(pais)}" onerror="this.remove()">`;
+  }
+  return pais ? `${escapeHtml(ciudad)} <span class="titulo-pais">${escapeHtml(pais)}</span>` : escapeHtml(ciudad);
+}
+
 function civitatisLink(destinoLabel){
   const ciudad = (destinoLabel || '').split(',')[0].trim();
   const slug = civitatisSlug(ciudad);
@@ -1624,7 +1652,9 @@ async function buscarLugares(texto, max, signal){
     lat: r.latitude, lon: r.longitude,
     name: r.nombreEs || r.name,
     country: r.paisEs || paisEnEspanol(r.country_code) || r.country || '',
-    admin1: r.adminEs || r.admin1 || ''
+    admin1: r.adminEs || r.admin1 || '',
+    cc: (r.country_code || '').toLowerCase(),
+    elevation: (typeof r.elevation === 'number') ? r.elevation : null
   }));
 }
 
@@ -1662,7 +1692,7 @@ async function buscarSugerencias(texto){
     sugList.querySelectorAll('.suggest-item').forEach(el=>{
       el.addEventListener('click', ()=>{
         const r = results[Number(el.dataset.i)];
-        selectedDestinoGeo = {lat:r.lat, lon:r.lon, name:r.name, country:r.country||''};
+        selectedDestinoGeo = {lat:r.lat, lon:r.lon, name:r.name, country:r.country||'', cc:r.cc, elevation:r.elevation};
         destinoEl.value = r.country ? `${r.name}, ${r.country}` : r.name;
         ocultarSugerencias();
       });
@@ -1682,15 +1712,17 @@ document.addEventListener('click', (e)=>{
 });
 
 async function fetchForecast(lat,lon,start,end){
-  const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max&timezone=auto&start_date=${start}&end_date=${end}`;
-  const res = await fetch(url);
+  const base = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&timezone=auto&start_date=${start}&end_date=${end}&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max`;
+  let res = await fetch(base + ',wind_speed_10m_max,uv_index_max,snowfall_sum');
+  if(!res.ok) res = await fetch(base); // por si el servicio no acepta los datos extra: al menos lo básico
   if(!res.ok) throw new Error('forecast failed');
   return res.json();
 }
 
 async function fetchArchive(lat,lon,start,end){
-  const url = `https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=auto&start_date=${start}&end_date=${end}`;
-  const res = await fetch(url);
+  const base = `https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}&timezone=auto&start_date=${start}&end_date=${end}&daily=temperature_2m_max,temperature_2m_min,precipitation_sum`;
+  let res = await fetch(base + ',wind_speed_10m_max,snowfall_sum');
+  if(!res.ok) res = await fetch(base);
   if(!res.ok) throw new Error('archive failed');
   return res.json();
 }
@@ -1710,16 +1742,21 @@ async function getWeather(lat, lon, startStr, endStr){
       min: data.daily.temperature_2m_min[i],
       rainPct: data.daily.precipitation_probability_max[i]
     }));
+    const serie = k => (data.daily[k] || []).filter(v=> v !== null && v !== undefined);
+    const vientos = serie('wind_speed_10m_max'), uvs = serie('uv_index_max'), nieve = serie('snowfall_sum');
     return {
       mode:'forecast',
       days,
       avgMax: mean(days.map(d=>d.max)),
       avgMin: mean(days.map(d=>d.min)),
-      rainProb: mean(days.map(d=>d.rainPct))
+      rainProb: mean(days.map(d=>d.rainPct)),
+      windMax: vientos.length ? mean(vientos) : null,
+      uvMax: uvs.length ? Math.max(...uvs) : null,
+      snowCm: nieve.reduce((a,b)=>a+b,0)
     };
   }else{
     // Historical estimate: pool same date range from the last 3 years
-    const allMax=[], allMin=[]; let rainyDays=0, totalDays=0;
+    const allMax=[], allMin=[], allWind=[]; let rainyDays=0, totalDays=0, snowDays=0;
     for(const y of [1,2,3]){
       try{
         const s = addYearsStr(startStr,-y), e = addYearsStr(endStr,-y);
@@ -1728,6 +1765,8 @@ async function getWeather(lat, lon, startStr, endStr){
           data.daily.temperature_2m_max.forEach(v=>{ if(v!==null) allMax.push(v); });
           data.daily.temperature_2m_min.forEach(v=>{ if(v!==null) allMin.push(v); });
           data.daily.precipitation_sum.forEach(v=>{ if(v!==null){ totalDays++; if(v>1) rainyDays++; } });
+          (data.daily.wind_speed_10m_max || []).forEach(v=>{ if(v!==null) allWind.push(v); });
+          (data.daily.snowfall_sum || []).forEach(v=>{ if(v!==null && v>0.5) snowDays++; });
         }
       }catch(e){ /* skip that year if it fails */ }
     }
@@ -1736,7 +1775,10 @@ async function getWeather(lat, lon, startStr, endStr){
       mode:'historical',
       avgMax: mean(allMax),
       avgMin: mean(allMin),
-      rainProb: totalDays ? (rainyDays/totalDays*100) : 20
+      rainProb: totalDays ? (rainyDays/totalDays*100) : 20,
+      windMax: allWind.length ? mean(allWind) : null,
+      uvMax: null, // el histórico no trae índice UV: lo estimamos por latitud
+      snowCm: snowDays > 0 ? snowDays : 0
     };
   }
 }
@@ -1997,44 +2039,85 @@ function buildList(dias, temporada, tipo, climaFlags, numBebes, numNinos, numHom
 
   // ---- DOCUMENTOS Y DINERO ----
   add('documentos','Documentos y dinero','🛂','Pasaporte o DNI', 1, 'funda pasaporte');
-  add('documentos','Documentos y dinero','🛂','Tarjetas y algo de efectivo', 1, null);
-  add('documentos','Documentos y dinero','🛂','Seguro de viaje / reservas impresas', 1, null);
+  add('documentos','Documentos y dinero','🛂','Tarjetas y algo de efectivo', 1, 'cartera antirrobo RFID viaje');
+  add('documentos','Documentos y dinero','🛂','Seguro de viaje / reservas impresas', 1, null, enlaceSeguro());
+  if(enlaceSeguro()) cats.documentos.items[cats.documentos.items.length-1].botonTexto = 'Contratar';
   add('documentos','Documentos y dinero','🛂','Organizador de documentos de viaje', 1, 'organizador documentos viaje');
 
   // ---- SALUD ----
   add('aseo','Aseo y botiquín','💊','Botiquín básico', 1, 'botiquín viaje básico');
-  add('aseo','Aseo y botiquín','💊','Medicación personal habitual', 1, null);
+  add('aseo','Aseo y botiquín','💊','Medicación personal habitual', 1, 'pastillero semanal viaje');
   add('aseo','Aseo y botiquín','💊','Mascarillas y gel hidroalcohólico', 1, 'gel hidroalcohólico viaje pack');
 
   // ---- SEGÚN EL CLIMA (dinámico según fechas/destino, cruzado con el tipo de viaje) ----
   if(climaFlags){
+    const addClima = (name, shopQuery, evitarSi)=>{
+      add('clima','Según el clima en destino','🌦️', name, 1, shopQuery);
+      if(evitarSi) cats.clima.items[cats.clima.items.length-1].evitarSi = evitarSi;
+    };
     if(climaFlags.willRain){
-      const paraguasQuery = tipo==='negocios' ? 'paraguas plegable compacto elegante'
-        : tipo==='aventura' ? 'paraguas plegable resistente al viento'
-        : 'paraguas plegable compacto viaje';
       const chubasqueroQuery = tipo==='aventura' ? 'chubasquero impermeable transpirable senderismo'
         : tipo==='ciudad' ? 'chubasquero impermeable ligero urbano'
         : 'chubasquero impermeable ligero';
-      add('clima','Según el clima en destino','🌦️','Paraguas plegable', 1, q(paraguasQuery));
-      add('clima','Según el clima en destino','🌦️','Chubasquero o cortavientos impermeable', 1, q(chubasqueroQuery));
+      if(!climaFlags.windy){
+        // con viento fuerte el paraguas no sirve: mejor solo chubasquero
+        const paraguasQuery = tipo==='negocios' ? 'paraguas plegable compacto elegante'
+          : tipo==='aventura' ? 'paraguas plegable resistente al viento'
+          : 'paraguas plegable compacto viaje';
+        addClima('Paraguas plegable', q(paraguasQuery));
+      }
+      addClima('Chubasquero o cortavientos impermeable', q(chubasqueroQuery));
+      addClima('Funda impermeable para la mochila', 'funda impermeable mochila lluvia');
+      if(tipo !== 'negocios') addClima('Calzado impermeable', q(tipo==='aventura' ? 'zapatillas trekking impermeables' : 'zapatillas impermeables urbanas'));
+    } else if(climaFlags.windy){
+      addClima('Chaqueta cortavientos', q('chaqueta cortavientos ligera plegable'), /cortavientos/i);
     }
-    if(climaFlags.strongSun){
-      const solarQuery = tipo==='playa' ? 'protector solar playa spf50 resistente al agua'
+    if(climaFlags.strongSun || climaFlags.altitude){
+      const solarQuery = (climaFlags.uvHigh || climaFlags.altitude) ? 'protector solar spf50+ muy alta proteccion'
+        : tipo==='playa' ? 'protector solar playa spf50 resistente al agua'
         : tipo==='aventura' ? 'protector solar deportivo spf50 resistente al agua'
         : 'protector solar spf50 viaje';
-      const gafasQuery = tipo==='playa' ? 'gafas de sol polarizadas playa'
+      const gafasQuery = climaFlags.altitude ? 'gafas de sol montaña categoría 3 polarizadas'
+        : tipo==='playa' ? 'gafas de sol polarizadas playa'
         : tipo==='aventura' ? 'gafas de sol deportivas montaña'
         : 'gafas de sol';
-      const gorraQuery = tipo==='playa' ? 'sombrero playa ala ancha'
-        : tipo==='aventura' ? 'gorra transpirable trekking'
-        : 'gorra sombrero viaje';
-      add('clima','Según el clima en destino','🌦️','Protector solar', 1, q(solarQuery));
-      add('clima','Según el clima en destino','🌦️','Gafas de sol', 1, q(gafasQuery));
-      add('clima','Según el clima en destino','🌦️','Gorra o sombrero', 1, q(gorraQuery));
+      addClima('Protector solar', q(solarQuery));
+      addClima(climaFlags.altitude ? 'Gafas de sol de montaña' : 'Gafas de sol', q(gafasQuery));
+      if(climaFlags.strongSun){
+        const gorraQuery = tipo==='playa' ? 'sombrero playa ala ancha'
+          : tipo==='aventura' ? 'gorra transpirable trekking'
+          : 'gorra sombrero viaje';
+        addClima('Gorra o sombrero', q(gorraQuery));
+      }
+    }
+    if(climaFlags.uvHigh){
+      addClima('Camiseta con protección UV', q('camiseta protección solar UPF 50'));
+    }
+    if(climaFlags.hot){
+      addClima('Botella térmica (agua fría todo el día)', 'botella térmica acero inoxidable 750ml');
+      addClima('Ventilador portátil', 'ventilador portátil recargable de mano');
+      if(climaFlags.strongSun) addClima('After sun', 'after sun aloe vera formato viaje', /after ?sun/i);
+    }
+    if(climaFlags.tropical){
+      addClima('Repelente de mosquitos (zona tropical)', 'repelente mosquitos tropical deet', /repelente/i);
+      addClima('Bolsa estanca para el móvil', 'bolsa estanca impermeable móvil', /estanca|impermeable para el m[oó]vil/i);
     }
     if(climaFlags.veryCold){
       const termicaQuery = tipo==='aventura' ? 'ropa térmica interior trekking montaña' : 'ropa térmica interior viaje';
-      add('clima','Según el clima en destino','🌦️','Ropa térmica interior (base layer)', 1, q(termicaQuery));
+      addClima('Ropa térmica interior (base layer)', q(termicaQuery));
+      addClima('Calcetines térmicos', q('calcetines térmicos invierno'));
+      addClima('Calentadores de manos', 'calentadores de manos reutilizables');
+      addClima('Protector labial para el frío', 'protector labial frío spf');
+    }
+    if(climaFlags.snow){
+      addClima('Botas impermeables para nieve', q('botas nieve impermeables'));
+      addClima('Crampones ligeros para el calzado', 'crampones antideslizantes calzado nieve hielo');
+    }
+    if(climaFlags.bigRange && !climaFlags.veryCold){
+      addClima('Forro polar ligero (noches frescas)', q('forro polar ligero plegable'), /forro polar|chaqueta de abrigo/i);
+    }
+    if(climaFlags.shortDays){
+      addClima('Linterna frontal (días muy cortos)', 'linterna frontal recargable', /linterna/i);
     }
   }
 
@@ -2163,6 +2246,12 @@ function buildList(dias, temporada, tipo, climaFlags, numBebes, numNinos, numHom
     specific.familia.forEach(([name, qty, shop])=> add('ninos', 'Viajando con niños', '🧸', name, qty * numNinos, shop));
   }
 
+  // Quita de "Según el clima" lo que ya aparece en otra categoría (p. ej. repelente en viajes de playa)
+  if(cats.clima){
+    const otros = Object.entries(cats).filter(([k])=> k !== 'clima').flatMap(([,c])=> c.items.map(it=> it.name));
+    cats.clima.items = cats.clima.items.filter(it=> !it.evitarSi || !otros.some(n=> it.evitarSi.test(n)));
+    if(!cats.clima.items.length) delete cats.clima;
+  }
   return cats;
 }
 
@@ -2170,7 +2259,7 @@ function buildList(dias, temporada, tipo, climaFlags, numBebes, numNinos, numHom
 const CAT_ICON_PATHS = {
   ropa: '<path d="M8 4 4 7v3h2v10h12V10h2V7l-4-3-2 2h-4z"/>',
   calzado: '<path d="M3 17.5c0-1 .8-1.8 1.8-2l2.7-2.8 3.8.9 4.6-.9 4.1 2.8v2.5a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-.5z"/>',
-  aseo: '<path d="M10 2.5h4v2.7l1.5 1.8v12.5a2 2 0 0 1-2 2h-3a2 2 0 0 1-2-2V7l1.5-1.8V2.5z"/><path d="M9 10.5h6" stroke-linecap="round"/>',
+  aseo: '<rect x="3.5" y="7" width="17" height="13" rx="2"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/><path d="M12 10.5v6M9 13.5h6" stroke-linecap="round"/>',
   electronica: '<path d="M9 2v5M15 2v5M6 7h12v4a6 6 0 0 1-12 0V7z"/><path d="M12 17v4" stroke-linecap="round"/>',
   documentos: '<rect x="5" y="3" width="14" height="18" rx="2"/><circle cx="12" cy="9.5" r="2.3"/><path d="M8.5 16.5h7" stroke-linecap="round"/>',
   salud: '<rect x="3" y="3" width="18" height="18" rx="3"/><path d="M12 8v8M8 12h8" stroke-linecap="round"/>',
@@ -2273,10 +2362,22 @@ async function generarMaleta(){
           else if(w.avgMin <= 8) temporada = 'frio';
           else temporada = 'templado';
 
+          const latAbs = Math.abs(geo.lat || 0);
+          const mesViaje = parseDate(startStr).getUTCMonth() + 1; // 1-12
+          const inviernoLocal = geo.lat >= 0 ? [11,12,1,2].includes(mesViaje) : [5,6,7,8].includes(mesViaje);
+          const strongSun = w.avgMax >= 22;
           climaFlags = {
             willRain: w.rainProb >= 30,
-            strongSun: w.avgMax >= 22,
-            veryCold: w.avgMin <= 5
+            strongSun,
+            veryCold: w.avgMin <= 5,
+            hot: w.avgMax >= 30,                                         // calor fuerte
+            tropical: latAbs <= 23.5 && w.avgMax >= 26,                  // trópico: mosquitos y humedad
+            uvHigh: w.uvMax !== null ? w.uvMax >= 8 : (strongSun && latAbs <= 35),
+            windy: w.windMax !== null && w.windMax >= 35,                // km/h
+            snow: w.snowCm >= 1,
+            bigRange: (w.avgMax - w.avgMin) >= 15,                       // desierto: día caluroso, noche fría
+            altitude: geo.elevation !== null && geo.elevation !== undefined && geo.elevation >= 1500,
+            shortDays: latAbs >= 55 && inviernoLocal                     // norte de Europa en invierno
           };
         }catch(e){
           console.error('Fallo al consultar el clima:', e);
@@ -2300,8 +2401,8 @@ async function generarMaleta(){
     currentDestinoLabel = destinoLabel;
     currentDias = dias;
     let html = `<div class="results-header">
-      <h2><span class="eyelet-inline"></span>Tu lista para ${escapeHtml(destinoLabel)}</h2>
-      <p>${dias} día${dias>1?'s':''} · marca lo que vayas metiendo en la maleta</p>
+      <h2><span class="eyelet-inline"></span>Tu lista para ${tituloDestino(destinoLabel, geo)}</h2>
+      <p>${textoDiasNoches(dias)} · marca lo que vayas metiendo en la maleta</p>
     </div>`;
     if(destinoNoEncontrado){
       html += `<div class="aviso-destino">No encontramos «${escapeHtml(destino)}» en el mapa, así que te hemos preparado una lista estándar (sin clima ni enchufes). Si es un error, revisa cómo está escrito y vuelve a probar.</div>`;
@@ -2360,7 +2461,7 @@ async function generarMaleta(){
           <input type="checkbox" id="${id}" onchange="toggleItem('${id}')">
           <label for="${id}">${escapeHtml(it.name)}</label>
           ${it.qty>1?`<span class="qty">×${it.qty}</span>`:''}
-          ${it.directLink?`<a class="amz-link" style="background:#EAE1CB;border-color:#D8CDB0;color:#12302E;" target="_blank" rel="noopener" href="${it.directLink}">Consultar</a>`
+          ${it.directLink?`<a class="amz-link" style="background:#EAE1CB;border-color:#D8CDB0;color:#12302E;" target="_blank" rel="noopener${it.botonTexto?' sponsored':''}" href="${it.directLink}">${it.botonTexto || 'Consultar'}</a>`
             : it.shopQuery?`<a class="amz-link" target="_blank" rel="noopener sponsored" href="${amazonLink(it.shopQuery)}">Ver en Amazon</a>`:''}
         </li>`;
       });
@@ -2709,7 +2810,7 @@ document.getElementById('verAerolineasLink').addEventListener('click', (e)=>{
 
 function buildListText(){
   const cats = document.querySelectorAll('#results .category');
-  let text = `🧳 Mi lista de maleta para ${currentDestinoLabel} (${currentDias} día${currentDias>1?'s':''})\n\n`;
+  let text = `🧳 Mi lista de maleta para ${currentDestinoLabel} (${textoDiasNoches(currentDias)})\n\n`;
   cats.forEach(cat=>{
     text += cat.querySelector('.cat-title').textContent.trim() + '\n';
     cat.querySelectorAll('.item-list li').forEach(li=>{
@@ -2759,20 +2860,25 @@ function shareReferral(){
 
 // ---------- Modal "¿Qué maleta necesitas?" — totalmente independiente del resto de la página ----------
 // Medidas de cabina verificadas (2026); la tarifa contratada puede cambiarlas, por eso se avisa de comprobar siempre.
+// Medidas comprobadas en las webs oficiales o guías actualizadas (septiembre 2026). Cambian a menudo: revisar cada pocos meses.
 const AEROLINEAS_MALETA = {
-  "iberia":      {nombre:"Iberia",      cabina:[56,40,25], peso:10},
-  "vueling":     {nombre:"Vueling",     cabina:[55,40,20], peso:10},
-  "air europa":  {nombre:"Air Europa",  cabina:[55,35,25], peso:10},
-  "ryanair":     {nombre:"Ryanair",     cabina:[55,40,20], peso:10},
-  "easyjet":     {nombre:"easyJet",     cabina:[56,45,25], peso:15},
-  "wizz air":    {nombre:"Wizz Air",    cabina:[55,40,23], peso:10},
-  "jet2":        {nombre:"Jet2",        cabina:[56,45,25], peso:10},
-  "norwegian":   {nombre:"Norwegian",   cabina:[55,40,23], peso:10},
+  "iberia":      {nombre:"Iberia",      cabina:[56,40,25], peso:10, personal:[40,30,15]},
+  "vueling":     {nombre:"Vueling",     cabina:[55,40,20], peso:10, personal:[40,30,20]},
+  "air europa":  {nombre:"Air Europa",  cabina:[55,35,25], peso:10, personal:[40,30,15]},
+  "ryanair":     {nombre:"Ryanair",     cabina:[55,40,20], peso:10, personal:[40,30,20]},
+  "easyjet":     {nombre:"easyJet",     cabina:[56,45,25], peso:15, personal:[45,36,20]},
+  "wizz air":    {nombre:"Wizz Air",    cabina:[55,40,23], peso:10, personal:[40,30,20]},
+  "jet2":        {nombre:"Jet2",        cabina:[56,45,25], peso:10, personal:[40,30,15]},
+  "norwegian":   {nombre:"Norwegian",   cabina:[55,40,23], peso:10, personal:[40,30,20]},
 };
 
 const maletaModalOverlay = document.getElementById('maletaModalOverlay');
 const maletaAerolineaSel = document.getElementById('maletaAerolinea');
 const maletaResultadoEl = document.getElementById('maletaResultado');
+
+const ICONO_CABINA = '<svg class="modal-maleta-icono icono-cabina" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="5" y="6" width="14" height="15" rx="2"/><path d="M9 6V4.5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1V6M9 10v7M15 10v7" stroke-linecap="round"/></svg>';
+const ICONO_FACTURADA = '<svg class="modal-maleta-icono icono-facturada" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 5V3.5a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1V5M12 9v8M8 9v8M16 9v8" stroke-linecap="round"/></svg>';
+const ICONO_PERSONAL = '<svg class="modal-maleta-icono icono-personal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M6 9a6 6 0 0 1 12 0v10a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V9z"/><path d="M9.5 5.3V4a2.5 2.5 0 0 1 5 0v1.3M9 14h6v4H9z"/></svg>';
 
 function abrirMaletaModal(){ maletaModalOverlay.classList.add('show'); gtag('event', 'abrir_modal_maleta'); }
 function cerrarMaletaModal(){ maletaModalOverlay.classList.remove('show'); }
@@ -2789,23 +2895,35 @@ maletaAerolineaSel.addEventListener('change', ()=>{
   let html = '';
   const aerolinea = AEROLINEAS_MALETA[val];
   if(aerolinea){
+    const [pl,pa,ph] = aerolinea.personal;
+    const dimsP = `${pl}x${pa}x${ph}`;
+    html += `<div class="maleta-resultado-card">
+      <h4>${ICONO_PERSONAL} Objeto personal (bajo el asiento) — ${escapeHtml(aerolinea.nombre)}</h4>
+      <p>Hasta ${dimsP} cm, incluido en todas las tarifas. Es lo que llevas gratis: una mochila o bolso que quepa bajo el asiento de delante.</p>
+      <a class="amz-link" target="_blank" rel="noopener sponsored" href="${amazonLink(`mochila cabina ${dimsP} cm bajo asiento`)}">Ver mochilas que cumplen</a>
+    </div>`;
     const [l,a,h] = aerolinea.cabina;
     const dims = `${l}x${a}x${h}`;
     html += `<div class="maleta-resultado-card">
-      <h4>${uiIcon('maleta',17)} Equipaje de cabina — ${escapeHtml(aerolinea.nombre)}</h4>
+      <h4>${ICONO_CABINA} Equipaje de cabina — ${escapeHtml(aerolinea.nombre)}</h4>
       <p>Hasta ${dims} cm y ${aerolinea.peso} kg. Puede variar según la tarifa contratada — comprueba la política oficial antes de comprar.</p>
       <a class="amz-link" target="_blank" rel="noopener sponsored" href="${amazonLink(`maleta cabina rígida ${dims} cm`)}">Ver maletas que cumplen esta medida</a>
     </div>`;
   }else{
     html += `<div class="maleta-resultado-card">
-      <h4>${uiIcon('maleta',17)} Equipaje de cabina</h4>
+      <h4>${ICONO_PERSONAL} Objeto personal (bajo el asiento)</h4>
+      <p>La medida más habitual es 40x30x20 cm. Compruébalo en la web de tu aerolínea.</p>
+      <a class="amz-link" target="_blank" rel="noopener sponsored" href="${amazonLink('mochila cabina 40x30x20 cm bajo asiento')}">Ver mochilas de 40x30x20</a>
+    </div>`;
+    html += `<div class="maleta-resultado-card">
+      <h4>${ICONO_CABINA} Equipaje de cabina</h4>
       <p>No tenemos las medidas exactas de esta aerolínea todavía. La más aceptada de forma general ronda 55x40x20 cm — comprueba la web oficial de tu aerolínea antes de comprar.</p>
       <a class="amz-link" target="_blank" rel="noopener sponsored" href="${amazonLink('maleta cabina rígida 55x40x20 cm universal')}">Ver maletas de cabina universales</a>
     </div>`;
   }
 
   html += `<div class="maleta-resultado-card">
-    <h4>${uiIcon('maleta',17)} Equipaje facturado</h4>
+    <h4>${ICONO_FACTURADA} Equipaje facturado</h4>
     <p>El estándar más aceptado internacionalmente es hasta 158 cm (alto+ancho+largo sumados) y 23 kg.</p>
     <a class="amz-link" target="_blank" rel="noopener sponsored" href="${amazonLink('maleta grande facturar 158cm 23kg')}">Ver maletas grandes para facturar</a>
   </div>`;

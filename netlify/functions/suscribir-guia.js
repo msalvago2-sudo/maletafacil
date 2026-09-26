@@ -111,7 +111,14 @@ exports.handler = async (event) => {
   const brevoKey = process.env.BREVO_API_KEY;
   const listId = process.env.BREVO_LIST_ID;
   const senderEmail = process.env.BREVO_SENDER_EMAIL;
-  const senderName = process.env.BREVO_SENDER_NAME || 'Maleta Fácil';
+  // Mismo correo (BREVO_SENDER_EMAIL, p. ej. hola@maletafacil.com) y solo cambia el nombre visible
+  // según lo que ha pedido el usuario. La marca va primero: en el móvil el nombre se corta por el final.
+  const NOMBRES_REMITENTE = {
+    guia: 'Maleta Fácil · Tu guía de viaje',
+    maleta: 'Maleta Fácil · Tu maleta',
+    soporte: 'Maleta Fácil'
+  };
+  const senderName = NOMBRES_REMITENTE[body.tipo] || NOMBRES_REMITENTE.guia;
 
   if (!brevoKey || !senderEmail) {
     return { statusCode: 500, body: JSON.stringify({ error: 'Falta configurar Brevo en Netlify (BREVO_API_KEY, BREVO_SENDER_EMAIL).' }) };
@@ -150,7 +157,7 @@ exports.handler = async (event) => {
         </div>
         <div style="background:#F6F1E4;padding:24px 18px;">
           <p style="margin:0 0 20px;color:#12302E;font-family:Georgia,serif;font-size:20px;font-weight:bold;text-align:center;">
-            ${numDias ? `Tu viaje de ${numDias} día${numDias > 1 ? 's' : ''} a ${destinoSeguro}` : `Tu viaje a ${destinoSeguro}`}
+            ${numDias ? `Tu viaje a ${destinoSeguro}: ${numDias} día${numDias > 1 ? 's' : ''}${numDias > 1 ? ` y ${numDias - 1} noche${numDias > 2 ? 's' : ''}` : ''}` : `Tu viaje a ${destinoSeguro}`}
           </p>
           ${guiaHTML}
           <div style="text-align:center;margin:24px 0 8px;">

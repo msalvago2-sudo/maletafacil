@@ -1,4 +1,5 @@
-// Recibe el email del viajero y le envía la guía por correo. Si acepta novedades, lo guarda en la lista de Brevo.
+// Envía por email, desde hola@maletafacil.com, la guía de viaje (tipo 'guia') o la lista de maleta (tipo 'maleta').
+// Si acepta novedades, lo guarda en la lista de Brevo.
 // Las claves nunca están aquí en el código: se leen de variables de entorno en Netlify
 // (BREVO_API_KEY, BREVO_LIST_ID, BREVO_SENDER_EMAIL, BREVO_SENDER_NAME).
 
@@ -90,6 +91,41 @@ function formatearGuiaHTML(guia) {
   return html;
 }
 
+// ---------- Email de la lista de maleta ----------
+// Los textos llegan del navegador: se limpian (sin enlaces ni direcciones web) y se recortan,
+// para que nadie pueda usar este formulario para mandar spam desde nuestro dominio.
+function limpiarTexto(t, max) {
+  return String(t || '')
+    .replace(/https?:\/\/\S+/gi, '')
+    .replace(/\bwww\.\S+/gi, '')
+    .replace(/\b[\w.-]+\.(com|es|net|org|io|info|biz|ru|xyz|top|link|click|me|co)\b\S*/gi, '')
+    .replace(/[<>]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, max);
+}
+
+function formatearMaletaHTML(categorias) {
+  return categorias.map(cat => {
+    const filas = cat.items.map(it => {
+      const casilla = it.hecho
+        ? '<span style="display:inline-block;width:16px;height:16px;border-radius:4px;background:#2E827C;color:#fff;font-size:12px;line-height:16px;text-align:center;margin-right:10px;">✓</span>'
+        : '<span style="display:inline-block;width:14px;height:14px;border-radius:4px;border:1.5px solid #B9AF9C;margin-right:10px;vertical-align:-2px;"></span>';
+      const texto = it.hecho
+        ? `<span style="color:#9A9284;text-decoration:line-through;">${esc(it.nombre)}</span>`
+        : `<span style="color:#3A3530;">${esc(it.nombre)}</span>`;
+      const cant = it.cantidad > 1 ? ` <span style="color:#8A8276;font-size:13px;">×${it.cantidad}</span>` : '';
+      return `<tr><td style="padding:7px 0;border-bottom:1px solid #F0EADC;font-size:14px;line-height:1.4;">${casilla}${texto}${cant}</td></tr>`;
+    }).join('');
+    const hechos = cat.items.filter(i => i.hecho).length;
+    return `<div style="background:#FFFFFF;border:1px solid #E6DFCF;border-radius:12px;padding:16px 20px;margin:0 0 14px;">
+      <h3 style="margin:0 0 6px;font-family:Georgia,serif;color:#12302E;font-size:17px;">${esc(cat.titulo)}</h3>
+      <p style="margin:0 0 8px;color:#8A8276;font-size:12px;">${hechos} de ${cat.items.length} en la maleta</p>
+      <table role="presentation" style="width:100%;border-collapse:collapse;">${filas}</table>
+    </div>`;
+  }).join('\n');
+}
+
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: JSON.stringify({ error: 'Método no permitido.' }) };
@@ -101,8 +137,9 @@ exports.handler = async (event) => {
   }
 
   const { email, destino, dias, guia, enlace, aceptaNovedades } = body;
-  if (!email || !guia || !destino) {
-    return { statusCode: 400, body: JSON.stringify({ error: 'Faltan datos (email, destino o guía).' }) };
+  const esMaleta = body.tipo === 'maleta';
+  if (!email || !destino || (!esMaleta && !guia) || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email)) || String(email).length > 120) {
+    return { statusCode: 400, body: JSON.stringify({ error: 'Faltan datos o el email no es válido.' }) };
   }
 
   // Enlace para recuperar la maleta: solo se acepta si apunta a nuestra web
@@ -122,6 +159,66 @@ exports.handler = async (event) => {
 
   if (!brevoKey || !senderEmail) {
     return { statusCode: 500, body: JSON.stringify({ error: 'Falta configurar Brevo en Netlify (BREVO_API_KEY, BREVO_SENDER_EMAIL).' }) };
+  }
+
+  // ---------- Lista de maleta ----------
+  if (esMaleta) {
+    const destinoLimpio = limpiarTexto(destino, 60) || 'tu viaje';
+    const cats = (Array.isArray(body.categorias) ? body.categorias : []).slice(0, 12).map(c => ({
+      titulo: limpiarTexto(c && c.titulo, 40),
+      items: (Array.isArray(c && c.items) ? c.items : []).slice(0, 40).map(i => ({
+        nombre: limpiarTexto(i && i.nombre, 70),
+        cantidad: Math.min(99, Math.max(1, parseInt(i && i.cantidad, 10) || 1)),
+        hecho: !!(i && i.hecho)
+      })).filter(i => i.nombre)
+    })).filter(c => c.titulo && c.items.length);
+    if (!cats.length) {
+      return { statusCode: 400, body: JSON.stringify({ error: 'La lista está vacía.' }) };
+    }
+    const total = cats.reduce((n, c) => n + c.items.length, 0);
+    const hechos = cats.reduce((n, c) => n + c.items.filter(i => i.hecho).length, 0);
+    const numDias = parseInt(dias, 10) || 0;
+    const duracion = numDias ? `${numDias} día${numDias > 1 ? 's' : ''}${numDias > 1 ? ` · ${numDias - 1} noche${numDias > 2 ? 's' : ''}` : ''}` : '';
+    const htmlMaleta = `
+      <div style="background:#F6F1E4;padding:0;margin:0;">
+      <div style="max-width:560px;margin:0 auto;font-family:Arial,sans-serif;">
+        <div style="background:#12302E;padding:30px 24px;text-align:center;">
+          <p style="margin:0;color:#F6F1E4;font-family:Georgia,serif;font-size:24px;font-weight:bold;">🧳 Maleta Fácil</p>
+          <p style="margin:8px 0 0;color:#CBDAD6;font-size:12px;letter-spacing:.06em;text-transform:uppercase;">Tu lista de maleta</p>
+        </div>
+        <div style="background:#F6F1E4;padding:24px 18px;">
+          <p style="margin:0 0 4px;color:#12302E;font-family:Georgia,serif;font-size:21px;font-weight:bold;text-align:center;">Tu maleta para ${esc(destinoLimpio)}</p>
+          <p style="margin:0 0 18px;color:#6B6459;font-size:13px;text-align:center;">${duracion ? esc(duracion) + ' · ' : ''}${hechos} de ${total} cosas ya en la maleta</p>
+          <div style="text-align:center;margin:0 0 20px;">
+            <a href="${esc(enlaceMaleta)}" style="display:inline-block;background:#B65B3F;color:#FFFFFF;text-decoration:none;font-weight:bold;font-size:15px;padding:13px 26px;border-radius:999px;">Completar mi maleta</a>
+            <p style="margin:8px 0 0;color:#8A8276;font-size:12px;">Se abre tu lista tal como la dejaste, con los productos recomendados.</p>
+          </div>
+          ${formatearMaletaHTML(cats)}
+        </div>
+        <div style="background:#12302E;padding:16px 24px;text-align:center;">
+          <p style="margin:0;color:#8FA9A4;font-size:11px;">Creada con Maleta Fácil · <a href="${WEB}" style="color:#F6F1E4;">maletafacil.com</a></p>
+        </div>
+      </div>
+      </div>`;
+    try {
+      const resMaleta = await fetch('https://api.brevo.com/v3/smtp/email', {
+        method: 'POST',
+        headers: { 'api-key': brevoKey, 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          sender: { email: senderEmail, name: senderName },
+          to: [{ email }],
+          subject: `🧳 Tu lista de maleta para ${destinoLimpio.split(',')[0].trim()}`,
+          htmlContent: htmlMaleta
+        })
+      });
+      if (!resMaleta.ok) {
+        const err = await resMaleta.json().catch(() => ({}));
+        return { statusCode: 502, body: JSON.stringify({ error: 'Brevo (email): ' + (err.message || resMaleta.status) }) };
+      }
+      return { statusCode: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ok: true }) };
+    } catch (e) {
+      return { statusCode: 500, body: JSON.stringify({ error: 'Fallo al enviar la lista: ' + e.message }) };
+    }
   }
 
   try {

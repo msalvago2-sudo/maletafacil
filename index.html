@@ -625,6 +625,8 @@
   .guia-link:hover{background:#1F5F5B;}
   ul.item-list li.tarjeta-verde-li{display:block;border-bottom:none;padding:6px 0;}
   .tarjeta-verde{display:block;background:#E3F1EC;border:1.5px solid #9CCBBF;border-radius:14px;padding:12px 14px;}
+  .barra-maletas{gap:6px;flex-wrap:wrap;color:#3F8F5F;margin:4px 0 2px;}
+  .barra-maletas svg{width:30px;height:30px;}
   .aviso-destino{background:#FBEFD9;border:1.5px solid #E6C77E;color:#6B4E12;border-radius:14px;padding:12px 14px;margin:0 0 16px;font-size:14px;line-height:1.45;}
   .tv-fila{display:flex;gap:12px;align-items:center;}
   .tv-panel{margin-top:12px;}
@@ -983,6 +985,7 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 5V3.5a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1V5M12 9v8M8 9v8M16 9v8" stroke-linecap="round"/></svg>
         </div>
       </div>
+      <div id="barraMaletas" class="barra-maletas" style="display:none;"></div>
       <p class="hint" id="barraTexto">Estimación orientativa según lo que llevas elegido.</p>
       <p class="hint" id="barraAvisoFacturar" style="display:none;color:var(--rust);font-weight:600;">
         Puede que no quepa en cabina — <a href="#" id="verAerolineasLink" style="color:var(--rust);">mira las medidas por aerolínea</a>
@@ -2660,22 +2663,35 @@ function contarUnidades(cats){
 }
 
 function pintarBarra(unidades, esEstimacion){
-  // En familia comparamos con una maleta de cabina por persona (una familia no viaja con una sola maleta)
-  const personas = modoFamilia ? Math.max(1, numHombres + numMujeres + numNinos + numBebes) : 1;
-  const capacidad = CAPACIDAD_CABINA_UNIDADES * personas;
-  const pctReal = Math.max(4, Math.round((unidades / capacidad) * 100));
+  const personas = modoFamilia ? (numHombres + numMujeres + numNinos + numBebes) : 1;
+  const trackWrap = barraFillEl.closest('.barra-track-wrap');
+  const maletasEl = document.getElementById('barraMaletas');
+  const coletilla = esEstimacion ? 'estimación orientativa según lo que llevas elegido' : 'con tu lista ya generada (estimación orientativa)';
+
+  if(personas > 1){
+    // En familia contamos maletas de cabina en vez de porcentaje: al añadir a alguien, nunca baja
+    const maletas = Math.max(1, Math.ceil(unidades / CAPACIDAD_CABINA_UNIDADES - 0.1));
+    const icono = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="5" y="6" width="14" height="15" rx="2"/><path d="M9 6V4.5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1V6M9 10v7M15 10v7" stroke-linecap="round"/></svg>';
+    maletasEl.innerHTML = icono.repeat(Math.min(maletas, 8));
+    maletasEl.style.display = 'flex';
+    trackWrap.style.display = 'none';
+    barraTextoEl.textContent = `Unas ${maletas} maleta${maletas>1?'s':''} de cabina para ${personas} personas — ${coletilla}.`;
+    barraAvisoFacturarEl.style.display = 'none';
+    return;
+  }
+
+  maletasEl.style.display = 'none';
+  trackWrap.style.display = '';
+  const pctReal = Math.max(4, Math.round((unidades / CAPACIDAD_CABINA_UNIDADES) * 100));
   // La pista visual llega hasta el doble de la capacidad de cabina: así el icono de
   // cabina queda justo en el punto medio (el límite real) y el de facturada al final.
   const pctVisual = Math.min(100, Math.round(pctReal / 2));
   barraFillEl.style.width = pctVisual + '%';
   barraFillEl.style.background = pctReal < 100 ? '#3F8F5F' : 'var(--rust)';
-  const base = personas > 1
-    ? `${pctReal}% de una maleta de cabina por persona (${personas} personas)`
-    : `${pctReal}% de una maleta de cabina`;
   barraTextoEl.textContent = esEstimacion
-    ? `${base} — estimación orientativa según lo que llevas elegido.`
-    : `${base}, con tu lista ya generada (estimación orientativa).`;
-  barraAvisoFacturarEl.style.display = unidades > capacidad ? 'block' : 'none';
+    ? `${pctReal}% de una maleta de cabina — ${coletilla}.`
+    : `${pctReal}% de una maleta de cabina, ${coletilla}.`;
+  barraAvisoFacturarEl.style.display = unidades > CAPACIDAD_CABINA_UNIDADES ? 'block' : 'none';
 }
 
 function actualizarBarraEstimada(){

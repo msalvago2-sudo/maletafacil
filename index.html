@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Maleta Fácil — Genera tu lista de equipaje</title>
 <meta name="description" content="Consultamos el clima real de tu viaje y armamos tu lista de ropa y productos.">
 <meta property="og:type" content="website">
@@ -24,6 +24,13 @@
   gtag('js', new Date());
   gtag('config', 'G-5FHPD9YJD6', {'anonymize_ip': true});
 </script>
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#12302E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Maleta Fácil">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -632,6 +639,7 @@
   .titulo-bandera{display:inline-block;width:26px;height:auto;border-radius:3px;vertical-align:middle;margin-left:8px;box-shadow:0 0 0 1px rgba(0,0,0,.15);position:relative;top:-2px;}
   .titulo-pais{font-weight:400;opacity:.7;font-size:.7em;}
   .aviso-destino{background:#FBEFD9;border:1.5px solid #E6C77E;color:#6B4E12;border-radius:14px;padding:12px 14px;margin:0 0 16px;font-size:14px;line-height:1.45;}
+  @media (display-mode: standalone){ body{padding-top:env(safe-area-inset-top);} }
   .tv-fila{display:flex;gap:12px;align-items:center;}
   .tv-panel{margin-top:12px;}
   .tv-panel-texto{margin:0 0 10px;color:#3E6B65;font-size:13px;line-height:1.45;}
@@ -1051,6 +1059,17 @@
       <p class="tv-privacidad" style="color:#8A8276;">Usamos tu email solo para enviarte la lista. <a href="#" onclick="event.preventDefault();privacidadModalOverlay.classList.add('show');">Privacidad</a></p>
     </div>
     <p id="emailListaMsg" class="guia-estado-msg"></p>
+  </div>
+</div>
+
+<div id="instalarIosOverlay" class="modal-overlay">
+  <div class="modal-card" style="max-width:380px;">
+    <button type="button" class="modal-close" aria-label="Cerrar" onclick="document.getElementById('instalarIosOverlay').classList.remove('show')">✕</button>
+    <h3 style="font-family:'Fraunces',serif;font-size:20px;color:var(--teal-900);margin:0 0 6px;">Instala Maleta Fácil</h3>
+    <p class="hint" style="margin-bottom:16px;">En iPhone se instala desde Safari en dos toques:</p>
+    <div style="display:flex;gap:12px;align-items:center;margin-bottom:14px;"><span class="tv-icono">1</span><p style="margin:0;font-size:15px;color:#12302E;">Toca el botón <b>Compartir</b> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2E827C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;" aria-hidden="true"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg> de la barra de Safari</p></div>
+    <div style="display:flex;gap:12px;align-items:center;margin-bottom:14px;"><span class="tv-icono">2</span><p style="margin:0;font-size:15px;color:#12302E;">Elige <b>Añadir a pantalla de inicio</b> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2E827C" stroke-width="2" stroke-linecap="round" style="vertical-align:-3px;" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M12 8v8M8 12h8"/></svg></p></div>
+    <p class="hint" style="margin:6px 0 0;">Aparecerá el icono de Maleta Fácil junto a tus apps y se abrirá con tu lista. Si no ves la opción, abre esta página en Safari.</p>
   </div>
 </div>
 
@@ -2486,6 +2505,14 @@ async function generarMaleta(){
     html += `<button class="civitatis-btn" onclick="window.open('${civitatisLink(destinoLabel)}','_blank','noopener')">Civitatis · Qué hacer en ${escapeHtml(destinoLabel.split(',')[0].trim())}</button>`;
 
 
+    html += `<div class="tarjeta-verde" id="instalarCard" style="display:none;margin:0 0 16px;">
+      <div class="tv-fila">
+        <span class="tv-icono"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M10.5 18.5h3"/><path d="M12 7v6M9.5 10.5 12 13l2.5-2.5"/></svg></span>
+        <div class="tv-textos"><p class="tv-titulo">Maleta Fácil en tu móvil</p><p class="tv-sub">Gratis y sin ocupar espacio</p></div>
+        <button type="button" class="amz-link guia-link" onclick="instalarApp()">Instalar</button>
+      </div>
+    </div>`;
+
     html += `<div class="actions">
       <button class="wa-btn" onclick="shareReferral()" style="display:flex;align-items:center;justify-content:center;gap:8px;">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="#0B3B21" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21h.004c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.87 9.87 0 0 0 12.04 2zm0 18.15h-.003a8.23 8.23 0 0 1-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.22 8.22 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.25-8.24 2.2 0 4.27.86 5.83 2.42a8.19 8.19 0 0 1 2.41 5.83c0 4.55-3.7 8.23-8.24 8.23zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.13-.17.24-.64.81-.78.97-.14.17-.29.19-.53.06-.25-.12-1.04-.38-1.99-1.22-.73-.65-1.23-1.46-1.37-1.71-.14-.24-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.15.16-.25.25-.42.08-.16.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.41-.42-.56-.42-.14-.01-.31-.01-.48-.01a.92.92 0 0 0-.67.31c-.23.25-.87.85-.87 2.08 0 1.22.89 2.4 1.02 2.57.12.16 1.75 2.67 4.24 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.14-1.18-.06-.1-.23-.16-.48-.28z"/></svg>
@@ -2500,6 +2527,7 @@ async function generarMaleta(){
     </div>`;
 
     resultsEl.innerHTML = html;
+    mostrarTarjetaInstalar();
     resultsEl.style.display = 'block';
 
     document.getElementById('weather').scrollIntoView({behavior:'smooth', block:'start'});
@@ -2849,6 +2877,37 @@ function buildListText(){
 function copyList(){
   navigator.clipboard.writeText(buildListText()).then(()=>showToast('Lista copiada al portapapeles'));
   gtag('event', 'copiar_lista');
+}
+
+// ---------- Instalar como app (PWA) ----------
+let avisoInstalar = null; // Android/Chrome: la ventana nativa de "Instalar app"
+const esIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+function yaInstalada(){
+  return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
+}
+function mostrarTarjetaInstalar(){
+  const card = document.getElementById('instalarCard');
+  if(!card) return;
+  card.style.display = (!yaInstalada() && (avisoInstalar || esIOS)) ? 'block' : 'none';
+}
+window.addEventListener('beforeinstallprompt', e=>{ e.preventDefault(); avisoInstalar = e; mostrarTarjetaInstalar(); });
+window.addEventListener('appinstalled', ()=>{ avisoInstalar = null; mostrarTarjetaInstalar(); gtag('event', 'app_instalada'); });
+async function instalarApp(){
+  // Que la app se abra con la lista de ahora (y con la agencia, si viene de una)
+  try{ const u = new URL(construirEnlaceMaleta()); history.replaceState(null, '', u.pathname + u.search); }catch(e){}
+  gtag('event', 'pulsar_instalar', {ios: esIOS});
+  if(avisoInstalar){
+    avisoInstalar.prompt();
+    try{ await avisoInstalar.userChoice; }catch(e){}
+    avisoInstalar = null;
+    mostrarTarjetaInstalar();
+  }else if(esIOS){
+    document.getElementById('instalarIosOverlay').classList.add('show');
+  }
+}
+document.getElementById('instalarIosOverlay').addEventListener('click', e=>{ if(e.target.id==='instalarIosOverlay') e.currentTarget.classList.remove('show'); });
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=> navigator.serviceWorker.register('/sw.js').catch(()=>{}));
 }
 
 // "Enviar por email": ahora lo mandamos nosotros desde hola@maletafacil.com, con el diseño de la web

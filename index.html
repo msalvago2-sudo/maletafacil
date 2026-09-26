@@ -1561,13 +1561,72 @@ function todayStr(){ const t=new Date(); return fmtDate(new Date(Date.UTC(t.getF
 function mean(arr){ return arr.reduce((a,b)=>a+b,0)/arr.length; }
 
 // ---------- Weather fetch ----------
+// Buscador de ciudades: busca en español e inglés a la vez (así "New York", "London" o "Munich"
+// también se encuentran), elige el resultado con más sentido y muestra siempre el nombre en español.
+const GEO_URL = 'https://geocoding-api.open-meteo.com/v1';
+function normTxt(s){
+  return (s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'')
+    .replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+}
+function paisEnEspanol(cc){
+  try{ return cc ? new Intl.DisplayNames(['es'], {type:'region'}).of(cc) : ''; }catch(e){ return ''; }
+}
+async function buscarLugares(texto, max, signal){
+  // "Lisboa, Portugal" → busca "Lisboa" y usa "Portugal" como pista
+  const partes = texto.split(',').map(t=>t.trim()).filter(Boolean);
+  const nombre = partes[0] || texto.trim();
+  const pista = normTxt(partes.slice(1).join(' '));
+  const q = normTxt(nombre);
+  if(!q) return [];
+  const pedir = lang => fetch(`${GEO_URL}/search?name=${encodeURIComponent(nombre)}&count=10&language=${lang}&format=json`, {signal})
+    .then(r=> r.ok ? r.json() : {}).then(d=> d.results || [])
+    .catch(e=>{ if(e.name==='AbortError') throw e; return []; });
+  const [es, en] = await Promise.all([pedir('es'), pedir('en')]);
+
+  const porId = new Map();
+  es.forEach(r=> porId.set(r.id, {...r, nombreEs:r.name, paisEs:r.country, adminEs:r.admin1, nombreEn:null}));
+  en.forEach(r=>{
+    const x = porId.get(r.id);
+    if(x) x.nombreEn = r.name;
+    else porId.set(r.id, {...r, nombreEs:null, paisEs:null, adminEs:null, nombreEn:r.name});
+  });
+
+  const puntua = r=>{
+    const nombres = [r.nombreEs, r.nombreEn].filter(Boolean).map(normTxt);
+    let p = 0;
+    if(nombres.includes(q)) p += 100;                        // coincide exactamente con lo escrito
+    else if(nombres.some(n=> n.startsWith(q))) p += 30;       // empieza igual
+    if(r.population) p += Math.log10(r.population) * 10;      // mejor la ciudad grande que el pueblo
+    if(r.feature_code === 'PPLC') p += 25;                    // capital de país
+    else if(/^PPLA/.test(r.feature_code || '')) p += 10;      // capital de región
+    if(pista){
+      const donde = normTxt([r.paisEs, r.country, r.adminEs, r.admin1].join(' '));
+      if(donde.includes(pista)) p += 200;
+    }
+    return p;
+  };
+  const top = [...porId.values()].map(r=>({r, p:puntua(r)}))
+    .sort((a,b)=> b.p - a.p).slice(0, max).map(x=> x.r);
+
+  // Los que solo aparecieron en inglés: pedimos su nombre en español ("New York" → "Nueva York")
+  await Promise.all(top.filter(r=> !r.nombreEs).map(async r=>{
+    try{
+      const d = await fetch(`${GEO_URL}/get?id=${r.id}&language=es`, {signal}).then(x=> x.json());
+      if(d && d.name){ r.nombreEs = d.name; r.paisEs = d.country; r.adminEs = d.admin1; }
+    }catch(e){ if(e.name==='AbortError') throw e; }
+  }));
+
+  return top.map(r=>({
+    lat: r.latitude, lon: r.longitude,
+    name: r.nombreEs || r.name,
+    country: r.paisEs || paisEnEspanol(r.country_code) || r.country || '',
+    admin1: r.adminEs || r.admin1 || ''
+  }));
+}
+
 async function geocode(destino){
-  const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(destino)}&count=1&language=es&format=json`);
-  if(!res.ok) throw new Error('geocoding failed');
-  const data = await res.json();
-  if(!data.results || !data.results.length) return null;
-  const r = data.results[0];
-  return {lat:r.latitude, lon:r.longitude, name:r.name, country:r.country||''};
+  const lugares = await buscarLugares(destino, 1);
+  return lugares[0] || null;
 }
 
 // ---------- Autocompletado de destino (sugerencias mientras se escribe) ----------
@@ -1586,20 +1645,20 @@ async function buscarSugerencias(texto){
   try{
     if(sugAbort) sugAbort.abort();
     sugAbort = new AbortController();
-    const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(texto)}&count=5&language=es&format=json`, {signal: sugAbort.signal});
-    if(!res.ok){ ocultarSugerencias(); return; }
-    const data = await res.json();
-    const results = data.results || [];
+    const lugares = await buscarLugares(texto, 6, sugAbort.signal);
+    // quita repetidos (mismo nombre, región y país)
+    const vistos = new Set();
+    const results = lugares.filter(r=>{ const k = `${r.name}|${r.admin1}|${r.country}`; if(vistos.has(k)) return false; vistos.add(k); return true; }).slice(0,5);
     if(!results.length){ ocultarSugerencias(); return; }
     sugList.innerHTML = results.map((r,i)=>{
-      const sub = [r.admin1, r.country].filter(Boolean).join(', ');
+      const sub = [r.admin1 !== r.name ? r.admin1 : '', r.country].filter(Boolean).join(', ');
       return `<div class="suggest-item" data-i="${i}">${escapeHtml(r.name)}${sub ? `<div class="suggest-sub">${escapeHtml(sub)}</div>` : ''}</div>`;
     }).join('');
     sugList.classList.add('show');
     sugList.querySelectorAll('.suggest-item').forEach(el=>{
       el.addEventListener('click', ()=>{
         const r = results[Number(el.dataset.i)];
-        selectedDestinoGeo = {lat:r.latitude, lon:r.longitude, name:r.name, country:r.country||''};
+        selectedDestinoGeo = {lat:r.lat, lon:r.lon, name:r.name, country:r.country||''};
         destinoEl.value = r.country ? `${r.name}, ${r.country}` : r.name;
         ocultarSugerencias();
       });

@@ -1377,36 +1377,55 @@ const toggleFamiliaBtn = document.getElementById('toggleFamiliaBtn');
 const genHombreBtn = document.getElementById('genHombre');
 const genMujerBtn = document.getElementById('genMujer');
 
+let familiaGuardada = null; // recuerda los números de la familia si sales y vuelves
+
 function actualizarUIPersonalizar(){
-  genHombreBtn.classList.toggle('active', numHombres > 0);
-  genMujerBtn.classList.toggle('active', numMujeres > 0);
+  // Los tres botones siempre visibles: Hombre / Mujer (se pueden marcar los dos) o Familia
+  genHombreBtn.classList.toggle('active', !modoFamilia && numHombres > 0);
+  genMujerBtn.classList.toggle('active', !modoFamilia && numMujeres > 0);
+  toggleFamiliaBtn.classList.toggle('active', modoFamilia);
   document.getElementById('numHombresVal').textContent = numHombres;
   document.getElementById('numMujeresVal').textContent = numMujeres;
   document.getElementById('numBebesVal').textContent = numBebes;
   document.getElementById('numNinosVal').textContent = numNinos;
-  genHombreBtn.style.display = modoFamilia ? 'none' : 'flex';
-  genMujerBtn.style.display = modoFamilia ? 'none' : 'flex';
+  genHombreBtn.style.display = 'flex';
+  genMujerBtn.style.display = 'flex';
   bloqueFamiliaEl.style.display = modoFamilia ? 'block' : 'none';
   ninosEdadWrapEl.style.display = modoFamilia ? 'block' : 'none';
 }
 
+function guardarFamilia(){
+  familiaGuardada = {numHombres, numMujeres, numBebes, numNinos};
+}
+
 toggleFamiliaBtn.addEventListener('click', ()=>{
-  modoFamilia = !modoFamilia;
-  toggleFamiliaBtn.classList.toggle('active', modoFamilia);
-  actualizarUIPersonalizar();
-  actualizarBarraEstimada();
   if(!modoFamilia){
-    // Al volver a individual sí es un cambio real (se pierde lo de familia): regenera.
-    numHombres = 0; numMujeres = 0; numBebes = 0; numNinos = 0;
-    actualizarUIPersonalizar();
-    actualizarBarraEstimada();
-    regenerarSiHayLista();
+    // Entrar en Familia: recupera los números si ya los habías puesto antes
+    modoFamilia = true;
+    if(familiaGuardada){
+      ({numHombres, numMujeres, numBebes, numNinos} = familiaGuardada);
+      actualizarUIPersonalizar(); actualizarBarraEstimada(); regenerarSiHayLista();
+      return;
+    }
+    actualizarUIPersonalizar(); actualizarBarraEstimada();
+    return; // solo abre el panel; la lista se actualiza al tocar un contador
   }
-  // Al activar "Familia" solo se abre el panel — la lista se actualiza cuando tocas un contador, no antes.
+  // Salir de Familia pulsando otra vez el botón: vuelve a individual
+  guardarFamilia();
+  modoFamilia = false;
+  numHombres = 0; numMujeres = 0; numBebes = 0; numNinos = 0;
+  actualizarUIPersonalizar(); actualizarBarraEstimada(); regenerarSiHayLista();
 });
 
 async function setGenero(value, btn){
-  if(value === 'hombre'){ numHombres = numHombres > 0 ? 0 : 1; }
+  if(modoFamilia){
+    // Estando en Familia, pulsar Hombre o Mujer te saca directamente con ese sexo marcado
+    guardarFamilia();
+    modoFamilia = false;
+    numBebes = 0; numNinos = 0;
+    numHombres = value === 'hombre' ? 1 : 0;
+    numMujeres = value === 'mujer' ? 1 : 0;
+  } else if(value === 'hombre'){ numHombres = numHombres > 0 ? 0 : 1; }
   else{ numMujeres = numMujeres > 0 ? 0 : 1; }
   actualizarUIPersonalizar();
   actualizarBarraEstimada();

@@ -624,7 +624,14 @@
   .guia-link{background:#2E827C;border-color:#1F5F5B;color:#fff;cursor:pointer;font-family:inherit;line-height:inherit;}
   .guia-link:hover{background:#1F5F5B;}
   ul.item-list li.tarjeta-verde-li{display:block;border-bottom:none;padding:6px 0;}
-  .tarjeta-verde{display:flex;gap:12px;align-items:center;background:#E3F1EC;border:1.5px solid #9CCBBF;border-radius:14px;padding:12px 14px;}
+  .tarjeta-verde{display:block;background:#E3F1EC;border:1.5px solid #9CCBBF;border-radius:14px;padding:12px 14px;}
+  .tv-fila{display:flex;gap:12px;align-items:center;}
+  .tv-panel{margin-top:12px;}
+  .tv-panel-texto{margin:0 0 10px;color:#3E6B65;font-size:13px;line-height:1.45;}
+  #guiaFormWrap .guia-email-input{width:100%;margin-bottom:8px;font-size:16px;box-sizing:border-box;}
+  #guiaFormWrap .guia-enviar-btn{width:100%;}
+  .tv-privacidad{font-size:11px;color:#6B8A85;margin:8px 0 0;line-height:1.4;}
+  .tv-privacidad a{color:inherit;}
   .tv-icono{flex-shrink:0;width:34px;height:34px;border-radius:50%;background:#2E827C;color:#fff;display:flex;align-items:center;justify-content:center;}
   .tv-textos{flex:1;min-width:0;}
   .tv-titulo{margin:0;font-weight:700;color:#1F5F5B;font-size:15px;line-height:1.3;}
@@ -1451,11 +1458,14 @@ function civitatisLink(destinoLabel){
 
 // ---------- Guía de viaje con IA (Gemini) + captura de email (Brevo) ----------
 function irAGuia(){
-  const card = document.getElementById('guiaCard');
-  if(!card) return;
-  card.scrollIntoView({behavior:'smooth', block:'center'});
-  setTimeout(()=>{ const i = document.getElementById('guiaEmailInput'); if(i) i.focus({preventScroll:true}); }, 600);
-  gtag('event', 'ir_a_guia');
+  const panel = document.getElementById('guiaPanel');
+  if(!panel) return;
+  panel.style.display = 'block';
+  document.getElementById('guiaAbrirBtn').style.display = 'none';
+  const i = document.getElementById('guiaEmailInput');
+  if(i) i.focus({preventScroll:true});
+  panel.scrollIntoView({behavior:'smooth', block:'nearest'});
+  gtag('event', 'abrir_guia');
 }
 
 async function pedirGuiaViaje(){
@@ -1510,6 +1520,7 @@ async function pedirGuiaViaje(){
     msg.style.color = '#3F8F5F';
     msg.textContent = '¡Guía enviada! Revisa tu correo (y la carpeta de spam, por si acaso).';
     document.getElementById('guiaFormWrap').style.display = 'none';
+    const priv = document.querySelector('.tv-privacidad'); if(priv) priv.style.display = 'none';
     gtag('event', 'guia_solicitada', {destino: currentDestinoLabel});
   }catch(e){
     msg.style.color = 'var(--rust)';
@@ -2199,10 +2210,21 @@ async function generarMaleta(){
             : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
           const titulo = esGuia ? `Guía de ${ciudad}` : 'Tu enchufe es compatible';
           const sub = esGuia ? 'Gratis en tu email' : `En ${ciudad} no necesitas adaptador`;
-          html += `<li id="li-${id}" class="tarjeta-verde-li"><div class="tarjeta-verde">
-            <span class="tv-icono">${icono}</span>
-            <div class="tv-textos"><p class="tv-titulo">${titulo}</p><p class="tv-sub">${sub}</p></div>
-            ${esGuia?'<button type="button" class="amz-link guia-link" onclick="irAGuia()">Recibir</button>':''}
+          html += `<li id="li-${id}" class="tarjeta-verde-li"><div class="tarjeta-verde" ${esGuia?'id="guiaCard"':''}>
+            <div class="tv-fila">
+              <span class="tv-icono">${icono}</span>
+              <div class="tv-textos"><p class="tv-titulo">${titulo}</p><p class="tv-sub">${sub}</p></div>
+              ${esGuia?'<button type="button" class="amz-link guia-link" id="guiaAbrirBtn" onclick="irAGuia()">La quiero</button>':''}
+            </div>
+            ${esGuia?`<div id="guiaPanel" class="tv-panel" style="display:none;">
+              <p class="tv-panel-texto">Lo imprescindible que ver, un consejo local, cómo moverte y un plato típico.</p>
+              <div id="guiaFormWrap">
+                <input type="email" id="guiaEmailInput" placeholder="tu@email.com" class="guia-email-input" autocomplete="email">
+                <button type="button" id="guiaEnviarBtn" onclick="pedirGuiaViaje()" class="guia-enviar-btn">Enviarme la guía</button>
+              </div>
+              <p class="tv-privacidad">Usamos tu email solo para enviarte la guía. <a href="#" onclick="event.preventDefault();privacidadModalOverlay.classList.add('show');">Privacidad</a></p>
+              <p id="guiaEstadoMsg" class="guia-estado-msg"></p>
+            </div>`:''}
           </div></li>`;
           return;
         }
@@ -2219,16 +2241,6 @@ async function generarMaleta(){
 
     html += `<button class="civitatis-btn" onclick="window.open('${civitatisLink(destinoLabel)}','_blank','noopener')">Civitatis · Tours gratis en ${escapeHtml(destinoLabel.split(',')[0].trim())}</button>`;
 
-    html += `<div class="guia-card" id="guiaCard">
-      <p class="guia-card-titulo">¿Quieres una guía de viaje para tu destino?</p>
-      <p class="guia-card-texto">Te la mandamos a tu correo, con lo imprescindible que ver, un consejo local y cómo moverte.</p>
-      <div id="guiaFormWrap" style="display:flex;gap:8px;">
-        <input type="email" id="guiaEmailInput" placeholder="tu@email.com" class="guia-email-input">
-        <button type="button" id="guiaEnviarBtn" onclick="pedirGuiaViaje()" class="guia-enviar-btn">Enviarme la guía</button>
-      </div>
-      <p style="font-size:11px;color:#8A8276;margin:8px 0 0;line-height:1.4;">Usamos tu email solo para enviarte la guía. Más info en la <a href="#" onclick="event.preventDefault();privacidadModalOverlay.classList.add('show');" style="color:inherit;">política de privacidad</a>.</p>
-      <p id="guiaEstadoMsg" class="guia-estado-msg"></p>
-    </div>`;
 
     html += `<div class="actions">
       <button class="wa-btn" onclick="shareReferral()" style="display:flex;align-items:center;justify-content:center;gap:8px;">

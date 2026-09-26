@@ -625,6 +625,7 @@
   .guia-link:hover{background:#1F5F5B;}
   ul.item-list li.tarjeta-verde-li{display:block;border-bottom:none;padding:6px 0;}
   .tarjeta-verde{display:block;background:#E3F1EC;border:1.5px solid #9CCBBF;border-radius:14px;padding:12px 14px;}
+  .aviso-destino{background:#FBEFD9;border:1.5px solid #E6C77E;color:#6B4E12;border-radius:14px;padding:12px 14px;margin:0 0 16px;font-size:14px;line-height:1.45;}
   .tv-fila{display:flex;gap:12px;align-items:center;}
   .tv-panel{margin-top:12px;}
   .tv-panel-texto{margin:0 0 10px;color:#3E6B65;font-size:13px;line-height:1.45;}
@@ -1825,6 +1826,46 @@ const ENCHUFES_PAIS = {
   "emiratos arabes unidos":{plugs:["C","D","G"],voltage:230}, "israel":{plugs:["C","H"],voltage:230},
   "egipto":{plugs:["C","F"],voltage:220}, "sudafrica":{plugs:["D","M","N"],voltage:230},
   "australia":{plugs:["I"],voltage:230}, "nueva zelanda":{plugs:["I"],voltage:230},
+  // Más destinos habituales (fuente: IEC World Plugs)
+  "islandia":{plugs:["C","F"],voltage:230}, "hungria":{plugs:["C","F"],voltage:230},
+  "chequia":{plugs:["C","E"],voltage:230}, "republica checa":{plugs:["C","E"],voltage:230},
+  "eslovaquia":{plugs:["C","E"],voltage:230}, "eslovenia":{plugs:["C","F"],voltage:230},
+  "rumania":{plugs:["C","F"],voltage:230}, "bulgaria":{plugs:["C","F"],voltage:230},
+  "serbia":{plugs:["C","F"],voltage:230}, "montenegro":{plugs:["C","F"],voltage:230},
+  "albania":{plugs:["C","F"],voltage:230}, "bosnia y herzegovina":{plugs:["C","F"],voltage:230},
+  "bosnia-herzegovina":{plugs:["C","F"],voltage:230}, "macedonia del norte":{plugs:["C","F"],voltage:230}, "estonia":{plugs:["C","F"],voltage:230},
+  "letonia":{plugs:["C","F"],voltage:230}, "lituania":{plugs:["C","F"],voltage:230},
+  "luxemburgo":{plugs:["C","F"],voltage:230}, "andorra":{plugs:["C","F"],voltage:230},
+  "monaco":{plugs:["C","E","F"],voltage:230}, "san marino":{plugs:["C","F","L"],voltage:230},
+  "malta":{plugs:["G"],voltage:230}, "chipre":{plugs:["G"],voltage:230},
+  "ucrania":{plugs:["C","F"],voltage:230}, "rusia":{plugs:["C","F"],voltage:220},
+  "georgia":{plugs:["C","F"],voltage:220}, "armenia":{plugs:["C","F"],voltage:230},
+  "tunez":{plugs:["C","E"],voltage:230}, "argelia":{plugs:["C","F"],voltage:230},
+  "jordania":{plugs:["C","D","F","G","J"],voltage:230}, "libano":{plugs:["A","B","C","D","G"],voltage:230},
+  "qatar":{plugs:["D","G"],voltage:240}, "catar":{plugs:["D","G"],voltage:240},
+  "arabia saudita":{plugs:["G"],voltage:230}, "arabia saudi":{plugs:["G"],voltage:230},
+  "oman":{plugs:["C","G"],voltage:240}, "kuwait":{plugs:["C","G"],voltage:240}, "barein":{plugs:["G"],voltage:230},
+  "singapur":{plugs:["G"],voltage:230}, "malasia":{plugs:["G"],voltage:240},
+  "hong kong":{plugs:["G"],voltage:220}, "macao":{plugs:["D","G"],voltage:220}, "taiwan":{plugs:["A","B"],voltage:110},
+  "camboya":{plugs:["A","C","G"],voltage:230}, "laos":{plugs:["A","B","C","E","F"],voltage:230},
+  "myanmar":{plugs:["C","D","F","G"],voltage:230}, "birmania":{plugs:["C","D","F","G"],voltage:230},
+  "nepal":{plugs:["C","D","M"],voltage:230}, "sri lanka":{plugs:["D","G"],voltage:230},
+  "maldivas":{plugs:["C","D","G","J","K","L"],voltage:230}, "mongolia":{plugs:["C","E"],voltage:230},
+  "kazajistan":{plugs:["C","F"],voltage:220}, "uzbekistan":{plugs:["C","F"],voltage:220},
+  "kenia":{plugs:["G"],voltage:240}, "tanzania":{plugs:["D","G"],voltage:230},
+  "seychelles":{plugs:["G"],voltage:240}, "mauricio":{plugs:["C","G"],voltage:230},
+  "senegal":{plugs:["C","D","E","K"],voltage:230}, "cabo verde":{plugs:["C","F"],voltage:230},
+  "namibia":{plugs:["D","M"],voltage:220}, "botsuana":{plugs:["D","G"],voltage:230},
+  "zimbabue":{plugs:["D","G"],voltage:220}, "etiopia":{plugs:["C","E","F","L"],voltage:220},
+  "madagascar":{plugs:["C","D","E","J","K"],voltage:220}, "nigeria":{plugs:["D","G"],voltage:230},
+  "ghana":{plugs:["D","G"],voltage:230}, "fiyi":{plugs:["I"],voltage:240},
+  "polinesia francesa":{plugs:["A","B","E"],voltage:220}, "groenlandia":{plugs:["C","K"],voltage:230},
+  "guatemala":{plugs:["A","B"],voltage:120}, "honduras":{plugs:["A","B"],voltage:120},
+  "nicaragua":{plugs:["A","B"],voltage:120}, "el salvador":{plugs:["A","B"],voltage:115},
+  "paraguay":{plugs:["C"],voltage:220}, "venezuela":{plugs:["A","B"],voltage:120},
+  "puerto rico":{plugs:["A","B"],voltage:120}, "jamaica":{plugs:["A","B"],voltage:110},
+  "bahamas":{plugs:["A","B"],voltage:120}, "aruba":{plugs:["A","B","F"],voltage:120},
+  "curazao":{plugs:["A","B"],voltage:127}, "belice":{plugs:["A","B","G"],voltage:110},
 };
 function normPais(s){
   return (s||"").toLowerCase().trim()
@@ -2005,7 +2046,7 @@ function buildList(dias, temporada, tipo, climaFlags, numBebes, numNinos, numHom
   // ---- ESPECÍFICO DEL TIPO DE VIAJE ----
   const specific = {
     playa: [
-      ['Bañador (2 unidades)', 2, q('bañador pack viaje')],
+      ['Bañador', 2, q('bañador pack viaje')],
       ['Toalla de playa de secado rápido', 1, 'toalla playa secado rápido'],
       ['Bolsa impermeable para el móvil', 1, 'bolsa estanca móvil playa'],
       ['After sun', 1, 'after sun hidratante'],
@@ -2200,6 +2241,7 @@ async function generarMaleta(){
     let climaFlags = null;
     let destinoLabel = destino;
     let geo = null;
+    let destinoNoEncontrado = false;
 
     try{
       const destinoActual = destino;
@@ -2208,6 +2250,7 @@ async function generarMaleta(){
         geo = selectedDestinoGeo;
       }else{
         geo = await geocode(destino);
+        if(!geo) destinoNoEncontrado = true; // el buscador respondió, pero no conoce ese sitio
       }
       if(geo){ destinoLabel = geo.country ? `${geo.name}, ${geo.country}` : geo.name; }
     }catch(e){
@@ -2257,6 +2300,9 @@ async function generarMaleta(){
       <h2><span class="eyelet-inline"></span>Tu lista para ${escapeHtml(destinoLabel)}</h2>
       <p>${dias} día${dias>1?'s':''} · marca lo que vayas metiendo en la maleta</p>
     </div>`;
+    if(destinoNoEncontrado){
+      html += `<div class="aviso-destino">No encontramos «${escapeHtml(destino)}» en el mapa, así que te hemos preparado una lista estándar (sin clima ni enchufes). Si es un error, revisa cómo está escrito y vuelve a probar.</div>`;
+    }
 
     if(ultimoAvisoEnchufe){
       html += `<div class="plug-notice">
@@ -2281,6 +2327,7 @@ async function generarMaleta(){
       cat.items.forEach((it, idx)=>{
         const id = `${key}-${idx}`;
         const ciudad = escapeHtml(destinoLabel.split(',')[0].trim());
+        if(it.directLink==='#guia' && destinoNoEncontrado) return; // sin destino real no ofrecemos guía
         if(it.directLink==='#guia' || it.directLink==='#enchufe'){
           const esGuia = it.directLink==='#guia';
           const icono = esGuia
@@ -2613,16 +2660,22 @@ function contarUnidades(cats){
 }
 
 function pintarBarra(unidades, esEstimacion){
-  const pctReal = Math.max(4, Math.round((unidades / CAPACIDAD_CABINA_UNIDADES) * 100));
+  // En familia comparamos con una maleta de cabina por persona (una familia no viaja con una sola maleta)
+  const personas = modoFamilia ? Math.max(1, numHombres + numMujeres + numNinos + numBebes) : 1;
+  const capacidad = CAPACIDAD_CABINA_UNIDADES * personas;
+  const pctReal = Math.max(4, Math.round((unidades / capacidad) * 100));
   // La pista visual llega hasta el doble de la capacidad de cabina: así el icono de
   // cabina queda justo en el punto medio (el límite real) y el de facturada al final.
   const pctVisual = Math.min(100, Math.round(pctReal / 2));
   barraFillEl.style.width = pctVisual + '%';
   barraFillEl.style.background = pctReal < 100 ? '#3F8F5F' : 'var(--rust)';
+  const base = personas > 1
+    ? `${pctReal}% de una maleta de cabina por persona (${personas} personas)`
+    : `${pctReal}% de una maleta de cabina`;
   barraTextoEl.textContent = esEstimacion
-    ? `${pctReal}% de una maleta de cabina — estimación orientativa según lo que llevas elegido.`
-    : `${pctReal}% de una maleta de cabina, con tu lista ya generada (estimación orientativa).`;
-  barraAvisoFacturarEl.style.display = unidades > CAPACIDAD_CABINA_UNIDADES ? 'block' : 'none';
+    ? `${base} — estimación orientativa según lo que llevas elegido.`
+    : `${base}, con tu lista ya generada (estimación orientativa).`;
+  barraAvisoFacturarEl.style.display = unidades > capacidad ? 'block' : 'none';
 }
 
 function actualizarBarraEstimada(){

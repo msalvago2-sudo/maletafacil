@@ -840,6 +840,8 @@
     .cat-chevron{display:none;}
     .cat-header{cursor:default;}
   }
+#destino.falta-destino{border-color:#C0392B!important;box-shadow:0 0 0 3px rgba(192,57,43,.22)!important;animation:faltaDestino .45s}
+@keyframes faltaDestino{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
 </style>
 </head>
 <body>
@@ -2342,12 +2344,21 @@ const generateBtn = document.getElementById('generateBtn');
 let currentDestinoLabel = '';
 let currentDias = 0;
 
+// Sin destino: sube a la casilla, la resalta y abre el teclado
+function avisarFaltaDestino(){
+  const campo = document.getElementById('destino');
+  campo.scrollIntoView({behavior:'smooth', block:'center'});
+  campo.classList.remove('falta-destino'); void campo.offsetWidth; campo.classList.add('falta-destino');
+  try{ campo.focus({preventScroll:true}); }catch(e){ campo.focus(); }
+  showToast('Escribe primero tu destino');
+  setTimeout(()=>campo.classList.remove('falta-destino'), 2200);
+}
 async function generarMaleta(){
   const destino = document.getElementById('destino').value.trim();
   const startStr = fechaInicioEl.value;
   const endStr = fechaFinEl.value;
 
-  if(!destino){ showToast('Escribe un destino'); return; }
+  if(!destino){ avisarFaltaDestino(); return; }
 
   const hasStart = !!startStr, hasEnd = !!endStr;
   if(hasStart !== hasEnd){ showToast('Elige las dos fechas, o déjalas ambas vacías'); return; }

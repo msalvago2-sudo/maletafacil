@@ -100,12 +100,16 @@ function limpiarTexto(t, max) {
     .replace(/\bwww\.\S+/gi, '')
     .replace(/\b[\w.-]+\.(com|es|net|org|io|info|biz|ru|xyz|top|link|click|me|co)\b\S*/gi, '')
     .replace(/[<>]/g, '')
+    .replace(/\(\s*\)/g, '')          // paréntesis que se han quedado vacíos
+    .replace(/\(\s*$/, '')             // "(" suelto al final
     .replace(/\s+/g, ' ')
     .trim()
     .slice(0, max);
 }
 
-function formatearMaletaHTML(categorias) {
+// Cada artículo es un enlace a la lista en la web: en un email no se pueden marcar casillas,
+// así que al tocar cualquiera se abre la maleta para marcarla allí.
+function formatearMaletaHTML(categorias, enlace) {
   return categorias.map(cat => {
     const filas = cat.items.map(it => {
       const casilla = it.hecho
@@ -115,13 +119,14 @@ function formatearMaletaHTML(categorias) {
         ? `<span style="color:#9A9284;text-decoration:line-through;">${esc(it.nombre)}</span>`
         : `<span style="color:#3A3530;">${esc(it.nombre)}</span>`;
       const cant = it.cantidad > 1 ? ` <span style="color:#8A8276;font-size:13px;">×${it.cantidad}</span>` : '';
-      return `<tr><td style="padding:7px 0;border-bottom:1px solid #F0EADC;font-size:14px;line-height:1.4;">${casilla}${texto}${cant}</td></tr>`;
+      return `<tr><td style="padding:7px 0;border-bottom:1px solid #F0EADC;font-size:14px;line-height:1.4;"><a href="${esc(enlace)}" style="text-decoration:none;color:inherit;display:block;">${casilla}${texto}${cant}</a></td></tr>`;
     }).join('');
     const hechos = cat.items.filter(i => i.hecho).length;
     return `<div style="background:#FFFFFF;border:1px solid #E6DFCF;border-radius:12px;padding:16px 20px;margin:0 0 14px;">
       <h3 style="margin:0 0 6px;font-family:Georgia,serif;color:#12302E;font-size:17px;">${esc(cat.titulo)}</h3>
       <p style="margin:0 0 8px;color:#8A8276;font-size:12px;">${hechos} de ${cat.items.length} en la maleta</p>
       <table role="presentation" style="width:100%;border-collapse:collapse;">${filas}</table>
+      ${hechos < cat.items.length ? `<p style="margin:10px 0 0;text-align:right;"><a href="${esc(enlace)}" style="color:#2E827C;font-size:13px;font-weight:bold;text-decoration:none;">Marcar en mi lista ›</a></p>` : ''}
     </div>`;
   }).join('\n');
 }
@@ -180,7 +185,8 @@ exports.handler = async (event) => {
     const numDias = parseInt(dias, 10) || 0;
     const duracion = numDias ? `${numDias} día${numDias > 1 ? 's' : ''}${numDias > 1 ? ` · ${numDias - 1} noche${numDias > 2 ? 's' : ''}` : ''}` : '';
     const htmlMaleta = `
-      <div style="background:#F6F1E4;padding:0;margin:0;">
+      <meta name="color-scheme" content="light only"><meta name="supported-color-schemes" content="light only">
+      <div style="background:#F6F1E4;padding:0;margin:0;color-scheme:light only;">
       <div style="max-width:560px;margin:0 auto;font-family:Arial,sans-serif;">
         <div style="background:#12302E;padding:30px 24px;text-align:center;">
           <p style="margin:0;color:#F6F1E4;font-family:Georgia,serif;font-size:24px;font-weight:bold;">🧳 Maleta Fácil</p>
@@ -191,9 +197,9 @@ exports.handler = async (event) => {
           <p style="margin:0 0 18px;color:#6B6459;font-size:13px;text-align:center;">${duracion ? esc(duracion) + ' · ' : ''}${hechos} de ${total} cosas ya en la maleta</p>
           <div style="text-align:center;margin:0 0 20px;">
             <a href="${esc(enlaceMaleta)}" style="display:inline-block;background:#B65B3F;color:#FFFFFF;text-decoration:none;font-weight:bold;font-size:15px;padding:13px 26px;border-radius:999px;">Completar mi maleta</a>
-            <p style="margin:8px 0 0;color:#8A8276;font-size:12px;">Se abre tu lista tal como la dejaste, con los productos recomendados.</p>
+            <p style="margin:8px 0 0;color:#8A8276;font-size:12px;">Toca cualquier cosa de la lista para abrirla y marcarla. Se guarda tal como la dejaste.</p>
           </div>
-          ${formatearMaletaHTML(cats)}
+          ${formatearMaletaHTML(cats, enlaceMaleta)}
         </div>
         <div style="background:#12302E;padding:16px 24px;text-align:center;">
           <p style="margin:0;color:#8FA9A4;font-size:11px;">Creada con Maleta Fácil · <a href="${WEB}" style="color:#F6F1E4;">maletafacil.com</a></p>
@@ -246,10 +252,11 @@ exports.handler = async (event) => {
     const destinoSeguro = esc(destino);
     const numDias = parseInt(dias, 10) || 0;
     const htmlContent = `
-      <div style="background:#F6F1E4;padding:0;margin:0;">
+      <meta name="color-scheme" content="light only"><meta name="supported-color-schemes" content="light only">
+      <div style="background:#F6F1E4;padding:0;margin:0;color-scheme:light only;">
       <div style="max-width:560px;margin:0 auto;font-family:Arial,sans-serif;">
         <div style="background:#12302E;padding:30px 24px;text-align:center;">
-          <p style="margin:0;color:#F6F1E4;font-family:Georgia,serif;font-size:24px;font-weight:bold;">🧳 Maleta Fácil</p>
+          <p style="margin:0;color:#F6F1E4;font-family:Georgia,serif;font-size:24px;font-weight:bold;">🗺️ Maleta Fácil</p>
           <p style="margin:8px 0 0;color:#CBDAD6;font-size:12px;letter-spacing:.06em;text-transform:uppercase;">Tu guía para ${destinoSeguro}</p>
         </div>
         <div style="background:#F6F1E4;padding:24px 18px;">
@@ -273,7 +280,7 @@ exports.handler = async (event) => {
       body: JSON.stringify({
         sender: { email: senderEmail, name: senderName },
         to: [{ email }],
-        subject: `🧳 Tu guía de viaje para ${destino}`,
+        subject: `🗺️ Tu guía de viaje para ${destino}`,
         htmlContent
       })
     });

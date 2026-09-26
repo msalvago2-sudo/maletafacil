@@ -1040,6 +1040,20 @@
   </div>
 </div>
 
+<div id="emailListaOverlay" class="modal-overlay">
+  <div class="modal-card" style="max-width:400px;">
+    <button type="button" id="emailListaClose" class="modal-close" aria-label="Cerrar">✕</button>
+    <h3 style="font-family:'Fraunces',serif;font-size:20px;color:var(--teal-900);margin:0 0 6px;">Recibe tu lista por email</h3>
+    <p class="hint" style="margin-bottom:14px;">Te la mandamos a tu correo con lo que ya has marcado, y un botón para volver a tu maleta cuando quieras.</p>
+    <div id="emailListaForm">
+      <input type="email" id="emailListaInput" placeholder="tu@email.com" class="guia-email-input" autocomplete="email" style="width:100%;margin-bottom:8px;font-size:16px;box-sizing:border-box;">
+      <button type="button" id="emailListaBtn" class="guia-enviar-btn" style="width:100%;">Enviarme la lista</button>
+      <p class="tv-privacidad" style="color:#8A8276;">Usamos tu email solo para enviarte la lista. <a href="#" onclick="event.preventDefault();privacidadModalOverlay.classList.add('show');">Privacidad</a></p>
+    </div>
+    <p id="emailListaMsg" class="guia-estado-msg"></p>
+  </div>
+</div>
+
 <div id="calModalOverlay" class="modal-overlay">
   <div class="modal-card" style="max-width:380px;">
     <button type="button" id="calModalClose" class="modal-close" aria-label="Cerrar">✕</button>
@@ -1101,15 +1115,15 @@
       <h4>1. Responsable del tratamiento</h4>
       <p><span class="legal-placeholder">[NOMBRE Y APELLIDOS / RAZÓN SOCIAL]</span> — NIF/CIF <span class="legal-placeholder">[NIF/CIF]</span> — <span class="legal-placeholder">[EMAIL DE CONTACTO]</span></p>
       <h4>2. Qué datos tratamos</h4>
-      <p>Esta web no requiere registro para generar la lista de equipaje (el destino y las fechas que escribes se procesan en tu propio navegador y no se almacenan en nuestros servidores). Si pides la guía de viaje por email, tratamos tu dirección de email y el destino del viaje para enviártela. Si aceptas las cookies de análisis, recogemos datos de navegación anonimizados a través de Google Analytics (páginas visitadas, dispositivo, ubicación aproximada). Si nos escribes por email, tratamos los datos que nos facilites en ese mensaje.</p>
+      <p>Esta web no requiere registro para generar la lista de equipaje (el destino y las fechas que escribes se procesan en tu propio navegador y no se almacenan en nuestros servidores). Si pides la guía de viaje o tu lista de maleta por email, tratamos tu dirección de email, el destino y el contenido de la lista para enviártela. Si aceptas las cookies de análisis, recogemos datos de navegación anonimizados a través de Google Analytics (páginas visitadas, dispositivo, ubicación aproximada). Si nos escribes por email, tratamos los datos que nos facilites en ese mensaje.</p>
       <h4>3. Finalidad y base legal</h4>
-      <p>Enviarte la guía de viaje se basa en tu solicitud. Tratamos los datos de análisis, cuando los aceptas, con tu consentimiento, para entender el uso de la web y mejorarla. El funcionamiento básico de la web se basa en nuestro interés legítimo en prestar el servicio que solicitas.</p>
+      <p>Enviarte la guía de viaje o tu lista por email se basa en tu solicitud. Tratamos los datos de análisis, cuando los aceptas, con tu consentimiento, para entender el uso de la web y mejorarla. El funcionamiento básico de la web se basa en nuestro interés legítimo en prestar el servicio que solicitas.</p>
       <h4>4. Terceros con los que compartimos datos</h4>
       <p>Google Analytics (analítica, solo con tu consentimiento), Amazon (a través de los enlaces de afiliado, que gestiona Amazon según su propia política de privacidad al llegar a su web), Open-Meteo (consulta de clima, sin datos personales), Google Gemini (redacción de la guía de viaje a partir del destino, sin datos personales), Brevo (envío de los emails) y Netlify (alojamiento de la web).</p>
       <h4>5. Tus derechos</h4>
       <p>Puedes ejercer tus derechos de acceso, rectificación, supresión, oposición, limitación y portabilidad escribiendo a <span class="legal-placeholder">[EMAIL DE CONTACTO]</span>. También puedes reclamar ante la Agencia Española de Protección de Datos (aepd.es) si consideras que no hemos atendido tu solicitud correctamente.</p>
       <h4>6. Conservación</h4>
-      <p>Tu email se usa solo para enviarte la guía y no lo guardamos en ninguna lista de envíos. Los datos de analítica se conservan según la configuración estándar de Google Analytics (hasta 14 meses). Tu elección sobre las cookies se guarda en tu propio dispositivo hasta que la cambies.</p>
+      <p>Tu email se usa solo para enviarte lo que pides (la guía o tu lista) y no lo guardamos en ninguna lista de envíos. Los datos de analítica se conservan según la configuración estándar de Google Analytics (hasta 14 meses). Tu elección sobre las cookies se guarda en tu propio dispositivo hasta que la cambies.</p>
     </div>
   </div>
 </div>
@@ -1561,6 +1575,7 @@ async function pedirGuiaViaje(){
         email,
         destino: currentDestinoLabel,
         dias: currentDias,
+        tipo: 'guia',
         guia: dataGuia.guia,
         enlace: construirEnlaceMaleta()
       })
@@ -2836,12 +2851,84 @@ function copyList(){
   gtag('event', 'copiar_lista');
 }
 
+// "Enviar por email": ahora lo mandamos nosotros desde hola@maletafacil.com, con el diseño de la web
 function emailList(){
-  const subject = `Mi lista de maleta para ${currentDestinoLabel}`;
-  const body = `Aquí tienes tu maleta para ${currentDestinoLabel}:\n\n${construirEnlaceMaleta()}`;
-  window.location.href = `mailto:?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-  gtag('event', 'enviar_email');
+  const input = document.getElementById('emailListaInput');
+  let guardado = '';
+  try{ guardado = localStorage.getItem('mf_email') || ''; }catch(e){}
+  const deLaGuia = (document.getElementById('guiaEmailInput') || {}).value || '';
+  if(!input.value) input.value = deLaGuia || guardado;
+  document.getElementById('emailListaForm').style.display = 'block';
+  document.getElementById('emailListaMsg').textContent = '';
+  document.getElementById('emailListaOverlay').classList.add('show');
+  setTimeout(()=> input.focus(), 250);
+  gtag('event', 'abrir_email_lista');
 }
+
+function datosListaParaEmail(){
+  const categorias = [];
+  document.querySelectorAll('#results .category').forEach(cat=>{
+    const titulo = cat.querySelector('.cat-title').textContent.trim();
+    const items = [];
+    cat.querySelectorAll('.item-list li').forEach(li=>{
+      const tarjeta = li.querySelector('.tv-titulo');
+      if(tarjeta){
+        if(!li.querySelector('.guia-link')) items.push({nombre: '✓ ' + tarjeta.textContent.trim(), cantidad: 1, hecho: true});
+        return;
+      }
+      const label = li.querySelector('label');
+      if(!label) return;
+      const qty = li.querySelector('.qty');
+      const cb = li.querySelector('input[type=checkbox]');
+      items.push({nombre: label.textContent.trim(), cantidad: qty ? parseInt(qty.textContent.replace(/\D/g,''),10) || 1 : 1, hecho: !!(cb && cb.checked)});
+    });
+    if(items.length) categorias.push({titulo, items});
+  });
+  return categorias;
+}
+
+async function enviarListaPorEmail(){
+  const input = document.getElementById('emailListaInput');
+  const btn = document.getElementById('emailListaBtn');
+  const msg = document.getElementById('emailListaMsg');
+  const email = input.value.trim();
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    msg.style.color = 'var(--rust)'; msg.textContent = 'Escribe un email válido.'; return;
+  }
+  btn.disabled = true; btn.textContent = 'Enviando...';
+  msg.style.color = '#6B6459'; msg.textContent = '';
+  try{
+    const res = await fetch('/.netlify/functions/suscribir-guia', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        tipo: 'maleta',
+        email,
+        destino: currentDestinoLabel,
+        dias: currentDias,
+        enlace: construirEnlaceMaleta(),
+        categorias: datosListaParaEmail()
+      })
+    });
+    const data = await res.json().catch(()=>({error:'Respuesta no válida'}));
+    if(data.error) throw new Error(data.error);
+    try{ localStorage.setItem('mf_email', email); }catch(e){}
+    document.getElementById('emailListaForm').style.display = 'none';
+    msg.style.color = '#3F8F5F';
+    msg.textContent = '¡Lista enviada! Revisa tu correo (y la carpeta de spam, por si acaso).';
+    gtag('event', 'enviar_email', {destino: currentDestinoLabel});
+  }catch(e){
+    console.error('Error enviando la lista:', e);
+    msg.style.color = 'var(--rust)';
+    msg.textContent = 'No pudimos enviar la lista ahora mismo. Inténtalo de nuevo en unos minutos.';
+  }finally{
+    btn.disabled = false; btn.textContent = 'Enviarme la lista';
+  }
+}
+document.getElementById('emailListaBtn').addEventListener('click', enviarListaPorEmail);
+document.getElementById('emailListaInput').addEventListener('keydown', e=>{ if(e.key==='Enter') enviarListaPorEmail(); });
+document.getElementById('emailListaClose').addEventListener('click', ()=> document.getElementById('emailListaOverlay').classList.remove('show'));
+document.getElementById('emailListaOverlay').addEventListener('click', e=>{ if(e.target.id==='emailListaOverlay') e.currentTarget.classList.remove('show'); });
 
 function imprimirLista(){
   gtag('event', 'imprimir_lista');

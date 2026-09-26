@@ -639,7 +639,10 @@
   .titulo-bandera{display:inline-block;width:26px;height:auto;border-radius:3px;vertical-align:middle;margin-left:8px;box-shadow:0 0 0 1px rgba(0,0,0,.15);position:relative;top:-2px;}
   .titulo-pais{font-weight:400;opacity:.7;font-size:.7em;}
   .aviso-destino{background:#FBEFD9;border:1.5px solid #E6C77E;color:#6B4E12;border-radius:14px;padding:12px 14px;margin:0 0 16px;font-size:14px;line-height:1.45;}
-  @media (display-mode: standalone){ body{padding-top:env(safe-area-inset-top);} }
+  @media (display-mode: standalone){
+    body{padding-top:env(safe-area-inset-top);}
+    body::before{content:'';position:fixed;top:0;left:0;right:0;height:env(safe-area-inset-top);background:#12302E;z-index:9999;}
+  }
   .tv-fila{display:flex;gap:12px;align-items:center;}
   .tv-panel{margin-top:12px;}
   .tv-panel-texto{margin:0 0 10px;color:#3E6B65;font-size:13px;line-height:1.45;}
@@ -708,6 +711,7 @@
     font-family:inherit;white-space:nowrap;
   }
   .footer-link:hover{color:var(--paper);}
+  body.con-lista #footerRecomendarBtn, body.con-lista #footerInstalarBtn{display:none !important;}
   .footer-link-highlight{color:var(--paper);font-weight:700;}
 
   .cookie-banner{
@@ -2528,6 +2532,7 @@ async function generarMaleta(){
     </div>`;
 
     resultsEl.innerHTML = html;
+    document.body.classList.add('con-lista'); // ya hay botones grandes: el pie no los repite
     mostrarTarjetaInstalar();
     resultsEl.style.display = 'block';
 

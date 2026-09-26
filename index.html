@@ -623,6 +623,12 @@
   .amz-link:hover{background:#F0BC38;}
   .guia-link{background:#2E827C;border-color:#1F5F5B;color:#fff;cursor:pointer;font-family:inherit;line-height:inherit;}
   .guia-link:hover{background:#1F5F5B;}
+  ul.item-list li.tarjeta-verde-li{display:block;border-bottom:none;padding:6px 0;}
+  .tarjeta-verde{display:flex;gap:12px;align-items:center;background:#E3F1EC;border:1.5px solid #9CCBBF;border-radius:14px;padding:12px 14px;}
+  .tv-icono{flex-shrink:0;width:34px;height:34px;border-radius:50%;background:#2E827C;color:#fff;display:flex;align-items:center;justify-content:center;}
+  .tv-textos{flex:1;min-width:0;}
+  .tv-titulo{margin:0;font-weight:700;color:#1F5F5B;font-size:15px;line-height:1.3;}
+  .tv-sub{margin:2px 0 0;color:#3E6B65;font-size:13px;line-height:1.35;}
   @media (max-width:360px){ .fila-compartida{gap:8px !important;} .fila-compartida .tag{display:none !important;} }
 
   .actions{
@@ -1906,7 +1912,6 @@ function buildList(dias, temporada, tipo, climaFlags, numBebes, numNinos, numHom
   add('accesorios','Accesorios de viaje','🎒','Báscula de maleta', 1, 'báscula maleta digital viaje');
   add('accesorios','Accesorios de viaje','🎒','Mochila pequeña del día a día', 1, 'mochila antirrobo urbana');
   add('accesorios','Accesorios de viaje','🎒','Botella de agua plegable', 1, 'botella agua plegable viaje');
-  add('accesorios','Accesorios de viaje','🎒','Guía o mapa offline descargado', 1, null, '#guia');
 
   // ---- ESPECÍFICO DEL TIPO DE VIAJE ----
   const specific = {
@@ -1997,7 +2002,7 @@ function buildList(dias, temporada, tipo, climaFlags, numBebes, numNinos, numHom
           shopQuery: 'convertidor voltaje viaje 110 220'
         };
       }else{
-        add('electronica','Electrónica','🔌','Tu enchufe es compatible en destino — no necesitas adaptador ✓', 1, null, null);
+        add('electronica','Electrónica','🔌','Tu enchufe es compatible', 1, null, '#enchufe');
       }
     } else if(destInfo === null || origenInfo === null){
       ultimoAvisoEnchufe = {
@@ -2013,6 +2018,9 @@ function buildList(dias, temporada, tipo, climaFlags, numBebes, numNinos, numHom
       esOrigenEspana ? 'Requisitos de entrada y vacunas (Exteriores.gob.es)' : 'Revisa vacunas y requisitos de entrada actualizados',
       1, null, enlaceRequisitos);
   }
+
+  // La guía va la última de Documentos, como tarjeta verde
+  add('documentos','Documentos y dinero','🛂','Guía de tu destino', 1, null, '#guia');
 
   // ---- VIAJO CON NIÑOS, POR EDAD (independiente del tipo de viaje; va al final a propósito) ----
   if(numBebes > 0){
@@ -2183,13 +2191,26 @@ async function generarMaleta(){
         <ul class="item-list">`;
       cat.items.forEach((it, idx)=>{
         const id = `${key}-${idx}`;
-        if(it.directLink==='#guia') it.name = `Guía personalizada de ${destinoLabel.split(',')[0].trim()}`;
+        const ciudad = escapeHtml(destinoLabel.split(',')[0].trim());
+        if(it.directLink==='#guia' || it.directLink==='#enchufe'){
+          const esGuia = it.directLink==='#guia';
+          const icono = esGuia
+            ? '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 6.5 8 6 8-6" stroke-linecap="round"/></svg>'
+            : '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+          const titulo = esGuia ? `Guía de ${ciudad}` : 'Tu enchufe es compatible';
+          const sub = esGuia ? 'Gratis en tu email' : `En ${ciudad} no necesitas adaptador`;
+          html += `<li id="li-${id}" class="tarjeta-verde-li"><div class="tarjeta-verde">
+            <span class="tv-icono">${icono}</span>
+            <div class="tv-textos"><p class="tv-titulo">${titulo}</p><p class="tv-sub">${sub}</p></div>
+            ${esGuia?'<button type="button" class="amz-link guia-link" onclick="irAGuia()">Recibir</button>':''}
+          </div></li>`;
+          return;
+        }
         html += `<li id="li-${id}">
           <input type="checkbox" id="${id}" onchange="toggleItem('${id}')">
           <label for="${id}">${escapeHtml(it.name)}</label>
           ${it.qty>1?`<span class="qty">×${it.qty}</span>`:''}
-          ${it.directLink==='#guia'?`<button type="button" class="amz-link guia-link" onclick="irAGuia()">Recíbela gratis</button>`
-            : it.directLink?`<a class="amz-link" style="background:#EAE1CB;border-color:#D8CDB0;color:#12302E;" target="_blank" rel="noopener" href="${it.directLink}">Consultar</a>`
+          ${it.directLink?`<a class="amz-link" style="background:#EAE1CB;border-color:#D8CDB0;color:#12302E;" target="_blank" rel="noopener" href="${it.directLink}">Consultar</a>`
             : it.shopQuery?`<a class="amz-link" target="_blank" rel="noopener sponsored" href="${amazonLink(it.shopQuery)}">Ver en Amazon</a>`:''}
         </li>`;
       });
@@ -2533,6 +2554,11 @@ function buildListText(){
   cats.forEach(cat=>{
     text += cat.querySelector('.cat-title').textContent.trim() + '\n';
     cat.querySelectorAll('.item-list li').forEach(li=>{
+      const tarjeta = li.querySelector('.tv-titulo');
+      if(tarjeta){
+        if(!li.querySelector('.guia-link')) text += `✓ ${tarjeta.textContent.trim()}: ${li.querySelector('.tv-sub').textContent.trim()}\n`;
+        return;
+      }
       const label = li.querySelector('label').textContent.trim();
       const qty = li.querySelector('.qty');
       const link = li.querySelector('.amz-link');

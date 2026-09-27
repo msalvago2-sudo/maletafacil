@@ -1544,7 +1544,13 @@ function tituloDestino(destinoLabel, geo){
 function civitatisLink(destinoLabel){
   const ciudad = (destinoLabel || '').split(',')[0].trim();
   const slug = civitatisSlug(ciudad);
-  return `https://www.civitatis.com/es/${slug}/?ag_aid=${CIVITATIS_AID}`;
+  let url = `https://www.civitatis.com/es/${slug}/?ag_aid=${CIVITATIS_AID}`;
+  // Si hay fechas, Civitatis abre ya filtrado por los días del viaje
+  const ini = fechaInicioEl.value, fin = fechaFinEl.value;
+  if(/^\d{4}-\d{2}-\d{2}$/.test(ini) && /^\d{4}-\d{2}-\d{2}$/.test(fin) && fin >= ini){
+    url += `&fromDate=${ini}&toDate=${fin}`;
+  }
+  return url;
 }
 
 // ---------- Guía de viaje con IA (Gemini) + captura de email (Brevo) ----------
@@ -2547,7 +2553,13 @@ async function generarMaleta(){
     mostrarTarjetaInstalar();
     resultsEl.style.display = 'block';
 
-    document.getElementById('weather').scrollIntoView({behavior:'smooth', block:'start'});
+    if(window.__desdeEnlace){
+      // Llegó por un enlace (agencia o destino): se queda arriba con la cabecera y todo relleno
+      window.__desdeEnlace = false;
+      window.scrollTo(0, 0);
+    } else {
+      document.getElementById('weather').scrollIntoView({behavior:'smooth', block:'start'});
+    }
   }catch(e){
     console.error('Error inesperado al generar la maleta:', e);
     showToast('Ha ocurrido un error. Abre la consola (F12) para más detalles.');
@@ -2804,6 +2816,7 @@ async function cargarDestinoDesdeURL(){
   }
 
   gtag('event', 'maleta_desde_url', {destino: destinoParam});
+  window.__desdeEnlace = true;
   await generarMaleta();
 }
 

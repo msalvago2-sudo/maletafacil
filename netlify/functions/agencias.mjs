@@ -18,10 +18,11 @@ export default async (req) => {
   const store = getStore({ name: "agencias", consistency: "strong" });
 
   if (req.method === "GET") {
-    const logo = url.searchParams.get("logo");
+    const og = url.searchParams.get("og");
+    const logo = url.searchParams.get("logo") || og;
     if (logo) {
       if (!/^[a-z0-9-]+$/.test(logo)) return new Response("", { status: 400 });
-      const r = await store.getWithMetadata("logo:" + logo, { type: "arrayBuffer" });
+      const r = await store.getWithMetadata((og ? "og:" : "logo:") + logo, { type: "arrayBuffer" });
       if (!r || !r.data) return new Response("", { status: 404 });
       return new Response(r.data, { headers: { "content-type": r.metadata?.tipo || "image/png", "cache-control": "public, max-age=300" } });
     }
@@ -53,7 +54,7 @@ export default async (req) => {
       if (!slug) return json({ error: "slug" }, 400);
       extra[slug] = { borrada: true };
       await store.setJSON("lista", extra);
-      try { await store.delete("logo:" + slug); } catch (e) {}
+      try { await store.delete("logo:" + slug); await store.delete("og:" + slug); } catch (e) {}
       return json({ ok: true });
     }
 
@@ -77,6 +78,17 @@ export default async (req) => {
         if (bytes.length > 700000) return json({ error: "logo-grande" }, 400);
         await store.set("logo:" + slug, new Blob([bytes]), { metadata: { tipo: m[1] } });
         a.logo = "/.netlify/functions/agencias?logo=" + slug + "&v=" + Date.now();
+      }
+      if (body.og) {
+        // Tarjeta para WhatsApp (1200x630) con el logo de Maleta Fácil + el de la agencia, hecha en la herramienta
+        const m = String(body.og).match(/^data:(image\/(?:png|jpeg));base64,([A-Za-z0-9+/=]+)$/);
+        if (m) {
+          const bytes = Buffer.from(m[2], "base64");
+          if (bytes.length <= 700000) {
+            await store.set("og:" + slug, new Blob([bytes]), { metadata: { tipo: m[1] } });
+            a.og = "/.netlify/functions/agencias?og=" + slug + "&v=" + Date.now();
+          }
+        }
       }
       extra[slug] = a;
       await store.setJSON("lista", extra);

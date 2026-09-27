@@ -2709,9 +2709,19 @@ async function restaurarDesdeEnlace(){
 // La agencia se recuerda 30 días en el navegador del cliente aunque vuelva sin el enlace.
 let agenciaActiva = null;
 
+// Enlace corto de agencia: maletafacil.com/AGENCIA/DESTINO/dd-mm-aa/dd-mm-aa[/tipo]
+function leerRutaCorta(){
+  const seg = window.location.pathname.split('/').filter(Boolean).map(s => { try{ return decodeURIComponent(s); }catch(e){ return s; } });
+  if(seg.length < 2 || !/^[a-z0-9-]+$/i.test(seg[0])) return null;
+  const f = v => { const m = /^(\d{1,2})-(\d{1,2})-(\d{2}|\d{4})$/.exec(v || ''); if(!m) return '';
+    const a = m[3].length === 2 ? '20' + m[3] : m[3]; return `${a}-${pad2(+m[2])}-${pad2(+m[1])}`; };
+  return { agencia: seg[0].toLowerCase(), destino: seg[1], ida: f(seg[2]), vuelta: f(seg[3]), tipo: (seg[4] || '').toLowerCase() };
+}
+const rutaCorta = leerRutaCorta();
+
 async function aplicarAgenciaDesdeURL(){
   const params = new URLSearchParams(window.location.search);
-  let slug = (params.get('agencia') || params.get('utm_source') || '').toLowerCase().trim();
+  let slug = (params.get('agencia') || params.get('utm_source') || (rutaCorta && rutaCorta.agencia) || '').toLowerCase().trim();
 
   // Recordar la agencia 30 días (si el navegador lo permite)
   try {
@@ -2785,10 +2795,10 @@ aplicarAgenciaDesdeURL();
 
 async function cargarDestinoDesdeURL(){
   const params = new URLSearchParams(window.location.search);
-  let destinoParam = params.get('destino');
+  let destinoParam = params.get('destino') || (rutaCorta && rutaCorta.destino) || '';
   if(!destinoParam){
     const path = window.location.pathname.replace(/^\/+|\/+$/g, '');
-    if(path && path.toLowerCase() !== 'index.html'){
+    if(path && path.toLowerCase() !== 'index.html' && !/\.[a-z]{2,5}\.?$/i.test(path)){
       destinoParam = decodeURIComponent(path);
     }
   }
@@ -2798,13 +2808,13 @@ async function cargarDestinoDesdeURL(){
 
   // Fechas del viaje en el enlace de la agencia: ?ida=2026-10-02&vuelta=2026-10-06
   const esFecha = v => /^\d{4}-\d{2}-\d{2}$/.test(v || '');
-  let ida = params.get('ida'), vuelta = params.get('vuelta');
+  let ida = params.get('ida') || (rutaCorta && rutaCorta.ida), vuelta = params.get('vuelta') || (rutaCorta && rutaCorta.vuelta);
   if(esFecha(ida) && esFecha(vuelta) && vuelta >= ida){
     if(ida < MIN_DATE) ida = MIN_DATE;          // viaje ya empezado: desde hoy
     if(vuelta >= ida && ida <= MAX_DATE) aplicarFechas(ida, vuelta > MAX_DATE ? MAX_DATE : vuelta);
   }
   // Tipo de viaje opcional: ?tipo=playa, ciudad, montana…
-  const tipo = (params.get('tipo') || '').toLowerCase();
+  const tipo = (params.get('tipo') || (rutaCorta && rutaCorta.tipo) || '').toLowerCase();
   if(tipo && document.querySelector(`#tripChips .chip[data-type="${CSS.escape(tipo)}"]`)){
     selectedType = tipo;
     document.querySelectorAll('#tripChips .chip').forEach(c => c.classList.toggle('active', c.dataset.type === tipo));

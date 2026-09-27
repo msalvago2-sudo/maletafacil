@@ -224,19 +224,28 @@ function capital(s){return s.replace(/(^|\s)\S/g,l=>l.toUpperCase());}
 // Construye enlace y mensaje. Sin nombre: no se menciona nada del nombre.
 function crear({cli,des,ida,vu,tipo}){
   const ag=$('agencia').value;
-  const p=new URLSearchParams();
-  if(ag)p.set('agencia',ag);
-  p.set('destino',des.toLowerCase().trim().replace(/\s+/g,'-'));
-  if(ida&&vu){p.set('ida',ida);p.set('vuelta',vu);}
-  if(tipo)p.set('tipo',tipo);
-  const url='https://maletafacil.com/?'+p.toString();
+  const lugar=des.trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9ñ]+/g,'-').replace(/^-+|-+$/g,'');
+  const corta=d=>{const [a,m,dd]=d.split('-');return `${dd}-${m}-${a.slice(2)}`;};
+  let url;
+  if(ag){
+    // Enlace corto: maletafacil.com/coraltour/lisboa/27-09-26/28-09-26
+    url='https://maletafacil.com/'+ag+'/'+lugar+(ida&&vu?'/'+corta(ida)+'/'+corta(vu)+(tipo?'/'+tipo:''):'');
+  }else{
+    const p=new URLSearchParams(); p.set('destino',lugar);
+    if(ida&&vu){p.set('ida',ida);p.set('vuelta',vu);} if(tipo)p.set('tipo',tipo);
+    url='https://maletafacil.com/?'+p.toString();
+  }
   const ciudad=capital(des.trim());
-  const fechas=(ida&&vu)?` del ${fechaBonita(ida)} al ${fechaBonita(vu)}`:'';
-  const inicio=cli?`¡Hola, ${cli}! ✈️ Tu viaje`:`✈️ Tu viaje`;
-  const firma=ag&&nombres[ag]?`\n\n${nombres[ag]}`:'';
-  const msg=`${inicio} a ${ciudad}${fechas} ya está confirmado.\n\nPara que no se te olvide nada, aquí tienes tu maleta preparada:\n${url}${firma}`;
+  const fechas=(ida&&vu)?` (${rango(ida,vu)})`:'';
+  const inicio=cli?`¡Hola, ${cli}! 🧳 Para`:`🧳 Para`;
+  const firma=ag&&nombres[ag]?`\n\n¡Buen viaje! ${nombres[ag]}`:'\n\n¡Buen viaje!';
+  const msg=`${inicio} que no se te olvide nada en *${ciudad}*, aquí tienes tu maleta según el tiempo que hará:\n${url}${firma}`;
   return {url,msg,ciudad};
 }
+// "27–28 sep" · "30 sep – 3 oct"
+function rango(a,b){const M=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  const [,m1,d1]=a.split('-').map(Number),[,m2,d2]=b.split('-').map(Number);
+  return m1===m2?(d1===d2?`${d1} ${M[m1-1]}`:`${d1}–${d2} ${M[m1-1]}`):`${d1} ${M[m1-1]} – ${d2} ${M[m2-1]}`;}
 
 /* ---------- UN CLIENTE ---------- */
 function generar(){
@@ -246,7 +255,7 @@ function generar(){
   if(ida&&vu&&vu<ida){$('err').textContent='La vuelta no puede ser antes que la ida.';$('err').style.display='block';$('out').classList.remove('show');return;}
   if(!des){$('out').classList.remove('show');return;}
   const {url,msg}=crear({cli,des,ida,vu,tipo});
-  $('msg').textContent=msg.replace('\n'+url,'');
+  $('msg').textContent=msg.replace('\n'+url,'').replace(/\*/g,'');
   $('link').textContent=url;
   $('wa').href='https://wa.me/?text='+encodeURIComponent(msg);
   $('probar').href=url;
@@ -358,7 +367,7 @@ function pintarLista(){
     d.querySelector('h3').textContent=(r.nombre||'Sin nombre')+' · '+ciudad;
     d.querySelector('p').textContent=vu?`Del ${fechaBonita(r.ida)} al ${fechaBonita(vu)}`:`Sale el ${fechaBonita(r.ida)}`;
     d.querySelector('.wa').href=`https://wa.me/${tel}?text=${encodeURIComponent(msg)}`;
-    if(r.email) d.querySelector('.mail').href=`mailto:${encodeURIComponent(r.email)}?subject=${encodeURIComponent('Tu maleta para '+ciudad)}&body=${encodeURIComponent(msg)}`;
+    if(r.email) d.querySelector('.mail').href=`mailto:${encodeURIComponent(r.email)}?subject=${encodeURIComponent('Tu maleta para '+ciudad)}&body=${encodeURIComponent(msg.replace(/\*/g,''))}`;
     d.querySelector('.copy').onclick=()=>copiar(msg);
     const cb=d.querySelector('input'); cb.checked=env;
     const marcar=()=>{cb.checked=true;d.classList.add('sent');try{localStorage.setItem(claveEnviado(r),'1')}catch(e){}};
@@ -418,6 +427,38 @@ $('aLogo').addEventListener('change',e=>{
     $('aPrev').innerHTML='<img alt="">'; $('aPrev').querySelector('img').src=logoData; URL.revokeObjectURL(img.src);
   }; img.src=URL.createObjectURL(f);
 });
+// Tarjeta de WhatsApp (1200x630): logo de Maleta Fácil | logo de la agencia + "Prepara tu maleta en un minuto" (con la etiqueta "Equipaje sin estrés")
+function cargarImg(src){return new Promise(ok=>{if(!src)return ok(null);const i=new Image();i.onload=()=>ok(i);i.onerror=()=>ok(null);i.src=src;});}
+async function hacerTarjeta(logoSrc,nombre){
+  try{await Promise.all(['700 56px Fraunces','600 44px Fraunces','700 28px "Work Sans"','700 44px "Work Sans"'].map(f=>document.fonts.load(f)));}catch(e){}
+  const W=1200,H=630,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
+  const rr=(a,b,w,h,r)=>{x.beginPath();x.moveTo(a+r,b);x.arcTo(a+w,b,a+w,b+h,r);x.arcTo(a+w,b+h,a,b+h,r);x.arcTo(a,b+h,a,b,r);x.arcTo(a,b,a+w,b,r);x.closePath();};
+  x.fillStyle='#13302E';x.fillRect(0,0,W,H);
+  const img=await cargarImg(logoSrc);
+  // Bloque Maleta Fácil como en la cabecera: icono + nombre + etiqueta "Equipaje sin estrés" con avión
+  x.font='700 56px Fraunces, Georgia, serif';const nw=x.measureText('Maleta Fácil').width;
+  x.font='700 28px "Work Sans", sans-serif';const et='Equipaje sin estrés',ew=x.measureText(et).width,pw=22+30+10+ew+24;
+  const tw=Math.max(nw,pw);
+  let lw,lh;
+  if(img){const k=Math.min(330/img.width,140/img.height);lw=img.width*k;lh=img.height*k;}
+  else{x.font='700 40px "Work Sans", sans-serif';lw=Math.min(330,x.measureText(nombre).width);lh=60;}
+  const IC=160,total=IC+30+tw+46+3+46+lw, x0=(W-total)/2, top=190, cy=top+IC/2;
+  rr(x0,top,IC,IC,38);x.fillStyle='#F6F1E4';x.fill();
+  x.fillStyle='#13302E';x.font='700 110px Fraunces, Georgia, serif';x.textAlign='center';x.textBaseline='middle';x.fillText('M',x0+IC/2,cy+6);
+  x.beginPath();x.arc(x0+IC-10,top+10,22,0,Math.PI*2);x.fillStyle='#B65B3F';x.fill();
+  const tx=x0+IC+30;
+  x.textAlign='left';x.fillStyle='#F6F1E4';x.font='700 56px Fraunces, Georgia, serif';x.fillText('Maleta Fácil',tx,cy-34);
+  const py=cy+14,ph=54;rr(tx,py,pw,ph,27);x.fillStyle='#8B5A2B';x.fill();
+  x.save();x.translate(tx+22+15,py+ph/2);x.rotate(Math.PI/4);x.scale(30/24,30/24);x.translate(-12,-12);
+  x.fillStyle='#F6F1E4';x.fill(new Path2D('M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2.5 1.8V22l3.5-1 3.5 1v-1.2L13 19v-5.5l8 2.5z'));x.restore();
+  x.fillStyle='#F6F1E4';x.font='700 28px "Work Sans", sans-serif';x.fillText(et,tx+22+30+10,py+ph/2+1);
+  const sx=tx+tw+46;x.fillStyle='rgba(246,241,228,.3)';x.fillRect(sx,top,3,IC);
+  const lx=sx+49;
+  if(img){x.save();rr(lx,cy-lh/2,lw,lh,14);x.clip();x.drawImage(img,lx,cy-lh/2,lw,lh);x.restore();}
+  else{x.fillStyle='#F6F1E4';x.font='700 40px "Work Sans", sans-serif';x.fillText(nombre,lx,cy,330);}
+  x.textAlign='center';x.fillStyle='#F6F1E4';x.font='600 44px Fraunces, Georgia, serif';x.fillText('Prepara tu maleta en un minuto',W/2,top+IC+80);
+  return c.toDataURL('image/jpeg',0.88);
+}
 $('aGuardar').onclick=async()=>{
   const nombre=$('aNombre').value.trim(), err=$('errA'); err.style.display='none';
   const fallo=t=>{err.textContent=t;err.style.display='block';};
@@ -429,7 +470,8 @@ $('aGuardar').onclick=async()=>{
   if(seguro&&!/^https:\/\//i.test(seguro)) return fallo('El enlace del seguro debe empezar por https://');
   if(civ&&!/^\d+$/.test(civ)) return fallo('El código de Civitatis son solo números.');
   $('aGuardar').disabled=true;
-  const r=await api({accion:'guardar',slug,nombre,modo:$('aModo').value,tag,seguro,civitatis:civ,logo:logoData||undefined}).catch(()=>({ok:false}));
+  let og; try{og=await hacerTarjeta(logoData||logoUrl((AG[slug]||{}).logo),nombre);}catch(e){}
+  const r=await api({accion:'guardar',slug,nombre,modo:$('aModo').value,tag,seguro,civitatis:civ,logo:logoData||undefined,og}).catch(()=>({ok:false}));
   $('aGuardar').disabled=false;
   if(!r.ok) return fallo(r.status===401?'La sesión ha caducado: vuelve a entrar.':'No se ha podido guardar. Inténtalo de nuevo.');
   toast('Agencia guardada'); $('agForm').classList.add('hide'); $('agLista').classList.remove('hide'); cargarAgencias();

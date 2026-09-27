@@ -80,6 +80,17 @@ button,.btn{font:700 15px 'Work Sans',sans-serif;border:0;border-radius:100px;pa
 .del{background:#F6E1DA;color:#8F4430}
 .add{background:var(--rust);color:#fff;width:100%;margin-bottom:14px}
 .prev{width:100%;height:90px;border-radius:12px;background:#F2EDE1;display:flex;align-items:center;justify-content:center;overflow:hidden;margin-top:8px}
+/* Vista previa de la cabecera */
+.cab{margin-top:10px;background:#12302E;border-radius:14px;padding:16px 10px;display:flex;align-items:center;justify-content:center;gap:10px;min-height:96px}
+.cabmf{display:flex;align-items:center;gap:7px;flex-shrink:0}
+.cabic{width:40px;height:40px;border-radius:10px;background:var(--paper);color:var(--teal);font:700 26px Fraunces,serif;display:flex;align-items:center;justify-content:center;position:relative}
+.cabic i{position:absolute;top:-3px;right:-3px;width:9px;height:9px;border-radius:50%;background:var(--rust)}
+.cabmf b{display:block;font:600 14px Fraunces,serif;color:var(--paper);margin-bottom:4px}
+.cabtag{display:inline-block;background:#8B5A2B;color:var(--paper);font-size:9.5px;font-weight:600;padding:3px 8px;border-radius:100px;white-space:nowrap}
+.cabsep{width:1px;height:40px;background:rgba(246,241,228,.25);flex-shrink:0}
+.cablogo{display:flex;align-items:center;min-width:0}
+.cablogo img{object-fit:contain;border-radius:4px;display:block}
+.cablogo span{color:var(--paper);font-weight:700;font-size:14px}
 /* Editor de logo */
 #edLogo{position:fixed;inset:0;background:rgba(10,24,23,.82);z-index:50;display:flex;align-items:flex-end;justify-content:center}
 #edLogo .caja{background:var(--paper);width:100%;max-width:520px;border-radius:22px 22px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom))}
@@ -179,6 +190,10 @@ button,.btn{font:700 15px 'Work Sans',sans-serif;border:0;border-radius:100px;pa
 <div class="f"><label for="aLogo">Logo</label><input id="aLogo" type="file" accept="image/*">
 <div class="prev" id="aPrev"><span class="hint">Sin logo</span></div></div>
 <div class="f"><label for="aModo">Cómo se ve</label><select id="aModo"><option value="">Compartida: Maleta Fácil + su logo</option><option value="completo">Marca blanca: solo su logo</option></select></div>
+<div class="f" id="aTamF"><label>Tamaño del logo en la cabecera</label>
+<div class="segm" id="aTam"><button type="button" data-v="s">Pequeño</button><button type="button" data-v="m" class="on">Mediano</button><button type="button" data-v="l">Grande</button></div>
+<div class="cab" id="aCab"><div class="cabmf"><div class="cabic">M<i></i></div><div><b>Maleta Fácil</b><span class="cabtag">✈ Equipaje sin estrés</span></div></div><div class="cabsep"></div><div class="cablogo" id="aCabLogo"></div></div>
+<div class="hint">Así se verá arriba en la web cuando el cliente entre con su enlace.</div></div>
 <div class="f"><label for="aTag">Código de Amazon (opcional)</label><input id="aTag" placeholder="Ej. viajessol-21" autocomplete="off"></div>
 <div class="f"><label for="aSeguro">Enlace de su seguro (opcional)</label><input id="aSeguro" placeholder="https://…" autocomplete="off" inputmode="url"></div>
 <div class="f"><label for="aCiv">Código de Civitatis (opcional)</label><input id="aCiv" placeholder="Ej. 12345" autocomplete="off" inputmode="numeric"></div>
@@ -410,7 +425,7 @@ $('descargar').onclick=()=>{
 
 /* ---------- AGENCIAS ---------- */
 const slugify=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,40);
-let editando=null, logoData='';
+let editando=null, logoData='', tamLogo='m';
 function pintarAgencias(){
   const cont=$('agItems'); cont.innerHTML='';
   const lista=Object.entries(AG);
@@ -431,11 +446,25 @@ function pintarAgencias(){
 function abrirForm(slug){
   editando=slug||null; logoData=''; const d=slug?AG[slug]||{}:{};
   $('agTit').textContent=slug?'Editar agencia':'Nueva agencia';
-  $('aNombre').value=d.nombre||''; $('aModo').value=d.modo==='completo'?'completo':''; $('aTag').value=d.tag||''; $('aSeguro').value=d.seguro||''; $('aCiv').value=d.civitatis||''; $('aLogo').value='';
+  $('aNombre').value=d.nombre||''; $('aModo').value=d.modo==='completo'?'completo':''; $('aTag').value=d.tag||''; $('aSeguro').value=d.seguro||''; $('aCiv').value=d.civitatis||''; $('aLogo').value=''; tamLogo=['s','l'].includes(d.tam)?d.tam:'m'; $('aTamF').style.display=d.modo==='completo'?'none':'';
   const src=logoUrl(d.logo); $('aPrev').innerHTML=src?'<img alt="">':'<span class="hint">Sin logo</span>'; if(src)$('aPrev').querySelector('img').src=src;
   $('errA').style.display='none'; actSlug();
   $('agLista').classList.add('hide'); $('agForm').classList.remove('hide'); window.scrollTo(0,0);
 }
+
+// Tamaño del logo en la cabecera (misma regla que la web: los logos redondos/cuadrados van más altos)
+function pintarCab(){
+  document.querySelectorAll('#aTam button').forEach(b=>b.classList.toggle('on',b.dataset.v===tamLogo));
+  const im=$('aPrev').querySelector('img'),h=$('aCabLogo');
+  if(!im){h.innerHTML='<span></span>';h.firstChild.textContent=$('aNombre').value.trim()||'Su logo';return;}
+  h.innerHTML='<img alt="">';const i=h.querySelector('img');
+  i.onload=()=>{const cu=i.naturalWidth/i.naturalHeight<1.6,alto=cu?{s:44,m:58,l:72}[tamLogo]:{s:30,m:38,l:48}[tamLogo],an=cu?alto:{s:120,m:145,l:170}[tamLogo];
+    i.style.height=Math.round(alto*.85)+'px';i.style.maxWidth=Math.round(an*.85)+'px';};
+  i.src=im.src;
+}
+document.querySelectorAll('#aTam button').forEach(b=>b.onclick=()=>{tamLogo=b.dataset.v;pintarCab();});
+$('aModo').addEventListener('change',()=>{$('aTamF').style.display=$('aModo').value==='completo'?'none':'';});
+new MutationObserver(pintarCab).observe($('aPrev'),{childList:true});
 function actSlug(){const sl=editando||slugify($('aNombre').value); $('aSlug').textContent=sl?'Su enlace: maletafacil.com/?agencia='+sl:'';}
 $('aNombre').addEventListener('input',actSlug);
 $('agNueva').onclick=()=>abrirForm(null);
@@ -572,7 +601,7 @@ $('aGuardar').onclick=async()=>{
   if(civ&&!/^\d+$/.test(civ)) return fallo('El código de Civitatis son solo números.');
   $('aGuardar').disabled=true;
   let og; try{og=await hacerTarjeta(logoData||logoUrl((AG[slug]||{}).logo),nombre);}catch(e){}
-  const r=await api({accion:'guardar',slug,nombre,modo:$('aModo').value,tag,seguro,civitatis:civ,logo:logoData||undefined,og}).catch(()=>({ok:false}));
+  const r=await api({accion:'guardar',slug,nombre,modo:$('aModo').value,tam:tamLogo,tag,seguro,civitatis:civ,logo:logoData||undefined,og}).catch(()=>({ok:false}));
   $('aGuardar').disabled=false;
   if(!r.ok) return fallo(r.status===401?'La sesión ha caducado: vuelve a entrar.':'No se ha podido guardar. Inténtalo de nuevo.');
   toast('Agencia guardada'); $('agForm').classList.add('hide'); $('agLista').classList.remove('hide'); cargarAgencias();

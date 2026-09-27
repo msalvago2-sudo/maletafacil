@@ -100,6 +100,10 @@ button,.btn{font:700 15px 'Work Sans',sans-serif;border:0;border-radius:100px;pa
 body.rol-agencia .solo-admin{display:none!important}
 .soloAg{display:none}body.rol-agencia .soloAg{display:block}
 /* Estadísticas */
+.sdes{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:6px}
+.sacc{display:flex;gap:6px}.sacc .wa2{background:#25D366;color:#0B3B21;font-weight:700}.sacc .cp2{background:#E8E1D1;color:var(--teal);font-weight:700}.mini2{font-size:11.5px!important;padding:6px 10px!important;min-height:auto!important;border-radius:100px}
+.kpi .up{display:block;color:#2E827C;font-weight:700;font-size:12px}.kpi .dn{display:block;color:#B65B3F;font-weight:700;font-size:12px}
+.desch{display:flex;gap:6px;flex-wrap:wrap}.desch span{background:#E3EFEC;color:#2E5E59;font-weight:700;font-size:12.5px;padding:4px 10px;border-radius:100px}
 .stab{background:#fff;border-radius:12px;padding:4px 10px;margin-top:6px}
 .sfila{display:grid;grid-template-columns:1.6fr .9fr 1.2fr .9fr .7fr;gap:6px;padding:8px 0;border-bottom:1px solid #EEE7D8;font-size:13px;align-items:center}
 .sfila span{text-align:right}.scab span:first-child{text-align:left}.scab{font-size:11px;font-weight:700;color:#8A8276;text-transform:uppercase}
@@ -317,6 +321,7 @@ body.rol-agencia #agForm .two{display:none}
 <div class="segm" id="aTam"><button type="button" data-v="s">Pequeño</button><button type="button" data-v="m" class="on">Mediano</button><button type="button" data-v="l">Grande</button></div>
 <div class="cab" id="aCab"><div class="cabmf"><div class="cabic">M<i></i></div><div><b>Maleta Fácil</b><span class="cabtag">✈ Equipaje sin estrés</span></div></div><div class="cabsep"></div><div class="cablogo" id="aCabLogo"></div></div>
 <div class="hint">Así se verá arriba en la web cuando el cliente entre con su enlace.</div></div>
+<div class="soloAg" id="miMes" style="margin-bottom:14px"><p class="hint">Cargando tu mes…</p></div>
 <div class="f soloAg" id="miCabF"><label>Así ven tus clientes tu cabecera</label>
 <div class="cab" id="miCab"></div>
 <div class="hint">¿Quieres cambiar el nombre o el logo? Habla con Maleta Fácil y te lo dejamos perfecto.</div></div>
@@ -464,6 +469,7 @@ function entrarCon(r){
   $('login').classList.add('hide'); $('app').classList.remove('hide');
   cargarAgencias(); if(ROL==='admin'){cargarAccesos();cargarGeneral();}
   if(r.cambiar){$('claveF').classList.remove('hide');}
+  if(location.hash==='#miagencia'&&ROL==='agencia') setTimeout(()=>tab(3),600);
 }
 $('entrar').onclick=()=>entrar($('usuario').value.trim(),$('clave').value);
 $('clave').addEventListener('keydown',e=>{if(e.key==='Enter')entrar($('usuario').value.trim(),$('clave').value)});
@@ -738,8 +744,38 @@ async function pintarStats(cont,mes){
   t.innerHTML='<div class="sfila scab"><span>Agencia</span><span>Enviadas</span><span>Abiertas</span><span>Amazon</span><span>Civit.</span></div>';
   ags.sort((a,b)=>(b[1].envios+b[1].aperturas)-(a[1].envios+a[1].aperturas)).forEach(([k,d])=>{const f=document.createElement('div');f.className='sfila';
     f.innerHTML='<b></b><span></span><span></span><span></span><span></span>';const c=f.children;c[0].textContent=nomAg(k);c[1].textContent=d.envios||0;c[2].textContent=`${d.aperturas||0} · ${pct(d.aperturas||0,d.envios||0)}`;c[3].textContent=d.amazon||0;c[4].textContent=d.civitatis||0;t.appendChild(f);
-    const top=Object.entries(d.destinos||{}).slice(0,4).map(([x,n])=>`${x} (${n})`).join(', ');if(top){const q=document.createElement('div');q.className='sdes';q.textContent='Destinos: '+top;t.appendChild(q);}});
+    const top=Object.entries(d.destinos||{}).slice(0,4).map(([x,n])=>`${x} (${n})`).join(', ');
+    const q=document.createElement('div');q.className='sdes';q.innerHTML='<span></span><span class="sacc"></span>';q.firstChild.textContent=top?'Destinos: '+top:'';
+    if(k!=='maletafacil'){const acc=q.lastChild;
+      const w=document.createElement('button');w.type='button';w.className='wa2 mini2';w.textContent='Enviar informe';
+      w.onclick=async()=>{const ri=await apiV({accion:'informe',slug:k,mes:r.mes}).catch(()=>({ok:false}));if(!ri.ok)return toast('No se ha podido preparar');
+        const tel=(ACCESOS[k]||{}).tel||'';window.open('https://wa.me/'+telWa(tel)+'?text='+encodeURIComponent(ri.texto),'_blank');};
+      const e=document.createElement('button');e.type='button';e.className='cp2 mini2';e.textContent='Mandar email ahora';
+      e.onclick=async()=>{if(!confirm('¿Mandar ya a '+nomAg(k)+' el informe de '+nomMes(r.mes)+' por email y aviso al móvil?'))return;
+        const ri=await apiV({accion:'informeAhora',slug:k,mes:r.mes}).catch(()=>({ok:false}));toast(!ri.ok?'No se ha podido enviar':ri.email?'✅ Informe enviado':'Sin email configurado'+(ri.avisos?' · aviso enviado':''));};
+      acc.append(w,e);}
+    t.appendChild(q);});
   box.appendChild(t);
+  const n=document.createElement('p');n.className='hint';n.style.marginTop='8px';n.textContent='El día 1 de cada mes cada agencia recibe sola su informe del mes anterior por email y aviso al móvil (con copia para ti).';box.appendChild(n);
+}
+/* ---------- Informe «Tu mes» para la agencia ---------- */
+async function pintarMiMes(mes){
+  const box=$('miMes'); if(!box) return;
+  const r=await apiV({accion:'informe',mes}).catch(()=>({ok:false})); if(!r.ok){box.innerHTML='<p class="hint">No se ha podido cargar.</p>';return;}
+  const M=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  const nm=m=>{const [a,b]=m.split('-');return M[+b-1]+' '+a;};
+  const hayAnt=r.ant.envios||r.ant.aperturas||r.ant.civitatis;const fl=(a,b,suf='')=>{if(!hayAnt)return '';const d=a-b;return d>0?`<span class="up">▲ ${d}${suf}</span>`:d<0?`<span class="dn">▼ ${-d}${suf}</span>`:'';};
+  const meses=r.meses.includes(r.mes)?r.meses:[r.mes,...r.meses];
+  box.innerHTML=`<div class="hsec" style="margin-top:0">📊 Tu mes <small></small></div>
+   <div class="kpis"><div class="kpi"><b>${r.act.envios}</b><span>maletas enviadas</span>${fl(r.act.envios,r.ant.envios)}</div>
+   <div class="kpi"><b>${r.pctAct} %</b><span>abiertas (${r.act.aperturas})</span>${r.ant.envios?fl(r.pctAct,r.pctAnt,' puntos'):''}</div>
+   <div class="kpi"><b>${r.act.civitatis}</b><span>clics a Civitatis</span>${fl(r.act.civitatis,r.ant.civitatis)}</div>
+   <div class="kpi"><b>${r.act.sinTelefono}</b><span>sin teléfono</span>${r.act.sinTelefono?'<span class="dn">añádelo en tu Excel</span>':''}</div></div>
+   <div class="desch"></div>`;
+  const sel=document.createElement('select');sel.style.cssText='width:auto;min-height:36px;padding:4px 8px;font-size:13px';
+  meses.forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=nm(m);sel.appendChild(o);});sel.value=r.mes;sel.onchange=()=>pintarMiMes(sel.value);
+  box.querySelector('small').appendChild(sel);
+  const dc=box.querySelector('.desch');r.top.forEach(([d,n])=>{const sp=document.createElement('span');sp.textContent=`${d} · ${n}`;dc.appendChild(sp);});
 }
 /* ---------- PESTAÑAS ---------- */
 function tab(n){['tHoy','tUno','tVarios','tAg'].forEach((t,i)=>$(t).classList.toggle('on',i===n));
@@ -747,7 +783,7 @@ function tab(n){['tHoy','tUno','tVarios','tAg'].forEach((t,i)=>$(t).classList.to
   $('pUno').classList.toggle('hide',n!==1);$('pVarios').classList.toggle('hide',n!==2);
   $('cardEnlaces').classList.toggle('hide',n!==1&&n!==2);$('cardAg').classList.toggle('hide',n!==3);
   if(n===0) cargarHoy();
-  if(n===3&&ROL==='agencia') abrirForm(MISLUG);}
+  if(n===3&&ROL==='agencia'){abrirForm(MISLUG);pintarMiMes();}}
 $('tHoy').onclick=()=>tab(0); $('tUno').onclick=()=>tab(1); $('tVarios').onclick=()=>tab(2); $('tAg').onclick=()=>tab(3);
 
 /* ---------- LECTOR DE EXCEL (.xlsx) SIN LIBRERÍAS ---------- */

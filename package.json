@@ -1,0 +1,8 @@
+{
+  "name": "maletafacil",
+  "private": true,
+  "description": "Maleta Fácil – web y funciones de Netlify",
+  "dependencies": {
+    "@netlify/blobs": "^8.1.0"
+  }
+}

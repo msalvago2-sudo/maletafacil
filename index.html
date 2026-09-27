@@ -1517,7 +1517,7 @@ function enlaceSeguro(){
 }
 
 // ---------- Civitatis (tours y actividades) — enlace de afiliado por ciudad ----------
-const CIVITATIS_AID = '38639';
+var CIVITATIS_AID = '38639'; // var: cada agencia puede tener el suyo
 function civitatisSlug(nombre){
   return nombre
     .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // quita acentos
@@ -2726,7 +2726,9 @@ async function aplicarAgenciaDesdeURL(){
 
   let lista = {};
   try {
-    const r = await fetch('/agencias/agencias.json', {cache: 'no-cache'});
+    // Primero la lista del servidor (incluye las agencias dadas de alta desde la herramienta); si falla, el archivo
+    let r = await fetch('/.netlify/functions/agencias', {cache: 'no-cache'}).catch(()=>null);
+    if(!r || !r.ok) r = await fetch('/agencias/agencias.json', {cache: 'no-cache'});
     if(r.ok) lista = await r.json();
   } catch(e){ return; }
   const agencia = lista[slug];
@@ -2737,7 +2739,9 @@ async function aplicarAgenciaDesdeURL(){
   if(agencia.tag && /^[a-z0-9-]+-21$/i.test(agencia.tag)) AMAZON_TAG = agencia.tag;
 
   const nombre = escapeHtml(agencia.nombre || slug);
-  const logoSrc = agencia.logo ? '/agencias/' + encodeURIComponent(agencia.logo) : '';
+  const logoSrc = !agencia.logo ? '' : (/^(\/|https:\/\/)/.test(agencia.logo) ? agencia.logo : '/agencias/' + encodeURIComponent(agencia.logo));
+  // Su propio código de Civitatis (opcional)
+  if(agencia.civitatis && /^\d+$/.test(agencia.civitatis)) CIVITATIS_AID = agencia.civitatis;
   const textoNombre = `<span style="font-size:15px;font-weight:700;color:var(--paper);">${nombre}</span>`;
 
   if(agencia.modo === 'completo'){

@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Crear enlace de maleta · Maleta Fácil</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--teal:#12302E;--teal5:#2E827C;--paper:#F6F1E4;--rust:#B65B3F;--line:#E0D6C2}
+*{box-sizing:border-box}
+body{margin:0;background:var(--teal);font-family:'Work Sans',sans-serif;color:var(--teal);min-height:100vh}
+.wrap{max-width:520px;margin:0 auto;padding:28px 16px 40px}
+.brand{display:flex;align-items:center;gap:10px;color:var(--paper);margin-bottom:6px}
+.logo{width:40px;height:40px;border-radius:10px;background:var(--paper);position:relative;display:flex;align-items:center;justify-content:center;font:700 25px Fraunces,serif;color:var(--teal)}
+.logo:after{content:'';position:absolute;top:5px;right:5px;width:7px;height:7px;border-radius:50%;background:var(--rust)}
+.brand b{font:600 19px Fraunces,serif}
+h1{font:700 26px/1.15 Fraunces,serif;color:var(--paper);margin:16px 0 4px}
+.sub{color:#9FC2BC;font-size:14px;margin:0 0 16px}
+.tabs{display:flex;gap:6px;background:rgba(246,241,228,.1);padding:5px;border-radius:100px;margin-bottom:14px}
+.tabs button{flex:1;background:none;color:var(--paper);font:700 14px 'Work Sans',sans-serif;border:0;border-radius:100px;padding:11px 8px;cursor:pointer;min-height:44px}
+.tabs button.on{background:var(--paper);color:var(--teal)}
+.card{background:var(--paper);border-radius:18px;padding:18px}
+label{display:block;font-size:13px;font-weight:600;margin:0 0 6px;color:#4A5A57}
+input,select{width:100%;font:500 16px 'Work Sans',sans-serif;padding:12px;border:1.5px solid var(--line);border-radius:12px;background:#fff;color:var(--teal)}
+input:focus,select:focus{outline:none;border-color:var(--teal5)}
+.f{margin-bottom:14px}
+.row{display:flex;gap:10px}.row .f{flex:1;min-width:0}
+input[type=date]{-webkit-appearance:none;appearance:none;display:block;min-width:0;max-width:100%;min-height:50px;line-height:22px;text-align:left}
+input[type=date]::-webkit-date-and-time-value{text-align:left}
+input[type=date]:invalid::before{content:'dd/mm/aaaa';color:#9A9284}
+input[type=date]:focus::before,input[type=date]:valid::before{content:none}
+.hint{font-size:12px;color:#7A7468;margin-top:5px;line-height:1.4}
+.out{margin-top:16px;background:#fff;border:1.5px dashed var(--line);border-radius:14px;padding:14px;display:none}
+.out.show{display:block}
+.msg{white-space:pre-wrap;font-size:14.5px;line-height:1.45;margin:0 0 10px}
+.link{font-size:12.5px;color:var(--teal5);word-break:break-all;margin:0}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+button,.btn{font:700 15px 'Work Sans',sans-serif;border:0;border-radius:100px;padding:12px;cursor:pointer;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:8px;min-height:46px}
+.wa{background:#25D366;color:#0B3B21}
+.btns .wa{grid-column:1/-1}
+.copy{background:var(--teal);color:var(--paper)}
+.test{background:#F5C86A;color:var(--teal)}
+.mail{background:#E3EFEC;color:var(--teal)}
+.err{color:var(--rust);font-size:13px;font-weight:600;margin-top:8px;display:none}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--paper);color:var(--teal);font-weight:700;padding:10px 18px;border-radius:100px;opacity:0;transition:opacity .3s;pointer-events:none}
+.toast.on{opacity:1}
+.hide{display:none!important}
+.drop{border:2px dashed var(--teal5);border-radius:14px;padding:22px 14px;text-align:center;background:#fff;cursor:pointer}
+.drop b{display:block;font-size:16px;margin-bottom:4px}
+.map{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}
+.map select{font-size:14px;padding:10px}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:16px 0 10px;flex-wrap:wrap}
+.bar b{font-size:15px}
+.bar select{width:auto;font-size:14px;padding:8px 10px}
+.item{background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px}
+.item.sent{opacity:.55}
+.item h3{margin:0 0 2px;font-size:16px}
+.item p{margin:0;font-size:13px;color:#6B6558}
+.item .ib{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.item .ib .btn,.item .ib button{flex:1;min-width:92px;font-size:13.5px;padding:10px;min-height:42px}
+.chk{display:flex;align-items:center;gap:8px;font-size:13px;margin-top:8px;color:#4A5A57}
+.chk input{width:auto}
+.dl{background:var(--teal);color:var(--paper);margin-top:6px;width:100%}
+.login{background:var(--paper);border-radius:18px;padding:22px 18px}
+.login h2{font:700 20px Fraunces,serif;margin:0 0 4px}
+.ok{background:var(--teal);color:var(--paper);width:100%;margin-top:6px}
+.ag{display:flex;align-items:center;gap:12px;background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:10px}
+.ag .lg{width:54px;height:54px;border-radius:10px;background:#F2EDE1;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0}
+.ag .lg img{max-width:100%;max-height:100%;object-fit:contain}
+.ag .tx{flex:1;min-width:0}
+.ag .tx b{display:block;font-size:15px}
+.ag .tx small{color:#7A7468;font-size:12px;word-break:break-all}
+.ag .bd{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
+.ag .bd span{font-size:10.5px;font-weight:700;background:#E3EFEC;color:var(--teal);padding:2px 7px;border-radius:100px}
+.ag .ac{display:flex;flex-direction:column;gap:6px}
+.ag .ac button{font-size:12.5px;padding:7px 12px;min-height:36px}
+.ed{background:#E3EFEC;color:var(--teal)}
+.del{background:#F6E1DA;color:#8F4430}
+.add{background:var(--rust);color:#fff;width:100%;margin-bottom:14px}
+.prev{width:100%;height:90px;border-radius:12px;background:#F2EDE1;display:flex;align-items:center;justify-content:center;overflow:hidden;margin-top:8px}
+.prev img{max-height:80px;max-width:90%;object-fit:contain}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.salir{background:none;color:#9FC2BC;font-size:13px;min-height:auto;padding:6px;margin:14px auto 0;text-decoration:underline}
+</style>
+</head>
+<body>
+<div class="wrap">
+<div class="brand"><div class="logo">M</div><b>Maleta Fácil</b></div>
+<h1>Crear enlace de maleta</h1>
+<p class="sub">Envía a tus clientes su maleta ya preparada, con su destino y sus fechas.</p>
+
+<div id="login" class="login">
+<h2>Acceso</h2><p class="hint" style="margin:0 0 14px">Herramienta privada de Maleta Fácil.</p>
+<div class="f"><label for="clave">Contraseña</label><input id="clave" type="password" autocomplete="current-password"></div>
+<button type="button" class="ok" id="entrar">Entrar</button>
+<p class="err" id="errL"></p>
+</div>
+<div id="app" class="hide">
+<div class="tabs"><button type="button" id="tUno" class="on">Un cliente</button><button type="button" id="tVarios">Varios</button><button type="button" id="tAg">Agencias</button></div>
+
+<div class="card" id="cardEnlaces">
+<div class="f"><label for="agencia">Agencia</label>
+<select id="agencia"><option value="">Sin agencia (solo Maleta Fácil)</option></select></div>
+
+<!-- UN CLIENTE -->
+<div id="pUno">
+<div class="f"><label for="cliente">Nombre del cliente (opcional)</label>
+<input id="cliente" placeholder="Ej. Ana" autocomplete="off"></div>
+<div class="f"><label for="destino">Destino</label>
+<input id="destino" placeholder="Ej. Londres, Roma, Cancún…" autocomplete="off">
+<div class="hint">Escribe la ciudad como la diría el cliente.</div></div>
+<div class="row">
+<div class="f"><label for="ida">Ida</label><input id="ida" type="date" required></div>
+<div class="f"><label for="vuelta">Vuelta</label><input id="vuelta" type="date" required></div>
+</div>
+<div class="f"><label for="tipo">Tipo de viaje</label>
+<select id="tipo"><option value="">Ciudad</option><option value="playa">Playa</option><option value="negocios">Negocios</option><option value="aventura">Aventura</option></select></div>
+<p class="err" id="err"></p>
+<div class="out" id="out">
+<p class="msg" id="msg"></p>
+<p class="link" id="link"></p>
+<div class="btns">
+<a class="btn wa" id="wa" target="_blank" rel="noopener">Enviar por WhatsApp</a>
+<button type="button" class="copy" id="copiar">Copiar mensaje</button>
+<a class="btn test" id="probar" target="_blank" rel="noopener">Probar enlace</a>
+</div>
+</div>
+</div>
+
+<!-- VARIOS -->
+<div id="pVarios" class="hide">
+<label class="drop" for="fichero"><b>Subir Excel de reservas</b><span class="hint">Archivo .xlsx o .csv exportado de tu programa de gestión</span></label>
+<input type="file" id="fichero" accept=".xlsx,.csv,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="hide">
+<p class="err" id="errX"></p>
+<div id="mapWrap" class="hide">
+<p class="hint" style="margin-top:14px">Comprueba qué columna es cada dato (lo he intentado adivinar):</p>
+<div class="map">
+<div><label>Nombre</label><select data-k="nombre"></select></div>
+<div><label>Destino *</label><select data-k="destino"></select></div>
+<div><label>Fecha de ida *</label><select data-k="ida"></select></div>
+<div><label>Fecha de vuelta *</label><select data-k="vuelta"></select></div>
+<div><label>Teléfono</label><select data-k="tel"></select></div>
+<div><label>Email</label><select data-k="email"></select></div>
+</div>
+<div class="bar"><b id="cuenta"></b>
+<select id="rango"><option value="7">Próximos 7 días</option><option value="15" selected>Próximos 15 días</option><option value="30">Próximos 30 días</option><option value="9999">Todos los futuros</option></select></div>
+<div id="lista"></div>
+<button type="button" class="dl" id="descargar">Descargar lista con enlaces (.csv)</button>
+</div>
+</div>
+</div>
+
+<div class="card hide" id="cardAg">
+<div id="agLista">
+<button type="button" class="add" id="agNueva">+ Añadir agencia</button>
+<div id="agItems"></div>
+</div>
+<div id="agForm" class="hide">
+<h3 style="margin:0 0 12px;font:700 19px Fraunces,serif" id="agTit">Nueva agencia</h3>
+<div class="f"><label for="aNombre">Nombre de la agencia *</label><input id="aNombre" placeholder="Ej. Viajes Sol" autocomplete="off">
+<div class="hint" id="aSlug"></div></div>
+<div class="f"><label for="aLogo">Logo</label><input id="aLogo" type="file" accept="image/*">
+<div class="prev" id="aPrev"><span class="hint">Sin logo</span></div></div>
+<div class="f"><label for="aModo">Cómo se ve</label><select id="aModo"><option value="">Compartida: Maleta Fácil + su logo</option><option value="completo">Marca blanca: solo su logo</option></select></div>
+<div class="f"><label for="aTag">Código de Amazon (opcional)</label><input id="aTag" placeholder="Ej. viajessol-21" autocomplete="off"></div>
+<div class="f"><label for="aSeguro">Enlace de su seguro (opcional)</label><input id="aSeguro" placeholder="https://…" autocomplete="off" inputmode="url"></div>
+<div class="f"><label for="aCiv">Código de Civitatis (opcional)</label><input id="aCiv" placeholder="Ej. 12345" autocomplete="off" inputmode="numeric"></div>
+<p class="err" id="errA"></p>
+<div class="two"><button type="button" class="ed" id="aCancelar">Cancelar</button><button type="button" class="ok" id="aGuardar" style="margin:0">Guardar</button></div>
+</div>
+</div>
+<button type="button" class="salir" id="salir">Cerrar sesión</button>
+</div>
+</div>
+<div class="toast" id="toast">¡Copiado!</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const pad=n=>String(n).padStart(2,'0');
+const ymd=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const HOY=ymd(new Date());
+$('ida').min=HOY; $('vuelta').min=HOY;
+let nombres={};
+function toast(t){$('toast').textContent=t||'¡Copiado!';$('toast').classList.add('on');setTimeout(()=>$('toast').classList.remove('on'),1500)}
+function copiar(t){(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast()).catch(()=>{const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();document.execCommand('copy');a.remove();toast()})}
+
+let AG={};
+async function cargarAgencias(){
+  let r=await fetch('/.netlify/functions/agencias',{cache:'no-cache'}).catch(()=>null);
+  if(!r||!r.ok) r=await fetch('/agencias/agencias.json',{cache:'no-cache'}).catch(()=>null);
+  AG=r&&r.ok?await r.json():{}; nombres={};
+  const sel=$('agencia'), prev=sel.value;
+  sel.innerHTML='<option value="">Sin agencia (solo Maleta Fácil)</option>';
+  Object.entries(AG).forEach(([slug,d])=>{nombres[slug]=d.nombre||slug;const o=document.createElement('option');o.value=slug;o.textContent=d.nombre||slug;sel.appendChild(o)});
+  let g=prev; try{g=prev||localStorage.getItem('mf_enlace_agencia')}catch(e){}
+  if(g&&nombres[g]) sel.value=g;
+  generar(); pintarLista(); pintarAgencias();
+}
+const logoUrl=l=>!l?'':(/^(\/|https:\/\/)/.test(l)?l:'/agencias/'+encodeURIComponent(l));
+
+/* ---------- ACCESO ---------- */
+let CLAVE='';
+async function api(body){
+  const r=await fetch('/.netlify/functions/agencias',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({...body,clave:CLAVE})});
+  let d={}; try{d=await r.json()}catch(e){} return {ok:r.ok,status:r.status,...d};
+}
+async function entrar(c,silencioso){
+  CLAVE=c; $('entrar').disabled=true; $('errL').style.display='none';
+  const res=await api({accion:'login'}).catch(()=>({ok:false,status:0}));
+  $('entrar').disabled=false;
+  if(res.ok){try{localStorage.setItem('mf_clave',c)}catch(e){} $('login').classList.add('hide'); $('app').classList.remove('hide'); cargarAgencias(); return;}
+  CLAVE=''; try{localStorage.removeItem('mf_clave')}catch(e){}
+  if(!silencioso){$('errL').textContent=res.status===401?'Contraseña incorrecta.':'No se ha podido comprobar. Revisa tu conexión.';$('errL').style.display='block';}
+}
+$('entrar').onclick=()=>entrar($('clave').value);
+$('clave').addEventListener('keydown',e=>{if(e.key==='Enter')entrar($('clave').value)});
+$('salir').onclick=()=>{try{localStorage.removeItem('mf_clave')}catch(e){} location.reload();};
+try{const g=localStorage.getItem('mf_clave'); if(g) entrar(g,true);}catch(e){}
+
+function fechaBonita(s){if(!s)return'';const d=new Date(s+'T12:00');return d.toLocaleDateString('es-ES',{day:'numeric',month:'long'});}
+function capital(s){return s.replace(/(^|\s)\S/g,l=>l.toUpperCase());}
+// Construye enlace y mensaje. Sin nombre: no se menciona nada del nombre.
+function crear({cli,des,ida,vu,tipo}){
+  const ag=$('agencia').value;
+  const p=new URLSearchParams();
+  if(ag)p.set('agencia',ag);
+  p.set('destino',des.toLowerCase().trim().replace(/\s+/g,'-'));
+  if(ida&&vu){p.set('ida',ida);p.set('vuelta',vu);}
+  if(tipo)p.set('tipo',tipo);
+  const url='https://maletafacil.com/?'+p.toString();
+  const ciudad=capital(des.trim());
+  const fechas=(ida&&vu)?` del ${fechaBonita(ida)} al ${fechaBonita(vu)}`:'';
+  const inicio=cli?`¡Hola, ${cli}! ✈️ Tu viaje`:`✈️ Tu viaje`;
+  const firma=ag&&nombres[ag]?`\n\n${nombres[ag]}`:'';
+  const msg=`${inicio} a ${ciudad}${fechas} ya está confirmado.\n\nPara que no se te olvide nada, aquí tienes tu maleta preparada:\n${url}${firma}`;
+  return {url,msg,ciudad};
+}
+
+/* ---------- UN CLIENTE ---------- */
+function generar(){
+  try{localStorage.setItem('mf_enlace_agencia',$('agencia').value)}catch(e){}
+  const cli=$('cliente').value.trim(), des=$('destino').value.trim(), ida=$('ida').value, vu=$('vuelta').value, tipo=$('tipo').value;
+  $('err').style.display='none';
+  if(ida&&vu&&vu<ida){$('err').textContent='La vuelta no puede ser antes que la ida.';$('err').style.display='block';$('out').classList.remove('show');return;}
+  if(!des){$('out').classList.remove('show');return;}
+  const {url,msg}=crear({cli,des,ida,vu,tipo});
+  $('msg').textContent=msg.replace('\n'+url,'');
+  $('link').textContent=url;
+  $('wa').href='https://wa.me/?text='+encodeURIComponent(msg);
+  $('probar').href=url;
+  $('copiar').onclick=()=>copiar(msg);
+  $('out').classList.add('show');
+}
+['cliente','destino','ida','vuelta','tipo'].forEach(id=>{$(id).addEventListener('input',generar);$(id).addEventListener('change',generar);});
+$('agencia').addEventListener('change',()=>{generar();pintarLista();});
+
+/* ---------- PESTAÑAS ---------- */
+function tab(n){['tUno','tVarios','tAg'].forEach((t,i)=>$(t).classList.toggle('on',i===n));
+  $('pUno').classList.toggle('hide',n!==0);$('pVarios').classList.toggle('hide',n!==1);
+  $('cardEnlaces').classList.toggle('hide',n===2);$('cardAg').classList.toggle('hide',n!==2);}
+$('tUno').onclick=()=>tab(0); $('tVarios').onclick=()=>tab(1); $('tAg').onclick=()=>tab(2);
+
+/* ---------- LECTOR DE EXCEL (.xlsx) SIN LIBRERÍAS ---------- */
+async function inflar(bytes){
+  const ds=new DecompressionStream('deflate-raw');
+  return new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(ds)).arrayBuffer());
+}
+async function leerZip(buf){
+  const dv=new DataView(buf), u8=new Uint8Array(buf); let e=-1;
+  for(let i=buf.byteLength-22;i>=Math.max(0,buf.byteLength-66000);i--){if(dv.getUint32(i,true)===0x06054b50){e=i;break;}}
+  if(e<0) throw new Error('zip');
+  const n=dv.getUint16(e+10,true); let off=dv.getUint32(e+16,true); const files={};
+  const dec=new TextDecoder();
+  for(let k=0;k<n;k++){
+    const met=dv.getUint16(off+10,true), csz=dv.getUint32(off+20,true), nl=dv.getUint16(off+28,true), xl=dv.getUint16(off+30,true), cl=dv.getUint16(off+32,true), lho=dv.getUint32(off+42,true);
+    const name=dec.decode(u8.subarray(off+46,off+46+nl));
+    files[name]={met,csz,lho}; off+=46+nl+xl+cl;
+  }
+  return async name=>{const f=files[name]; if(!f) return null;
+    const ln=dv.getUint16(f.lho+26,true), lx=dv.getUint16(f.lho+28,true); const st=f.lho+30+ln+lx;
+    const raw=u8.subarray(st,st+f.csz); const out=f.met===0?raw:await inflar(raw); return dec.decode(out);};
+}
+const colIdx=r=>{const m=r.match(/^[A-Z]+/)[0];let n=0;for(const c of m)n=n*26+(c.charCodeAt(0)-64);return n-1;};
+async function leerXlsx(buf){
+  const get=await leerZip(buf); const P=new DOMParser();
+  const ss=[]; const sx=await get('xl/sharedStrings.xml');
+  if(sx){P.parseFromString(sx,'application/xml').querySelectorAll('si').forEach(si=>ss.push([...si.getElementsByTagName('t')].map(t=>t.textContent).join('')));}
+  let sheet=await get('xl/worksheets/sheet1.xml');
+  if(!sheet) throw new Error('sheet');
+  const doc=P.parseFromString(sheet,'application/xml'); const rows=[];
+  doc.querySelectorAll('sheetData row').forEach(r=>{const arr=[];r.querySelectorAll('c').forEach(c=>{const t=c.getAttribute('t'),v=c.getElementsByTagName('v')[0];let val='';
+    if(t==='s'&&v)val=ss[+v.textContent]||'';else if(t==='inlineStr'){val=[...c.getElementsByTagName('t')].map(x=>x.textContent).join('');}else if(v)val=v.textContent;
+    arr[colIdx(c.getAttribute('r'))]=val;});rows.push(Array.from(arr,x=>x==null?'':x));});
+  return rows;
+}
+function leerCsv(txt){
+  const primera=txt.split(/\r?\n/)[0]; const sep=(primera.split(';').length>primera.split(',').length)?';':',';
+  const rows=[];let row=[],cur='',q=false;
+  for(let i=0;i<txt.length;i++){const ch=txt[i];
+    if(q){if(ch==='"'){if(txt[i+1]==='"'){cur+='"';i++;}else q=false;}else cur+=ch;}
+    else if(ch==='"')q=true; else if(ch===sep){row.push(cur);cur='';}
+    else if(ch==='\n'){row.push(cur.replace(/\r$/,''));rows.push(row);row=[];cur='';} else cur+=ch;}
+  if(cur||row.length){row.push(cur);rows.push(row);}
+  return rows;
+}
+// Fechas: número de Excel, dd/mm/aaaa, dd-mm-aa, aaaa-mm-dd
+function aFecha(v){
+  v=String(v||'').trim(); if(!v) return '';
+  if(/^\d{4,5}(\.\d+)?$/.test(v)){const n=parseFloat(v); if(n>20000&&n<80000){const d=new Date(Date.UTC(1899,11,30)+Math.floor(n)*86400000);return `${d.getUTCFullYear()}-${pad(d.getUTCMonth()+1)}-${pad(d.getUTCDate())}`;}}
+  let m=v.match(/^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})/); if(m) return `${m[1]}-${pad(m[2])}-${pad(m[3])}`;
+  m=v.match(/^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{2,4})/); if(m){let y=+m[3]; if(y<100)y+=2000; return `${y}-${pad(m[2])}-${pad(m[1])}`;}
+  return '';
+}
+let cab=[], filas=[], mapa={};
+const ADIV={nombre:/nombre|cliente|pasajero|titular/i, destino:/destino|ciudad|lugar|pa[ií]s/i, vuelta:/regreso|vuelta|fin\b|fecha fin|hasta|llegada/i, ida:/salida|ida\b|inicio|desde|fecha ini|fecha viaje/i, tel:/tel[eé]f|m[oó]vil|movil|whats|celular/i, email:/e-?mail|correo/i};
+$('fichero').addEventListener('change',async e=>{
+  const f=e.target.files[0]; if(!f) return; $('errX').style.display='none';
+  try{
+    let rows;
+    if(/\.csv$/i.test(f.name)) rows=leerCsv(await f.text());
+    else if(/\.xlsx$/i.test(f.name)) rows=await leerXlsx(await f.arrayBuffer());
+    else throw new Error('tipo');
+    rows=rows.filter(r=>r.some(c=>String(c).trim()!==''));
+    if(rows.length<2) throw new Error('vacio');
+    cab=rows[0].map(c=>String(c).trim()); filas=rows.slice(1);
+    const usados=new Set();
+    ['vuelta','ida','nombre','destino','tel','email'].forEach(k=>{const i=cab.findIndex((h,j)=>!usados.has(j)&&ADIV[k].test(h)); mapa[k]=i; if(i>=0)usados.add(i);});
+    document.querySelectorAll('.map select').forEach(sel=>{const k=sel.dataset.k;
+      sel.innerHTML='<option value="-1">— No está —</option>'+cab.map((h,i)=>`<option value="${i}">${h||('Columna '+(i+1))}</option>`).join('');
+      sel.value=String(mapa[k]); sel.onchange=()=>{mapa[k]=+sel.value;pintarLista();};});
+    $('mapWrap').classList.remove('hide'); pintarLista();
+  }catch(err){
+    $('errX').textContent=err.message==='tipo'?'Sube un archivo .xlsx o .csv. Si tienes un .xls antiguo, ábrelo y guárdalo como .xlsx.':'No he podido leer el archivo. Prueba a guardarlo de nuevo como .xlsx o .csv.';
+    $('errX').style.display='block';
+  }
+});
+$('rango').addEventListener('change',()=>pintarLista());
+function telWa(t){let d=String(t||'').replace(/\D/g,''); if(!d) return ''; if(d.startsWith('00'))d=d.slice(2); if(d.length===9)d='34'+d; return d;}
+function claveEnviado(r){return 'mf_env_'+[r.nombre,r.destino,r.ida].join('|');}
+let visibles=[];
+function pintarLista(){
+  if(!filas.length) return;
+  const val=(r,k)=>mapa[k]>=0?String(r[mapa[k]]||'').trim():'';
+  const lim=new Date(); lim.setDate(lim.getDate()+(+$('rango').value)); const LIM=ymd(lim);
+  visibles=filas.map(r=>({nombre:val(r,'nombre'),destino:val(r,'destino'),ida:aFecha(val(r,'ida')),vuelta:aFecha(val(r,'vuelta')),tel:val(r,'tel'),email:val(r,'email')}))
+    .filter(r=>r.destino&&r.ida&&r.ida>=HOY&&r.ida<=LIM).sort((a,b)=>a.ida.localeCompare(b.ida));
+  $('cuenta').textContent=visibles.length?`${visibles.length} viaje${visibles.length>1?'s':''}`:'Ningún viaje en esas fechas';
+  $('lista').innerHTML='';
+  visibles.forEach((r,i)=>{
+    const vu=r.vuelta&&r.vuelta>=r.ida?r.vuelta:'';
+    const {url,msg,ciudad}=crear({cli:r.nombre.split(/\s+/)[0]||'',des:r.destino,ida:r.ida,vu,tipo:''});
+    r.url=url; r.msg=msg;
+    const tel=telWa(r.tel); let env=false; try{env=localStorage.getItem(claveEnviado(r))==='1'}catch(e){}
+    const d=document.createElement('div'); d.className='item'+(env?' sent':'');
+    d.innerHTML=`<h3></h3><p></p><div class="ib"><a class="btn wa" target="_blank" rel="noopener">WhatsApp</a>${r.email?'<a class="btn mail">Email</a>':''}<button type="button" class="copy">Copiar</button></div><label class="chk"><input type="checkbox"> Enviado</label>`;
+    d.querySelector('h3').textContent=(r.nombre||'Sin nombre')+' · '+ciudad;
+    d.querySelector('p').textContent=vu?`Del ${fechaBonita(r.ida)} al ${fechaBonita(vu)}`:`Sale el ${fechaBonita(r.ida)}`;
+    d.querySelector('.wa').href=`https://wa.me/${tel}?text=${encodeURIComponent(msg)}`;
+    if(r.email) d.querySelector('.mail').href=`mailto:${encodeURIComponent(r.email)}?subject=${encodeURIComponent('Tu maleta para '+ciudad)}&body=${encodeURIComponent(msg)}`;
+    d.querySelector('.copy').onclick=()=>copiar(msg);
+    const cb=d.querySelector('input'); cb.checked=env;
+    const marcar=()=>{cb.checked=true;d.classList.add('sent');try{localStorage.setItem(claveEnviado(r),'1')}catch(e){}};
+    d.querySelector('.wa').addEventListener('click',marcar); if(r.email) d.querySelector('.mail').addEventListener('click',marcar);
+    cb.onchange=()=>{d.classList.toggle('sent',cb.checked);try{cb.checked?localStorage.setItem(claveEnviado(r),'1'):localStorage.removeItem(claveEnviado(r))}catch(e){}};
+    $('lista').appendChild(d);
+  });
+}
+$('descargar').onclick=()=>{
+  if(!visibles.length) return;
+  const esc=v=>'"'+String(v||'').replace(/"/g,'""')+'"';
+  const lineas=[['Nombre','Destino','Ida','Vuelta','Teléfono','Email','Enlace'].map(esc).join(';')].concat(visibles.map(r=>[r.nombre,r.destino,r.ida,r.vuelta,r.tel,r.email,r.url].map(esc).join(';')));
+  const blob=new Blob(['﻿'+lineas.join('\n')],{type:'text/csv;charset=utf-8'});
+  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='maletas-'+HOY+'.csv'; a.click();
+};
+
+/* ---------- AGENCIAS ---------- */
+const slugify=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,40);
+let editando=null, logoData='';
+function pintarAgencias(){
+  const cont=$('agItems'); cont.innerHTML='';
+  const lista=Object.entries(AG);
+  if(!lista.length){cont.innerHTML='<p class="hint">Todavía no hay agencias.</p>';return;}
+  lista.forEach(([slug,d])=>{
+    const el=document.createElement('div'); el.className='ag';
+    el.innerHTML='<div class="lg"></div><div class="tx"><b></b><small></small><div class="bd"></div></div><div class="ac"><button type="button" class="ed">Editar</button><button type="button" class="del">Quitar</button></div>';
+    const src=logoUrl(d.logo); if(src){const im=document.createElement('img');im.src=src;im.alt='';el.querySelector('.lg').appendChild(im);}
+    el.querySelector('b').textContent=d.nombre||slug;
+    el.querySelector('small').textContent='maletafacil.com/?agencia='+slug;
+    const bd=el.querySelector('.bd'); [[d.modo==='completo','Marca blanca'],[d.tag,'Amazon'],[d.seguro,'Seguro'],[d.civitatis,'Civitatis']].forEach(([v,t])=>{if(v){const s=document.createElement('span');s.textContent=t;bd.appendChild(s);}});
+    el.querySelector('.ed').onclick=()=>abrirForm(slug);
+    el.querySelector('.del').onclick=async()=>{ if(!confirm('¿Quitar '+(d.nombre||slug)+'? Sus enlaces dejarán de mostrar su logo.'))return;
+      const r=await api({accion:'borrar',slug}); if(r.ok){toast('Agencia quitada');cargarAgencias();} else alert('No se ha podido quitar.');};
+    cont.appendChild(el);
+  });
+}
+function abrirForm(slug){
+  editando=slug||null; logoData=''; const d=slug?AG[slug]||{}:{};
+  $('agTit').textContent=slug?'Editar agencia':'Nueva agencia';
+  $('aNombre').value=d.nombre||''; $('aModo').value=d.modo==='completo'?'completo':''; $('aTag').value=d.tag||''; $('aSeguro').value=d.seguro||''; $('aCiv').value=d.civitatis||''; $('aLogo').value='';
+  const src=logoUrl(d.logo); $('aPrev').innerHTML=src?'<img alt="">':'<span class="hint">Sin logo</span>'; if(src)$('aPrev').querySelector('img').src=src;
+  $('errA').style.display='none'; actSlug();
+  $('agLista').classList.add('hide'); $('agForm').classList.remove('hide'); window.scrollTo(0,0);
+}
+function actSlug(){const sl=editando||slugify($('aNombre').value); $('aSlug').textContent=sl?'Su enlace: maletafacil.com/?agencia='+sl:'';}
+$('aNombre').addEventListener('input',actSlug);
+$('agNueva').onclick=()=>abrirForm(null);
+$('aCancelar').onclick=()=>{$('agForm').classList.add('hide');$('agLista').classList.remove('hide');};
+// Reduce el logo en el propio móvil antes de subirlo
+$('aLogo').addEventListener('change',e=>{
+  const f=e.target.files[0]; if(!f) return;
+  const img=new Image(); img.onload=()=>{
+    const max=500, k=Math.min(1,max/Math.max(img.width,img.height));
+    const c=document.createElement('canvas'); c.width=Math.round(img.width*k); c.height=Math.round(img.height*k);
+    c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+    logoData=/png|webp|svg/.test(f.type)?c.toDataURL('image/png'):c.toDataURL('image/jpeg',0.9);
+    $('aPrev').innerHTML='<img alt="">'; $('aPrev').querySelector('img').src=logoData; URL.revokeObjectURL(img.src);
+  }; img.src=URL.createObjectURL(f);
+});
+$('aGuardar').onclick=async()=>{
+  const nombre=$('aNombre').value.trim(), err=$('errA'); err.style.display='none';
+  const fallo=t=>{err.textContent=t;err.style.display='block';};
+  if(!nombre) return fallo('Escribe el nombre de la agencia.');
+  const slug=editando||slugify(nombre);
+  if(!editando&&AG[slug]) return fallo('Ya existe una agencia con ese nombre.');
+  const tag=$('aTag').value.trim(), seguro=$('aSeguro').value.trim(), civ=$('aCiv').value.trim();
+  if(tag&&!/^[a-z0-9-]+-21$/i.test(tag)) return fallo('El código de Amazon debe acabar en -21 (ej. viajessol-21).');
+  if(seguro&&!/^https:\/\//i.test(seguro)) return fallo('El enlace del seguro debe empezar por https://');
+  if(civ&&!/^\d+$/.test(civ)) return fallo('El código de Civitatis son solo números.');
+  $('aGuardar').disabled=true;
+  const r=await api({accion:'guardar',slug,nombre,modo:$('aModo').value,tag,seguro,civitatis:civ,logo:logoData||undefined}).catch(()=>({ok:false}));
+  $('aGuardar').disabled=false;
+  if(!r.ok) return fallo(r.status===401?'La sesión ha caducado: vuelve a entrar.':'No se ha podido guardar. Inténtalo de nuevo.');
+  toast('Agencia guardada'); $('agForm').classList.add('hide'); $('agLista').classList.remove('hide'); cargarAgencias();
+};
+</script>
+</body>
+</html>

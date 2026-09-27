@@ -5,6 +5,7 @@
 // Los datos de los clientes se borran solos al terminar el viaje (lo hace resumen-diario).
 import { getStore } from "@netlify/blobs";
 import { quien } from "./agencias.mjs";
+import { sumar, leerEstadisticas } from "./evento.mjs";
 import { createHmac, createHash, createECDH, createCipheriv, randomBytes, createPrivateKey, sign as firmar } from "node:crypto";
 
 /* ---------- Avisos al móvil (Web Push) sin librerías: cifrado aes128gcm (RFC 8291) + firma VAPID (RFC 8292) ---------- */
@@ -186,6 +187,7 @@ export default async (req) => {
       const cfg = await efectiva(store, slug);
       v.enviado = Date.now(); v.enviadoDia = hoyEn(cfg.tz);
       await store.setJSON("ag:" + slug, lista);
+      try { await sumar(slug, "envio", v.des); } catch (e) {}
     }
     return Response.redirect(`https://wa.me/${v.tel || ""}?text=${encodeURIComponent(v.msg || "")}`, 302);
   }
@@ -234,12 +236,24 @@ export default async (req) => {
     const i = lista.findIndex(x => x.id === b.id);
     if (i < 0) return json({ error: "viaje" }, 404);
     if (b.accion === "borrar") lista.splice(i, 1);
-    else { const cfg = await efectiva(store, slug); lista[i].enviado = b.enviado ? Date.now() : null; lista[i].enviadoDia = b.enviado ? hoyEn(cfg.tz) : ""; }
+    else {
+      const cfg = await efectiva(store, slug), antes = !!lista[i].enviado;
+      lista[i].enviado = b.enviado ? Date.now() : null; lista[i].enviadoDia = b.enviado ? hoyEn(cfg.tz) : "";
+      if (b.enviado && !antes) { try { await sumar(slug, "envio", lista[i].des); } catch (e) {} }
+    }
     await store.setJSON("ag:" + slug, lista);
     return json({ ok: true });
   }
 
+  if (b.accion === "stats") {
+    if (yo.rol !== "admin") return json({ error: "rol" }, 403);
+    const mes = /^\d{4}-\d{2}$/.test(b.mes || "") ? b.mes : hoyEn().slice(0, 7);
+    return json({ ok: true, ...(await leerEstadisticas(mes)) });
+  }
+
   if (b.accion === "config") {
+    // El email del resumen, los días, la hora y el horario los cambia solo el administrador
+    if (yo.rol !== "admin") return json({ error: "rol" }, 403);
     if (!esSlug(slug)) return json({ error: "agencia" }, 400);
     const previa = (await store.get("cfg:" + slug, { type: "json" })) || {};
     const email = limpio(b.email, 200);

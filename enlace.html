@@ -631,6 +631,7 @@ async function cargarHoy(){
       d.innerHTML='<div><b></b><span></span></div>';d.querySelector('b').textContent=`${diaRel(f,a.hoy)} · ${g[f].length} cliente${g[f].length>1?'s':''}`;
       d.querySelector('span').textContent=g[f].map(v=>(v.cli?v.cli+' ('+v.des+')':v.des)).join(', ');cont.appendChild(d);});
   }
+  if(ROL==='admin'&&s!=='maletafacil'){const sb=document.createElement('div');sb.style.marginTop='18px';sb.innerHTML='<p class="hint">Cargando estadísticas…</p>';cont.appendChild(sb);pintarMiMes(undefined,s,sb);}
   const c=a.cfg||{}; $('hoyAjustes').classList.remove('hide');
   $('avisoTxt').textContent=`Resumen cada día a las ${c.hora||'09:30'} · envío ${c.dias??7} días antes${c.email?' · email a '+c.email:''}. ${a.avisos?`Avisos activados en ${a.avisos} móvil${a.avisos>1?'es':''}.`:'Aún no hay ningún móvil con avisos.'} ${ROL==='agencia'?'':'Puedes cambiarlo en Agencias.'}`;
 }
@@ -759,23 +760,26 @@ async function pintarStats(cont,mes){
   const n=document.createElement('p');n.className='hint';n.style.marginTop='8px';n.textContent='El día 1 de cada mes cada agencia recibe sola su informe del mes anterior por email y aviso al móvil (con copia para ti).';box.appendChild(n);
 }
 /* ---------- Informe «Tu mes» para la agencia ---------- */
-async function pintarMiMes(mes){
-  const box=$('miMes'); if(!box) return;
-  const r=await apiV({accion:'informe',mes}).catch(()=>({ok:false})); if(!r.ok){box.innerHTML='<p class="hint">No se ha podido cargar.</p>';return;}
+async function pintarMiMes(mes,slugAdm,boxAdm){
+  const box=boxAdm||$('miMes'); if(!box) return;
+  const r=await apiV({accion:'informe',mes,slug:slugAdm}).catch(()=>({ok:false})); if(!r.ok){box.innerHTML='<p class="hint">No se ha podido cargar.</p>';return;}
   const M=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
   const nm=m=>{const [a,b]=m.split('-');return M[+b-1]+' '+a;};
   const hayAnt=r.ant.envios||r.ant.aperturas||r.ant.civitatis;const fl=(a,b,suf='')=>{if(!hayAnt)return '';const d=a-b;return d>0?`<span class="up">▲ ${d}${suf}</span>`:d<0?`<span class="dn">▼ ${-d}${suf}</span>`:'';};
   const meses=r.meses.includes(r.mes)?r.meses:[r.mes,...r.meses];
-  box.innerHTML=`<div class="hsec" style="margin-top:0">📊 Tu mes <small></small></div>
+  box.innerHTML=`<div class="hsec" style="margin-top:0">📊 ${slugAdm?'Estadísticas de '+(nombres[slugAdm]||slugAdm):'Tu mes'} <small></small></div>
    <div class="kpis"><div class="kpi"><b>${r.act.envios}</b><span>maletas enviadas</span>${fl(r.act.envios,r.ant.envios)}</div>
    <div class="kpi"><b>${r.pctAct} %</b><span>abiertas (${r.act.aperturas})</span>${r.ant.envios?fl(r.pctAct,r.pctAnt,' puntos'):''}</div>
    <div class="kpi"><b>${r.act.civitatis}</b><span>clics a Civitatis</span>${fl(r.act.civitatis,r.ant.civitatis)}</div>
-   <div class="kpi"><b>${r.act.sinTelefono}</b><span>sin teléfono</span>${r.act.sinTelefono?'<span class="dn">añádelo en tu Excel</span>':''}</div></div>
+   <div class="kpi"><b>${r.act.sinTelefono}</b><span>sin teléfono</span>${r.act.sinTelefono?'<span class="dn">añádelo en tu Excel</span>':''}</div>
+   ${slugAdm?`<div class="kpi"><b>${r.act.amazon||0}</b><span>clics a Amazon (tuyos)</span>${fl(r.act.amazon||0,r.ant.amazon||0)}</div>`:''}</div>
    <div class="desch"></div>`;
   const sel=document.createElement('select');sel.style.cssText='width:auto;min-height:36px;padding:4px 8px;font-size:13px';
-  meses.forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=nm(m);sel.appendChild(o);});sel.value=r.mes;sel.onchange=()=>pintarMiMes(sel.value);
+  meses.forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=nm(m);sel.appendChild(o);});sel.value=r.mes;sel.onchange=()=>pintarMiMes(sel.value,slugAdm,boxAdm);
   box.querySelector('small').appendChild(sel);
   const dc=box.querySelector('.desch');r.top.forEach(([d,n])=>{const sp=document.createElement('span');sp.textContent=`${d} · ${n}`;dc.appendChild(sp);});
+  if(slugAdm&&r.texto){const w=document.createElement('button');w.type='button';w.className='btn wa';w.style.marginTop='12px';w.textContent='Enviar informe por WhatsApp';
+    w.onclick=()=>window.open('https://wa.me/'+telWa((ACCESOS[slugAdm]||{}).tel||'')+'?text='+encodeURIComponent(r.texto),'_blank');box.appendChild(w);}
 }
 /* ---------- PESTAÑAS ---------- */
 function tab(n){['tHoy','tUno','tVarios','tAg'].forEach((t,i)=>$(t).classList.toggle('on',i===n));

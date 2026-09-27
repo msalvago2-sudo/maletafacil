@@ -2803,6 +2803,20 @@ async function aplicarAgenciaDesdeURL(){
 }
 aplicarAgenciaDesdeURL();
 
+// ---------- Estadísticas anónimas para las agencias (maletas abiertas, clics a Amazon y Civitatis) ----------
+function evento(ev, ag, des, k){
+  try{
+    const u = '/.netlify/functions/evento?ev='+encodeURIComponent(ev)+'&ag='+encodeURIComponent(ag||'maletafacil')+'&des='+encodeURIComponent(des||'')+(k?'&k='+encodeURIComponent(k):'');
+    if(navigator.sendBeacon) navigator.sendBeacon(u); else fetch(u,{method:'POST',keepalive:true}).catch(()=>{});
+  }catch(e){}
+}
+document.addEventListener('click', e=>{
+  const a = e.target.closest && e.target.closest('a[href]'); if(!a) return;
+  const h = a.href || '';
+  const tipo = /amazon\./i.test(h) ? 'amazon' : /civitatis\.com/i.test(h) ? 'civitatis' : '';
+  if(tipo) evento(tipo, (typeof agenciaActiva!=='undefined' && agenciaActiva && agenciaActiva.slug) || 'maletafacil', document.getElementById('destino') ? document.getElementById('destino').value : '');
+}, true);
+
 async function cargarDestinoDesdeURL(){
   const params = new URLSearchParams(window.location.search);
   let destinoParam = params.get('destino') || (rutaCorta && rutaCorta.destino) || '';
@@ -2840,6 +2854,11 @@ async function cargarDestinoDesdeURL(){
   }
 
   gtag('event', 'maleta_desde_url', {destino: destinoParam});
+  // Estadística anónima: una maleta abierta desde un enlace (cuenta una vez por enlace, sin datos personales)
+  try{
+    const agUrl = (rutaCorta && rutaCorta.agencia) || (params.get('agencia') || '').toLowerCase() || 'maletafacil';
+    evento('abre', agUrl, destinoParam, location.pathname + location.search);
+  }catch(e){}
   window.__desdeEnlace = true;
   await generarMaleta();
 }

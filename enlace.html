@@ -19,9 +19,10 @@
 body{margin:0;background:var(--teal);font-family:'Work Sans',sans-serif;color:var(--teal);min-height:100vh}
 .wrap{max-width:520px;margin:0 auto;padding:28px 16px 40px}
 .brand{display:flex;align-items:center;gap:10px;color:var(--paper);margin-bottom:6px}
-.logo{width:40px;height:40px;border-radius:10px;background:var(--paper);position:relative;display:flex;align-items:center;justify-content:center;font:700 25px Fraunces,serif;color:var(--teal)}
+.logo{width:46px;height:46px;border-radius:10px;background:var(--paper);position:relative;display:flex;align-items:center;justify-content:center;font:700 25px Fraunces,serif;color:var(--teal)}
 .logo:after{content:'';position:absolute;top:5px;right:5px;width:7px;height:7px;border-radius:50%;background:var(--rust)}
-.brand b{font:600 19px Fraunces,serif}
+.brand b{font:600 19px Fraunces,serif;display:block;line-height:1.1;margin-bottom:4px}
+.etq{display:inline-flex;align-items:center;gap:5px;background:#8B5A2B;color:var(--paper);font:600 11px 'Work Sans',sans-serif;padding:3px 9px;border-radius:100px}
 h1{font:700 26px/1.15 Fraunces,serif;color:var(--paper);margin:16px 0 4px}
 .sub{color:#9FC2BC;font-size:14px;margin:0 0 16px}
 .tabs{display:flex;gap:6px;background:rgba(246,241,228,.1);padding:5px;border-radius:100px;margin-bottom:14px}
@@ -98,9 +99,14 @@ button,.btn{font:700 15px 'Work Sans',sans-serif;border:0;border-radius:100px;pa
 .bd .acc{background:#E3EFEC;color:#2E5E59}.bd .noacc{background:#F3E1D8;color:#8F4430}
 body.rol-agencia .solo-admin{display:none!important}
 .soloAg{display:none}body.rol-agencia .soloAg{display:block}
+/* Estadísticas */
+.stab{background:#fff;border-radius:12px;padding:4px 10px;margin-top:6px}
+.sfila{display:grid;grid-template-columns:1.6fr .9fr 1.2fr .9fr .7fr;gap:6px;padding:8px 0;border-bottom:1px solid #EEE7D8;font-size:13px;align-items:center}
+.sfila span{text-align:right}.scab span:first-child{text-align:left}.scab{font-size:11px;font-weight:700;color:#8A8276;text-transform:uppercase}
+.sfila b{font-size:13px}.sdes{font-size:11.5px;color:#6B665B;padding:0 0 8px;border-bottom:1px solid #EEE7D8}
 /* Pestaña Hoy */
 .tabs button{font-size:13.5px;white-space:nowrap;padding-left:4px;padding-right:4px}
-body.rol-agencia #agForm .two{grid-template-columns:1fr}
+body.rol-agencia #agForm .two{display:none}
 .hitem{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid #EEE7D8}
 .hitem:last-child{border-bottom:0}
 .hitem b{display:block;font-size:15px}.hitem span{font-size:12.5px;color:#6B665B}
@@ -185,7 +191,7 @@ body.rol-agencia #agForm .two{grid-template-columns:1fr}
 </head>
 <body>
 <div class="wrap">
-<div class="brand"><div class="logo">M</div><b>Maleta Fácil</b></div>
+<div class="brand"><div class="logo">M</div><div><b>Maleta Fácil</b><span class="etq"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="transform:rotate(45deg)"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2.5 1.8V22l3.5-1 3.5 1v-1.2L13 19v-5.5l8 2.5z"/></svg>Equipaje sin estrés</span></div></div>
 <h1>Crear enlace de maleta</h1>
 <p class="sub">Envía a tus clientes su maleta ya preparada, con su destino y sus fechas.</p>
 
@@ -243,7 +249,7 @@ body.rol-agencia #agForm .two{grid-template-columns:1fr}
 </div>
 <div class="luego" id="luego">
 <b>⏰ Programar el envío</b>
-<p class="hint" style="margin:2px 0 10px">El día que toque aparecerá en <b>Hoy</b> y a la agencia le llegará el aviso al móvil y por email. Solo hay que tocar WhatsApp y enviar.</p>
+<p class="hint" style="margin:2px 0 10px">El día que toque aparecerá en <b>Hoy</b> y te llegará el aviso al móvil y por email. Solo hay que tocar WhatsApp y enviar.</p>
 <div class="lrow solo-admin"><span>Días antes del viaje</span><div class="step"><button type="button" data-d="-1">−</button><input id="diasAntes" type="number" min="0" max="60" value="5" inputmode="numeric"><button type="button" data-d="1">+</button></div></div>
 <input type="hidden" id="horaAviso" value="09:00">
 <p class="cuando" id="cuando"></p>
@@ -318,6 +324,7 @@ body.rol-agencia #agForm .two{grid-template-columns:1fr}
 <div class="hint" style="margin:0 0 8px">Cada mañana la agencia recibe la lista de clientes a los que toca enviar la maleta por WhatsApp.</div>
 <input id="aEmail" type="email" inputmode="email" placeholder="Email para el resumen (ej. reservas@agencia.es)" autocomplete="off">
 <p class="fijo soloAg" id="aFijo"></p>
+<p class="hint soloAg" style="margin:6px 0 0">Si necesitas cambiar algo, habla con Maleta Fácil.</p>
 <div class="hint solo-admin" style="margin:8px 0 0">Solo para esta agencia (si lo dejas igual que el general, seguirá el general):</div>
 <div class="lrow solo-admin"><span>Hora del resumen</span><input id="aHora" type="time" value="09:30"></div>
 <div class="lrow solo-admin"><span>Enviar … días antes</span><div class="step"><button type="button" data-d="-1">−</button><input id="aDias" type="number" min="0" max="60" value="5" inputmode="numeric"><button type="button" data-d="1">+</button></div></div>
@@ -497,6 +504,7 @@ $('accBloq').onclick=async()=>{const a=ACCESOS[editando];if(!a)return;
   if(!r.ok) return alert('No se ha podido cambiar.'); toast(a.bloqueada?'Acceso activado':'Acceso desactivado'); await cargarAccesos(); pintarAcceso(editando);};
 // Lo que no ve una agencia
 ['aNombre','aLogo','aModo','aTag','aSeguro','aCiv','agencia','agHoy'].forEach(id=>$(id).closest('.f').classList.add('solo-admin'));
+$('aEmail').classList.add('solo-admin');
 $('aTamF').classList.add('solo-admin');
 ['accesoF','agLista','probarResumen'].forEach(id=>$(id).classList.add('solo-admin'));
 
@@ -636,13 +644,14 @@ function itemHoy(s,v,hecho){
 function pintarPanel(cont){
   const ags=Object.entries(HOYDATA);let pend=0,hechos=0,prox=0;ags.forEach(([,a])=>{pend+=a.pend.length;hechos+=a.hechos.length;prox+=a.prox.length;});
   cont.innerHTML=`<div class="kpis"><div class="kpi"><b>${pend+hechos}</b><span>envíos para hoy</span></div><div class="kpi"><b>${hechos}</b><span>ya enviados hoy</span></div><div class="kpi"><b>${prox}</b><span>programados próximos días</span></div><div class="kpi"><b>${ags.length}</b><span>agencias con viajes</span></div></div>`;
-  if(!ags.length){cont.insertAdjacentHTML('beforeend','<p class="vacio2">Aún no hay envíos programados. Crea un enlace en «Un cliente» o sube un Excel en «Varios» y pulsa Programar.</p>');return;}
+  if(!ags.length){cont.insertAdjacentHTML('beforeend','<p class="vacio2">Aún no hay envíos programados. Crea un enlace en «Un cliente» o sube un Excel en «Varios» y pulsa Programar.</p>');if(ROL==='admin')pintarStats(cont);return;}
   ags.sort((x,y)=>(y[1].pend.length+y[1].hechos.length)-(x[1].pend.length+x[1].hechos.length)).forEach(([k,a])=>{
     const d=document.createElement('div');d.className='hag';const lg=logoUrl((AG[k]||{}).logo);
     d.innerHTML=(lg?'<img alt="">':'')+'<b></b><span></span>';if(lg)d.querySelector('img').src=lg;
     d.querySelector('b').textContent=nomAg(k);const tot=a.pend.length+a.hechos.length;
     d.querySelector('span').textContent=tot?`${tot} hoy · ${a.hechos.length} enviado${a.hechos.length===1?'':'s'}`:`${a.prox.length} programado${a.prox.length===1?'':'s'}`;
     d.onclick=()=>{$('agHoy').value=k;cargarHoy();};cont.appendChild(d);});
+  if(ROL==='admin') pintarStats(cont);
 }
 $('agHoy').addEventListener('change',()=>{try{localStorage.setItem('mf_hoy_ag',$('agHoy').value)}catch(e){};cargarHoy();});
 // Días por defecto y hora del aviso según la agencia elegida
@@ -708,6 +717,30 @@ function aplicarMapaGuardado(){
 function guardarMapa(){const cols={};CAMPOS.forEach(k=>cols[k]=mapa[k]>=0?cab[mapa[k]]:'');const s=slugActual();
   try{localStorage.setItem('mf_mapa_'+s,JSON.stringify(cols))}catch(e){}
   CFGS[s]={...(CFGS[s]||{}),mapa:cols}; apiV({accion:'mapa',slug:s,cols}).catch(()=>{});}
+/* ---------- Estadísticas ---------- */
+function evento(ev,ag,des){try{const u='/.netlify/functions/evento?ev='+ev+'&ag='+encodeURIComponent(ag||'maletafacil')+'&des='+encodeURIComponent(des||'');navigator.sendBeacon?navigator.sendBeacon(u):fetch(u,{method:'POST',keepalive:true});}catch(e){}}
+$('wa').addEventListener('click',()=>evento('envio',slugActual(),capital($('destino').value.trim())));
+async function pintarStats(cont,mes){
+  const box=document.createElement('div');box.id='statsBox';box.innerHTML='<div class="hsec">📊 Estadísticas <small></small></div><p class="hint">Cargando…</p>';cont.appendChild(box);
+  const r=await apiV({accion:'stats',mes}).catch(()=>({ok:false})); if(!r.ok){box.querySelector('p').textContent='No se han podido cargar.';return;}
+  const M=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  const nomMes=m=>{const [a,b]=m.split('-');return M[+b-1]+' '+a;};
+  const meses=r.meses.includes(r.mes)?r.meses:[r.mes,...r.meses];
+  const sel=document.createElement('select');sel.style.cssText='width:auto;min-height:36px;padding:4px 8px;font-size:13px';meses.forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=nomMes(m);sel.appendChild(o);});sel.value=r.mes;
+  sel.onchange=()=>{box.remove();pintarStats(cont,sel.value);};box.querySelector('small').appendChild(sel);
+  const ags=Object.entries(r.agencias);const p=box.querySelector('p');
+  if(!ags.length){p.textContent='Aún no hay datos este mes. Se irán sumando cuando se envíen y abran maletas.';return;}
+  p.remove();
+  const tot={envios:0,aperturas:0,amazon:0,civitatis:0};ags.forEach(([,d])=>Object.keys(tot).forEach(k=>tot[k]+=d[k]||0));
+  const pct=(a,b)=>b?Math.min(100,Math.round(a/b*100))+' %':'—';
+  box.insertAdjacentHTML('beforeend',`<div class="kpis"><div class="kpi"><b>${tot.envios}</b><span>maletas enviadas</span></div><div class="kpi"><b>${tot.aperturas}</b><span>maletas abiertas (${pct(tot.aperturas,tot.envios)})</span></div><div class="kpi"><b>${tot.amazon}</b><span>clics a Amazon</span></div><div class="kpi"><b>${tot.civitatis}</b><span>clics a Civitatis</span></div></div>`);
+  const t=document.createElement('div');t.className='stab';
+  t.innerHTML='<div class="sfila scab"><span>Agencia</span><span>Enviadas</span><span>Abiertas</span><span>Amazon</span><span>Civit.</span></div>';
+  ags.sort((a,b)=>(b[1].envios+b[1].aperturas)-(a[1].envios+a[1].aperturas)).forEach(([k,d])=>{const f=document.createElement('div');f.className='sfila';
+    f.innerHTML='<b></b><span></span><span></span><span></span><span></span>';const c=f.children;c[0].textContent=nomAg(k);c[1].textContent=d.envios||0;c[2].textContent=`${d.aperturas||0} · ${pct(d.aperturas||0,d.envios||0)}`;c[3].textContent=d.amazon||0;c[4].textContent=d.civitatis||0;t.appendChild(f);
+    const top=Object.entries(d.destinos||{}).slice(0,4).map(([x,n])=>`${x} (${n})`).join(', ');if(top){const q=document.createElement('div');q.className='sdes';q.textContent='Destinos: '+top;t.appendChild(q);}});
+  box.appendChild(t);
+}
 /* ---------- PESTAÑAS ---------- */
 function tab(n){['tHoy','tUno','tVarios','tAg'].forEach((t,i)=>$(t).classList.toggle('on',i===n));
   $('cardHoy').classList.toggle('hide',n!==0);
@@ -769,7 +802,7 @@ function aFecha(v){
   return '';
 }
 let cab=[], filas=[], mapa={};
-const ADIV={nombre:/nombre|cliente|pasajero|titular/i, destino:/destino|ciudad|lugar|pa[ií]s/i, vuelta:/regreso|vuelta|fin\b|fecha fin|hasta|llegada/i, ida:/salida|ida\b|inicio|desde|fecha ini|fecha viaje/i, tel:/tel[eé]f|m[oó]vil|movil|whats|celular/i, email:/e-?mail|correo/i};
+const ADIV={nombre:/nombre|cliente|pasajero|titular|\bpax\b|viajero/i, destino:/destino|ciudad|lugar|pa[ií]s/i, vuelta:/regreso|vuelta|fin\b|fecha fin|hasta|llegada/i, ida:/salida|ida\b|inicio|desde|fecha ini|fecha viaje/i, tel:/tel[eé]f|m[oó]vil|movil|whats|celular/i, email:/e-?mail|correo/i};
 $('fichero').addEventListener('change',async e=>{
   const f=e.target.files[0]; if(!f) return; $('errX').style.display='none';
   try{
@@ -819,7 +852,7 @@ function pintarLista(){
     d.querySelector('.copy').onclick=()=>copiar(msg);
     const cb=d.querySelector('input'); cb.checked=env;
     const marcar=()=>{cb.checked=true;d.classList.add('sent');try{localStorage.setItem(claveEnviado(r),'1')}catch(e){}};
-    d.querySelector('.wa').addEventListener('click',marcar); if(r.email) d.querySelector('.mail').addEventListener('click',marcar);
+    d.querySelector('.wa').addEventListener('click',()=>{marcar();evento('envio',slugActual(),capital(r.destino));}); if(r.email) d.querySelector('.mail').addEventListener('click',marcar);
     cb.onchange=()=>{d.classList.toggle('sent',cb.checked);try{cb.checked?localStorage.setItem(claveEnviado(r),'1'):localStorage.removeItem(claveEnviado(r))}catch(e){}};
     $('lista').appendChild(d);
   });
@@ -861,7 +894,7 @@ function abrirForm(slug){
   const src=logoUrl(d.logo); $('aPrev').innerHTML=src?'<img alt="">':'<span class="hint">Sin logo</span>'; if(src)$('aPrev').querySelector('img').src=src;
   const cf={hora:'09:30',dias:7,tz:'Europe/Madrid',email:'',...(CFGS[slug]||{})};
   $('aEmail').value=cf.email||(ROL==='agencia'?MIEMAIL:'');
-  $('aFijo').textContent=`🧳 Tus clientes reciben la maleta ${cf.dias} días antes del viaje y tú el aviso a las ${cf.hora}. Lo fija Maleta Fácil para que tengan tiempo de comprar lo que les falte.`; $('aHora').value=cf.hora; $('aDias').value=cf.dias; $('aTz').value=cf.tz;
+  $('aFijo').textContent=`🧳 Tus clientes reciben la maleta ${cf.dias} días antes del viaje. Tú recibes el aviso cada día a las ${cf.hora}${cf.email?' en tu móvil y en '+cf.email:' en tu móvil'}.`; $('aHora').value=cf.hora; $('aDias').value=cf.dias; $('aTz').value=cf.tz;
   if(slug&&!CFGS[slug]) apiV({accion:'hoy',slug}).then(r=>{const c=r.agencias&&r.agencias[slug]&&r.agencias[slug].cfg;if(c&&editando===slug){CFGS[slug]=c;$('aEmail').value=c.email||'';$('aHora').value=c.hora;$('aDias').value=c.dias;$('aTz').value=c.tz;}}).catch(()=>{});
   pintarAcceso(slug);
   if(ROL==='agencia') setTimeout(()=>{$('miCab').innerHTML=$('aCab').innerHTML;},400);

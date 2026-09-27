@@ -70,7 +70,7 @@ export default async (req) => {
       if (seguro && !/^https:\/\//i.test(seguro)) return json({ error: "seguro" }, 400);
       if (civitatis && !/^\d+$/.test(civitatis)) return json({ error: "civitatis" }, 400);
       const previa = extra[slug] && !extra[slug].borrada ? extra[slug] : {};
-      const a = { ...previa, nombre, tag, seguro, civitatis, modo: body.modo === "completo" ? "completo" : "" };
+      const a = { ...previa, nombre, tag, seguro, civitatis, modo: body.modo === "completo" ? "completo" : "", tam: ["s", "l"].includes(body.tam) ? body.tam : "m" };
       if (body.logo) {
         const m = String(body.logo).match(/^data:(image\/(?:png|jpeg|webp));base64,([A-Za-z0-9+/=]+)$/);
         if (!m) return json({ error: "logo" }, 400);

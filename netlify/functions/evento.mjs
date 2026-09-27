@@ -4,7 +4,7 @@
 import { getStore } from "@netlify/blobs";
 import { createHash } from "node:crypto";
 
-const EVENTOS = { abre: "aperturas", envio: "envios", amazon: "amazon", civitatis: "civitatis" };
+const EVENTOS = { abre: "aperturas", envio: "envios", amazon: "amazon", civitatis: "civitatis", sintel: "sinTelefono" };
 const mesEn = (tz = "Europe/Madrid") => new Intl.DateTimeFormat("en-CA", { timeZone: tz, year: "numeric", month: "2-digit" }).format(new Date()).slice(0, 7);
 const bonito = s => String(s || "").replace(/[-_]+/g, " ").trim().replace(/(^|\s)\S/g, l => l.toUpperCase()).slice(0, 40);
 
@@ -23,13 +23,21 @@ export async function sumar(slug, ev, des = "", clave = "") {
   }
   d[campo] = (d[campo] || 0) + 1;
   const dd = bonito(des);
-  if (dd && (campo === "aperturas" || campo === "envios")) {
+  if (dd && campo === "envios") { // destinos de las maletas enviadas (sin contar dos veces al abrirlas)
     d.destinos[dd] = (d.destinos[dd] || 0) + 1;
     const orden = Object.entries(d.destinos).sort((a, b) => b[1] - a[1]).slice(0, 40);
     d.destinos = Object.fromEntries(orden);
   }
   await store.setJSON(key, d);
   return true;
+}
+
+// Datos de una agencia en un mes (para el informe mensual)
+export async function statsAgencia(slug, mes) {
+  const store = getStore({ name: "estadisticas", consistency: "strong" });
+  const d = (await store.get(`st:${slug}:${mes}`, { type: "json" })) || {};
+  delete d.vistos;
+  return { envios: 0, aperturas: 0, amazon: 0, civitatis: 0, sinTelefono: 0, destinos: {}, ...d };
 }
 
 export async function leerEstadisticas(mes) {

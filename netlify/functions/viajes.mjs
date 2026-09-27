@@ -5,7 +5,7 @@
 // Los datos de los clientes se borran solos al terminar el viaje (lo hace resumen-diario).
 import { getStore } from "@netlify/blobs";
 import { quien } from "./agencias.mjs";
-import { sumar, leerEstadisticas } from "./evento.mjs";
+import { sumar, leerEstadisticas, statsAgencia } from "./evento.mjs";
 import { createHmac, createHash, createECDH, createCipheriv, randomBytes, createPrivateKey, sign as firmar } from "node:crypto";
 
 /* ---------- Avisos al móvil (Web Push) sin librerías: cifrado aes128gcm (RFC 8291) + firma VAPID (RFC 8292) ---------- */
@@ -110,14 +110,67 @@ function htmlEmail(nombreAg, hoy, pend) {
 </table></td></tr></table></body></html>`;
 }
 
-async function enviarEmail(para, asunto, html) {
+async function enviarEmail(para, asunto, html, copia = false) {
   const key = process.env.BREVO_API_KEY, de = process.env.BREVO_SENDER_EMAIL;
   if (!key || !de || !para) return false;
-  const r = await fetch("https://api.brevo.com/v3/smtp/email", {
-    method: "POST", headers: { "api-key": key, "Content-Type": "application/json" },
-    body: JSON.stringify({ sender: { email: de, name: "Maleta Fácil" }, to: [{ email: para }], subject: asunto, htmlContent: html }),
-  });
+  const cuerpo = { sender: { email: de, name: "Maleta Fácil" }, to: [{ email: para }], subject: asunto, htmlContent: html };
+  if (copia && de.toLowerCase() !== String(para).toLowerCase()) cuerpo.bcc = [{ email: de }]; // copia para el administrador
+  const r = await fetch("https://api.brevo.com/v3/smtp/email", { method: "POST", headers: { "api-key": key, "Content-Type": "application/json" }, body: JSON.stringify(cuerpo) });
   return r.ok;
+}
+
+/* ---------- Informe mensual para cada agencia ---------- */
+const MESES_ = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+export const mesPrevio = m => { const [a, b] = m.split("-").map(Number); return new Date(Date.UTC(a, b - 2, 1)).toISOString().slice(0, 7); };
+const nomMes = m => MESES_[+m.slice(5, 7) - 1];
+const pct = (a, b) => (b ? Math.min(100, Math.round((a / b) * 100)) : 0);
+export async function datosInforme(slug, mes) {
+  const act = await statsAgencia(slug, mes), ant = await statsAgencia(slug, mesPrevio(mes));
+  const top = Object.entries(act.destinos || {}).sort((x, y) => y[1] - x[1]).slice(0, 4);
+  return { mes, nombreMes: nomMes(mes), mesAnterior: nomMes(mesPrevio(mes)), act, ant, top,
+    pctAct: pct(act.aperturas, act.envios), pctAnt: pct(ant.aperturas, ant.envios) };
+}
+const flecha = (a, b, suf = "") => { const d = a - b; return d > 0 ? `▲ ${d}${suf}` : d < 0 ? `▼ ${-d}${suf}` : "= igual"; };
+export function textoInforme(nombreAg, i) {
+  const L = [`Hola, ${nombreAg} 👋 Tu mes en Maleta Fácil (${i.nombreMes}):`, "",
+    `🧳 *${i.act.envios} maletas enviadas*` + (i.ant.envios ? ` (${i.act.envios >= i.ant.envios ? (i.act.envios - i.ant.envios) + " más" : (i.ant.envios - i.act.envios) + " menos"} que en ${i.mesAnterior})` : ""),
+    `✅ *${i.act.aperturas} clientes la abrieron (${i.pctAct} %)*`];
+  if (i.top.length) L.push(`🌍 Destinos estrella: ${i.top.slice(0, 3).map(x => x[0]).join(", ").replace(/, ([^,]*)$/, " y $1")}`);
+  if (i.act.civitatis) L.push(`🎟️ ${i.act.civitatis} clics a Civitatis`);
+  if (i.act.sinTelefono) L.push("", `💡 ${i.act.sinTelefono} cliente${i.act.sinTelefono > 1 ? "s no tenían" : " no tenía"} teléfono: añádelo en tu Excel y también les llegará por WhatsApp.`);
+  L.push("", "¡Gracias por cuidar así a tus viajeros! Maleta Fácil");
+  return L.join("\n");
+}
+function htmlInforme(nombreAg, logo, i) {
+  const caja = (num, txt, sub, color) => `<td width="50%" valign="top" style="padding:4px"><div style="background:#F6F1E4;border-radius:12px;padding:12px;min-height:92px"><div style="font-family:Georgia,serif;font-size:28px;font-weight:bold;color:#12302E">${num}</div><div style="font-size:13px;color:#6B665B">${txt}</div>${sub ? `<div style="font-size:12px;font-weight:bold;color:${color || "#2E827C"}">${sub}</div>` : ""}</div></td>`;
+  const destinos = i.top.map(([d, n]) => `<span style="display:inline-block;background:#E3EFEC;color:#2E5E59;font-weight:bold;font-size:13px;padding:4px 10px;border-radius:100px;margin:0 4px 6px 0">${esc(d)} · ${n}</span>`).join("");
+  const consejo = i.act.sinTelefono ? `${i.act.sinTelefono} cliente${i.act.sinTelefono > 1 ? "s no tenían" : " no tenía"} teléfono. Añádelo en tu Excel y les llegará su maleta por WhatsApp.`
+    : i.pctAct && i.pctAct < 50 ? "Menos de la mitad de tus clientes abrió su maleta. Un mensaje personal («¡Hola, Ana!») ayuda a que la abran."
+    : "Sube tu Excel de reservas cada semana: así ningún cliente se queda sin su maleta.";
+  return `<!doctype html><html><body style="margin:0;background:#EFEBE3;font-family:Arial,Helvetica,sans-serif"><table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:20px 10px">
+<table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#fff;border-radius:14px;overflow:hidden">
+<tr><td style="background:#12302E;padding:16px 20px;color:#F6F1E4"><table width="100%"><tr><td><b style="font-family:Georgia,serif;font-size:18px">Maleta Fácil</b><br><span style="font-size:12px;color:#9FC2BC">Informe de ${i.nombreMes} · ${esc(nombreAg)}</span></td>${logo ? `<td align="right"><img src="${logo}" alt="" height="28" style="border-radius:4px"></td>` : ""}</tr></table></td></tr>
+<tr><td style="padding:18px 20px;font-size:14px;line-height:1.5;color:#12302E">
+<div style="font-family:Georgia,serif;font-size:22px;font-weight:bold">${i.act.envios ? "¡Buen mes! 🎉" : "Tu mes en Maleta Fácil"}</div>
+<p style="margin:4px 0 10px">${i.act.envios ? "Tus clientes han recibido su maleta antes de viajar:" : "Este mes no se enviaron maletas. ¡Programa tus próximos viajes en la herramienta!"}</p>
+<table width="100%" cellpadding="0" cellspacing="0"><tr>${caja(i.act.envios, "maletas enviadas", i.ant.envios || i.act.envios ? flecha(i.act.envios, i.ant.envios) + " vs " + i.mesAnterior : "")}${caja(i.pctAct + " %", `la abrieron (${i.act.aperturas} clientes)`, i.ant.envios ? flecha(i.pctAct, i.pctAnt, " puntos") : "")}</tr>
+<tr>${caja(i.act.civitatis, "clics a Civitatis (tu comisión)", i.ant.civitatis || i.act.civitatis ? flecha(i.act.civitatis, i.ant.civitatis) : "")}${caja(i.act.sinTelefono, "sin teléfono en el Excel", i.act.sinTelefono ? "no recibieron WhatsApp" : "¡todos con teléfono!", i.act.sinTelefono ? "#B65B3F" : "#2E827C")}</tr></table>
+${destinos ? `<p style="margin:14px 0 6px;font-weight:bold">Destinos del mes</p>${destinos}` : ""}
+<div style="background:#FCEFD8;border-radius:12px;padding:10px 12px;margin-top:10px">💡 <b>Consejo:</b> ${consejo}</div>
+<p style="margin:14px 0 0">Gracias por cuidar así a tus viajeros.<br><b>Maleta Fácil</b></p></td></tr>
+<tr><td style="padding:0 20px 16px;font-size:11.5px;color:#999">Ves el informe completo en tu herramienta → Mi agencia.</td></tr></table></td></tr></table></body></html>`;
+}
+export async function enviarInforme(store, slug, mes, nombres, copia = true) {
+  const cfg = await efectiva(store, slug);
+  const i = await datosInforme(slug, mes);
+  const ag = nombres[slug] || {}, nombreAg = ag.nombre || slug;
+  const WEB_ = process.env.URL || "https://maletafacil.com";
+  const logo = ag.logo ? (/^https?:/.test(ag.logo) ? ag.logo : WEB_ + (ag.logo.startsWith("/") ? ag.logo : "/agencias/" + encodeURIComponent(ag.logo))) : "";
+  let email = false, avisos = 0;
+  try { email = await enviarEmail(cfg.email, `📊 Tu mes en Maleta Fácil: ${i.nombreMes}`, htmlInforme(nombreAg, logo, i), copia); } catch (e) {}
+  const subs = (await store.get("push:" + slug, { type: "json" })) || [];
+  for (const sb of subs) { try { const r = await enviarPush(sb, { title: `📊 Tu informe de ${i.nombreMes} está listo`, body: `${i.act.envios} maletas enviadas, ${i.pctAct} % abiertas.`, url: "/enlace.html#miagencia" }); if (r.ok) avisos++; } catch (e) {} }
+  return { slug, mes, email, avisos };
 }
 
 export async function ejecutarResumen(forzarSlug = "") {
@@ -142,6 +195,13 @@ export async function ejecutarResumen(forzarSlug = "") {
     // Se manda en la primera pasada a partir de su hora (la función se ejecuta cada 15 minutos)
     const [hh, mm] = String(cfg.hora).split(":").map(Number), ahora = minutosEn(cfg.tz);
     if (!forzar && (ahora < hh * 60 + mm || ahora >= 21 * 60 || cfgGuardada.ultimo === hoy)) continue;
+
+    // Día 1 de cada mes: informe del mes anterior (una sola vez)
+    const mesAnt = mesPrevio(hoy.slice(0, 7));
+    if (!forzar && hoy.slice(8, 10) === "01" && cfgGuardada.informe !== mesAnt) {
+      try { informe.push({ ...(await enviarInforme(store, slug, mesAnt, nombres)), tipo: "informe" }); } catch (e) {}
+      cfgGuardada.informe = mesAnt;
+    }
 
     const { pend } = clasificar(lista, hoy);
     if (!forzar) await store.setJSON("cfg:" + slug, { ...cfgGuardada, ultimo: hoy }); // "Probar ahora" no gasta el resumen del día
@@ -210,7 +270,7 @@ export default async (req) => {
       if (!v.des || !esFecha(v.ida)) continue;
       v.id = createHash("sha1").update([slug, v.cli.toLowerCase(), v.tel, v.des.toLowerCase(), v.ida].join("|")).digest("hex").slice(0, 16);
       const i = lista.findIndex(x => x.id === v.id);
-      if (i >= 0) { lista[i] = { ...lista[i], ...v }; cambiados++; } else { lista.push({ ...v, creado: Date.now(), enviado: null }); nuevos++; }
+      if (i >= 0) { lista[i] = { ...lista[i], ...v }; cambiados++; } else { lista.push({ ...v, creado: Date.now(), enviado: null }); nuevos++; if (!v.tel) { try { await sumar(slug, "sintel"); } catch (e) {} } }
     }
     await store.setJSON("ag:" + slug, lista);
     return json({ ok: true, nuevos, cambiados });
@@ -243,6 +303,21 @@ export default async (req) => {
     }
     await store.setJSON("ag:" + slug, lista);
     return json({ ok: true });
+  }
+
+  if (b.accion === "informe" || b.accion === "informeAhora") {
+    // La agencia ve el suyo; el administrador, el de cualquier agencia (y puede mandarlo ya)
+    if (!esSlug(slug)) return json({ error: "agencia" }, 400);
+    const mes = /^\d{4}-\d{2}$/.test(b.mes || "") ? b.mes : hoyEn().slice(0, 7);
+    if (b.accion === "informeAhora") {
+      if (yo.rol !== "admin") return json({ error: "rol" }, 403);
+      return json({ ok: true, ...(await enviarInforme(store, slug, mes, await nombresAgencias(), false)) });
+    }
+    const i = await datosInforme(slug, mes);
+    if (yo.rol !== "admin") { delete i.act.amazon; delete i.ant.amazon; } // la comisión de Amazon solo la ve el administrador
+    const nombres = await nombresAgencias();
+    const { blobs } = await getStore({ name: "estadisticas", consistency: "strong" }).list({ prefix: `st:${slug}:` });
+    return json({ ok: true, ...i, meses: blobs.map(x => x.key.split(":")[2]).sort().reverse(), texto: yo.rol === "admin" ? textoInforme((nombres[slug] || {}).nombre || slug, i) : undefined });
   }
 
   if (b.accion === "stats") {

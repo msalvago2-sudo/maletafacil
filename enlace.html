@@ -4,6 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow">
+<link rel="manifest" href="/herramienta.webmanifest">
+<meta name="theme-color" content="#12302E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="MF Agencias">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <title>Crear enlace de maleta · Maleta Fácil</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -80,6 +86,59 @@ button,.btn{font:700 15px 'Work Sans',sans-serif;border:0;border-radius:100px;pa
 .del{background:#F6E1DA;color:#8F4430}
 .add{background:var(--rust);color:#fff;width:100%;margin-bottom:14px}
 .prev{width:100%;height:90px;border-radius:12px;background:#F2EDE1;display:flex;align-items:center;justify-content:center;overflow:hidden;margin-top:8px}
+/* Pestaña Hoy */
+.tabs button{font-size:13.5px}
+.hitem{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid #EEE7D8}
+.hitem:last-child{border-bottom:0}
+.hitem b{display:block;font-size:15px}.hitem span{font-size:12.5px;color:#6B665B}
+.hitem .acc{display:flex;gap:6px;align-items:center;flex-shrink:0}
+.hitem .wa2{background:#25D366;color:#0B3B21;font-weight:700;font-size:13px;padding:9px 14px;border-radius:100px;text-decoration:none;min-height:auto}
+.hitem .cp2{background:#E8E1D1;color:var(--teal);font-weight:700;font-size:13px;padding:9px 12px;border-radius:100px;min-height:auto}
+.hitem .x{background:none;color:#B3A993;font-size:18px;padding:4px 6px;min-height:auto}
+.hitem.hecho{opacity:.55}.hitem.hecho .wa2{background:#E3EFEC;color:#2E5E59}
+.hitem .ok2{color:#2E827C;font-weight:700;font-size:12px}
+.hsec{font:700 18px Fraunces,serif;margin:14px 0 2px;display:flex;justify-content:space-between;align-items:baseline}
+.hsec small{font:500 12px 'Work Sans',sans-serif;color:#6B665B}
+.hag{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #EEE7D8;cursor:pointer}
+.hag img{height:26px;max-width:80px;object-fit:contain;border-radius:4px}
+.hag b{flex:1;font-size:14px}.hag span{font-size:13px;color:#6B665B;text-align:right}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0 10px}
+.kpi{background:#fff;border-radius:12px;padding:10px 12px}.kpi b{display:block;font:700 26px Fraunces,serif}.kpi span{font-size:12px;color:#6B665B}
+.vacio2{text-align:center;padding:18px 6px;color:#6B665B;font-size:14px}
+.mini{display:block;text-align:center;font-size:13px;color:var(--rust);text-decoration:underline;margin-top:10px;cursor:pointer}
+.resumenF{background:#F2EDE1;border-radius:12px;padding:12px}
+.resumenF input[type=time]{width:120px;min-height:44px;padding:8px;text-align:center;-webkit-appearance:none;appearance:none}
+/* Enviar más tarde (recordatorio en el calendario) */
+.luego{margin-top:14px;background:#F6F1E4;border-radius:12px;padding:12px}
+.luego>b{font-size:15px}
+.lrow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:8px 0}
+.lrow span{font-size:14px;font-weight:600}
+.lrow input[type=time]{width:140px;min-height:44px;padding:8px 10px;-webkit-appearance:none;appearance:none;text-align:center}
+.step{display:flex;align-items:center;gap:6px}
+.step button{width:40px;min-height:40px;padding:0;background:#E3EFEC;color:var(--teal);font-size:20px}
+.step input{width:56px;min-height:40px;text-align:center;padding:6px}
+.cuando{font-size:13px;margin:8px 0 10px;color:#2E5E59;min-height:18px}
+.cuando.mal{color:var(--rust)}
+.recor{background:var(--teal);color:var(--paper);width:100%}
+.recor.off{opacity:.4;pointer-events:none}
+/* Calendario de ida y vuelta */
+.fbtn{width:100%;min-height:50px;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;font:500 16px 'Work Sans',sans-serif;color:var(--teal);text-align:left}
+.fbtn .vacio{color:#9A9284}
+#calF{position:fixed;inset:0;background:rgba(10,24,23,.7);z-index:50;display:flex;align-items:flex-end;justify-content:center}
+#calF .caja{background:var(--paper);width:100%;max-width:520px;border-radius:22px 22px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom))}
+.cfh{display:flex;align-items:center;justify-content:space-between;margin:4px 0 12px}
+.cfh b{font:700 17px Fraunces,serif;text-transform:capitalize}
+.cfh button{width:40px;min-height:40px;padding:0;background:#E3EFEC;color:var(--teal);font-size:22px}
+.cfh button:disabled{opacity:.3}
+.cfw,.cfg{display:grid;grid-template-columns:repeat(7,1fr)}
+.cfw span{text-align:center;font-size:11px;font-weight:700;color:#A9A296;padding-bottom:6px}
+.cfg button{min-height:44px;padding:0;border-radius:0;background:transparent;color:var(--teal);font:500 15px 'Work Sans',sans-serif}
+.cfg button:disabled{color:#D2C9B6}
+.cfg button.hoy{font-weight:700;color:var(--teal5)}
+.cfg button.en{background:rgba(46,130,124,.14)}
+.cfg button.ini,.cfg button.fin{background:var(--teal);color:#fff;font-weight:700}
+.cfg button.ini{border-radius:50% 0 0 50%}.cfg button.fin{border-radius:0 50% 50% 0}.cfg button.ini.fin{border-radius:50%}
+.cfpaso{text-align:center;font-size:13px;color:#6B665B;margin:10px 0 4px;min-height:18px}
 /* Vista previa de la cabecera */
 .cab{margin-top:10px;background:#12302E;border-radius:14px;padding:16px 10px;display:flex;align-items:center;justify-content:center;gap:10px;min-height:96px}
 .cabmf{display:flex;align-items:center;gap:7px;flex-shrink:0}
@@ -124,9 +183,23 @@ button,.btn{font:700 15px 'Work Sans',sans-serif;border:0;border-radius:100px;pa
 <p class="err" id="errL"></p>
 </div>
 <div id="app" class="hide">
-<div class="tabs"><button type="button" id="tUno" class="on">Un cliente</button><button type="button" id="tVarios">Varios</button><button type="button" id="tAg">Agencias</button></div>
+<div class="tabs"><button type="button" id="tHoy" class="on">Hoy</button><button type="button" id="tUno">Un cliente</button><button type="button" id="tVarios">Varios</button><button type="button" id="tAg">Agencias</button></div>
 
-<div class="card" id="cardEnlaces">
+<!-- HOY -->
+<div id="cardHoy">
+<div class="card">
+<div class="f" style="margin-bottom:6px"><label for="agHoy">Agencia</label><select id="agHoy"><option value="">Todas las agencias</option></select></div>
+<div id="hoyCont"><p class="hint">Cargando…</p></div>
+</div>
+<div class="card hide" id="hoyAjustes" style="margin-top:12px">
+<b style="font:700 17px Fraunces,serif">🔔 Avisos en este móvil</b>
+<p class="hint" id="avisoTxt" style="margin:4px 0 10px"></p>
+<button type="button" class="btn recor" id="activarAvisos">Activar avisos en este móvil</button>
+<a class="mini" id="probarResumen">Probar el resumen ahora</a>
+</div>
+</div>
+
+<div class="card hide" id="cardEnlaces">
 <div class="f"><label for="agencia">Agencia</label>
 <select id="agencia"><option value="">Sin agencia (solo Maleta Fácil)</option></select></div>
 
@@ -134,13 +207,15 @@ button,.btn{font:700 15px 'Work Sans',sans-serif;border:0;border-radius:100px;pa
 <div id="pUno">
 <div class="f"><label for="cliente">Nombre del cliente (opcional)</label>
 <input id="cliente" placeholder="Ej. Ana" autocomplete="off"></div>
+<div class="f"><label for="telCli">Teléfono del cliente (opcional)</label>
+<input id="telCli" type="tel" inputmode="tel" placeholder="Ej. 612 345 678" autocomplete="off">
+<div class="hint">Así WhatsApp se abre directamente en su chat.</div></div>
 <div class="f"><label for="destino">Destino</label>
 <input id="destino" placeholder="Ej. Londres, Roma, Cancún…" autocomplete="off">
 <div class="hint">Escribe la ciudad como la diría el cliente.</div></div>
-<div class="row">
-<div class="f"><label for="ida">Ida</label><input id="ida" type="date" required></div>
-<div class="f"><label for="vuelta">Vuelta</label><input id="vuelta" type="date" required></div>
-</div>
+<div class="f"><label for="fechasBtn">Fechas del viaje</label>
+<button type="button" id="fechasBtn" class="fbtn"><span id="fechasTxt" class="vacio">Elige ida y vuelta</span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4" stroke-linecap="round"/></svg></button>
+<input id="ida" type="hidden"><input id="vuelta" type="hidden"></div>
 <div class="f"><label for="tipo">Tipo de viaje</label>
 <select id="tipo"><option value="">Ciudad</option><option value="playa">Playa</option><option value="negocios">Negocios</option><option value="aventura">Aventura</option></select></div>
 <p class="err" id="err"></p>
@@ -151,6 +226,15 @@ button,.btn{font:700 15px 'Work Sans',sans-serif;border:0;border-radius:100px;pa
 <a class="btn wa" id="wa" target="_blank" rel="noopener">Enviar por WhatsApp</a>
 <button type="button" class="copy" id="copiar">Copiar mensaje</button>
 <a class="btn test" id="probar" target="_blank" rel="noopener">Probar enlace</a>
+</div>
+<div class="luego" id="luego">
+<b>⏰ Programar el envío</b>
+<p class="hint" style="margin:2px 0 10px">El día que toque aparecerá en <b>Hoy</b> y a la agencia le llegará el aviso al móvil y por email. Solo hay que tocar WhatsApp y enviar.</p>
+<div class="lrow"><span>Días antes del viaje</span><div class="step"><button type="button" data-d="-1">−</button><input id="diasAntes" type="number" min="0" max="60" value="5" inputmode="numeric"><button type="button" data-d="1">+</button></div></div>
+<input type="hidden" id="horaAviso" value="09:00">
+<p class="cuando" id="cuando"></p>
+<button type="button" class="btn recor" id="programar">Programar envío</button>
+<a class="mini" id="recordar">o añadir también un aviso a mi calendario</a>
 </div>
 </div>
 </div>
@@ -173,6 +257,15 @@ button,.btn{font:700 15px 'Work Sans',sans-serif;border:0;border-radius:100px;pa
 <div class="bar"><b id="cuenta"></b>
 <select id="rango"><option value="7">Próximos 7 días</option><option value="15" selected>Próximos 15 días</option><option value="30">Próximos 30 días</option><option value="9999">Todos los futuros</option></select></div>
 <div id="lista"></div>
+<div class="luego" id="luegoV" style="margin-top:14px">
+<b>⏰ Programar todos los envíos</b>
+<p class="hint" style="margin:2px 0 10px">Se guardan todos los viajes de la lista. Cada día aparecerán en <b>Hoy</b> los clientes a los que toca enviar, con aviso al móvil y por email.</p>
+<div class="lrow"><span>Días antes del viaje</span><div class="step"><button type="button" data-d="-1">−</button><input id="diasAntesV" type="number" min="0" max="60" value="5" inputmode="numeric"><button type="button" data-d="1">+</button></div></div>
+<input type="hidden" id="horaAvisoV" value="09:00">
+<p class="cuando" id="cuandoV"></p>
+<button type="button" class="btn recor" id="programarV">Programar todos</button>
+<a class="mini" id="recordarV" href="#">o añadir también los avisos a mi calendario</a>
+</div>
 <button type="button" class="dl" id="descargar">Descargar lista con enlaces (.csv)</button>
 </div>
 </div>
@@ -194,6 +287,13 @@ button,.btn{font:700 15px 'Work Sans',sans-serif;border:0;border-radius:100px;pa
 <div class="segm" id="aTam"><button type="button" data-v="s">Pequeño</button><button type="button" data-v="m" class="on">Mediano</button><button type="button" data-v="l">Grande</button></div>
 <div class="cab" id="aCab"><div class="cabmf"><div class="cabic">M<i></i></div><div><b>Maleta Fácil</b><span class="cabtag">✈ Equipaje sin estrés</span></div></div><div class="cabsep"></div><div class="cablogo" id="aCabLogo"></div></div>
 <div class="hint">Así se verá arriba en la web cuando el cliente entre con su enlace.</div></div>
+<div class="f resumenF"><label>Resumen diario de envíos</label>
+<div class="hint" style="margin:0 0 8px">Cada mañana la agencia recibe la lista de clientes a los que toca enviar la maleta por WhatsApp.</div>
+<input id="aEmail" type="email" inputmode="email" placeholder="Email para el resumen (ej. reservas@agencia.es)" autocomplete="off">
+<div class="lrow"><span>Hora del resumen</span><input id="aHora" type="time" value="09:00"></div>
+<div class="lrow"><span>Enviar … días antes</span><div class="step"><button type="button" data-d="-1">−</button><input id="aDias" type="number" min="0" max="60" value="5" inputmode="numeric"><button type="button" data-d="1">+</button></div></div>
+<div class="lrow"><span>Horario de</span><select id="aTz" style="width:auto"><option value="Europe/Madrid">España</option><option value="Europe/Lisbon">Portugal</option></select></div>
+</div>
 <div class="f"><label for="aTag">Código de Amazon (opcional)</label><input id="aTag" placeholder="Ej. viajessol-21" autocomplete="off"></div>
 <div class="f"><label for="aSeguro">Enlace de su seguro (opcional)</label><input id="aSeguro" placeholder="https://…" autocomplete="off" inputmode="url"></div>
 <div class="f"><label for="aCiv">Código de Civitatis (opcional)</label><input id="aCiv" placeholder="Ej. 12345" autocomplete="off" inputmode="numeric"></div>
@@ -206,6 +306,13 @@ button,.btn{font:700 15px 'Work Sans',sans-serif;border:0;border-radius:100px;pa
 </div>
 <div class="toast" id="toast">¡Copiado!</div>
 
+<div id="calF" class="hide"><div class="caja">
+<div class="cfh"><button type="button" id="cfPrev" aria-label="Mes anterior">‹</button><b id="cfMes"></b><button type="button" id="cfNext" aria-label="Mes siguiente">›</button></div>
+<div class="cfw"><span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
+<div class="cfg" id="cfGrid"></div>
+<p class="cfpaso" id="cfPaso"></p>
+<div class="two" style="margin-top:8px"><button type="button" class="ed" id="cfBorrar">Borrar fechas</button><button type="button" class="ok" id="cfCerrar" style="margin:0">Cerrar</button></div>
+</div></div>
 <div id="edLogo" class="hide"><div class="caja">
 <h3>Ajusta el logo</h3><p class="sub2">Arrastra para moverlo y pellizca o usa + / − para acercar. Lo que está dentro del recuadro es lo que se verá.</p>
 <div class="zona" id="edZona"><canvas id="edCanvas"></canvas><div class="marco" id="edMarco"></div></div>
@@ -220,7 +327,36 @@ const $=id=>document.getElementById(id);
 const pad=n=>String(n).padStart(2,'0');
 const ymd=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
 const HOY=ymd(new Date());
-$('ida').min=HOY; $('vuelta').min=HOY;
+
+
+/* ---------- Calendario: ida y vuelta en un solo calendario (1er toque = ida, 2º = vuelta) ---------- */
+const MESES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const CAL={mes:null,ini:'',fin:''};
+function textoFechas(){const a=$('ida').value,b=$('vuelta').value,t=$('fechasTxt');
+  if(a&&b){const f=d=>d.split('-').reverse().join('/');t.textContent=f(a)+' — '+f(b);t.classList.remove('vacio');}
+  else{t.textContent='Elige ida y vuelta';t.classList.add('vacio');}}
+function abrirCal(){CAL.ini=$('ida').value;CAL.fin=$('vuelta').value;const b=CAL.ini||HOY;CAL.mes=new Date(+b.slice(0,4),+b.slice(5,7)-1,1);
+  $('calF').classList.remove('hide');document.body.style.overflow='hidden';pintarCal();}
+function cerrarCal(){$('calF').classList.add('hide');document.body.style.overflow='';}
+function pintarCal(){
+  const y=CAL.mes.getFullYear(),m=CAL.mes.getMonth();$('cfMes').textContent=MESES[m]+' '+y;
+  const hoy=new Date();$('cfPrev').disabled=y<hoy.getFullYear()||(y===hoy.getFullYear()&&m<=hoy.getMonth());
+  const pri=(new Date(y,m,1).getDay()+6)%7,dias=new Date(y,m+1,0).getDate(),g=$('cfGrid');g.innerHTML='';
+  for(let i=0;i<pri;i++)g.appendChild(document.createElement('span'));
+  for(let d=1;d<=dias;d++){const k=`${y}-${pad(m+1)}-${pad(d)}`,b=document.createElement('button');b.type='button';b.textContent=d;
+    if(k<HOY)b.disabled=true;if(k===HOY)b.classList.add('hoy');
+    if(k===CAL.ini)b.classList.add('ini');if(k===CAL.fin)b.classList.add('fin');if(CAL.ini&&CAL.fin&&k>CAL.ini&&k<CAL.fin)b.classList.add('en');
+    b.onclick=()=>{ if(!CAL.ini||CAL.fin||k<CAL.ini){CAL.ini=k;CAL.fin='';pintarCal();}
+      else{CAL.fin=k;pintarCal();$('ida').value=CAL.ini;$('vuelta').value=CAL.fin;textoFechas();$('vuelta').dispatchEvent(new Event('change'));setTimeout(cerrarCal,250);} };
+    g.appendChild(b);}
+  $('cfPaso').textContent=!CAL.ini||CAL.fin?'Toca el día de ida':'Ahora toca el día de vuelta';
+}
+$('fechasBtn').onclick=abrirCal;
+$('cfPrev').onclick=()=>{CAL.mes.setMonth(CAL.mes.getMonth()-1);pintarCal();};
+$('cfNext').onclick=()=>{CAL.mes.setMonth(CAL.mes.getMonth()+1);pintarCal();};
+$('cfCerrar').onclick=cerrarCal;
+$('cfBorrar').onclick=()=>{CAL.ini=CAL.fin='';$('ida').value=$('vuelta').value='';textoFechas();$('vuelta').dispatchEvent(new Event('change'));pintarCal();};
+$('calF').addEventListener('click',e=>{if(e.target.id==='calF')cerrarCal();});
 let nombres={};
 function toast(t){$('toast').textContent=t||'¡Copiado!';$('toast').classList.add('on');setTimeout(()=>$('toast').classList.remove('on'),1500)}
 function copiar(t){(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast()).catch(()=>{const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();document.execCommand('copy');a.remove();toast()})}
@@ -236,6 +372,12 @@ async function cargarAgencias(){
   let g=prev; try{g=prev||localStorage.getItem('mf_enlace_agencia')}catch(e){}
   if(g&&nombres[g]) sel.value=g;
   generar(); pintarLista(); pintarAgencias();
+  // Selector de la pestaña Hoy
+  const sh=$('agHoy'),ph=sh.value||new URLSearchParams(location.search).get('ag')||(()=>{try{return localStorage.getItem('mf_hoy_ag')}catch(e){return ''}})()||'';
+  sh.innerHTML='<option value="">Todas las agencias</option>';
+  [...Object.entries(AG).map(([k,d])=>[k,d.nombre||k]),['maletafacil','Maleta Fácil (sin agencia)']].forEach(([k,n])=>{const o=document.createElement('option');o.value=k;o.textContent=n;sh.appendChild(o);});
+  if(ph&&[...sh.options].some(o=>o.value===ph)) sh.value=ph;
+  if(!$('cardHoy').classList.contains('hide')) cargarHoy();
 }
 const logoUrl=l=>!l?'':(/^(\/|https:\/\/)/.test(l)?l:'/agencias/'+encodeURIComponent(l));
 
@@ -296,19 +438,165 @@ function generar(){
   const {url,msg}=crear({cli,des,ida,vu,tipo});
   $('msg').textContent=msg.replace('\n'+url,'').replace(/\*/g,'');
   $('link').textContent=url;
-  $('wa').href='https://wa.me/?text='+encodeURIComponent(msg);
+  $('wa').href='https://wa.me/'+telWa($('telCli').value)+'?text='+encodeURIComponent(msg);
   $('probar').href=url;
   $('copiar').onclick=()=>copiar(msg);
   $('out').classList.add('show');
 }
-['cliente','destino','ida','vuelta','tipo'].forEach(id=>{$(id).addEventListener('input',generar);$(id).addEventListener('change',generar);});
+['cliente','telCli','destino','ida','vuelta','tipo'].forEach(id=>{$(id).addEventListener('input',generar);$(id).addEventListener('change',generar);});
 $('agencia').addEventListener('change',()=>{generar();pintarLista();});
 
+
+/* ---------- ENVIAR MÁS TARDE: aviso en el calendario del móvil ---------- */
+const DIAS=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'],MES2=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+function momentoAviso(ida,dias,hora){const d=new Date(+ida.slice(0,4),+ida.slice(5,7)-1,+ida.slice(8,10));d.setDate(d.getDate()-dias);const [h,m]=(hora||'10:00').split(':').map(Number);d.setHours(h,m,0,0);return d;}
+const isoLocal=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+const bonitoAviso=d=>`${DIAS[d.getDay()]} ${d.getDate()} de ${MES2[d.getMonth()]} a las ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+const b64url=s=>btoa(unescape(encodeURIComponent(s))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+document.querySelectorAll('.step button').forEach(b=>b.onclick=()=>{const i=b.parentNode.querySelector('input');i.value=Math.max(0,Math.min(60,(+i.value||0)+(+b.dataset.d)));i.dispatchEvent(new Event('input'));});
+function avisoUno(){
+  const ida=$('ida').value,des=$('destino').value.trim(),btn=$('recordar'),c=$('cuando');
+  if(!ida||!des){c.textContent='Elige primero las fechas del viaje.';c.className='cuando mal';btn.classList.add('off');$('programar').classList.add('off');return;}
+  const d=momentoAviso(ida,+$('diasAntes').value||0,$('horaAviso').value);
+  if(d<=new Date()){c.textContent='Ese día ya ha pasado: envíalo ahora con el botón de WhatsApp (o prográmalo y saldrá hoy en «Hoy»).';c.className='cuando mal';btn.classList.add('off');$('programar').classList.remove('off');return;}
+  c.textContent='Toca enviarlo el '+bonitoAviso(d).replace(' a las ',' · aviso a las ')+'.';c.className='cuando';btn.classList.remove('off');$('programar').classList.remove('off');
+  const cli=$('cliente').value.trim(),ciudad=capital(des);
+  btn.href='/.netlify/functions/recordatorio?d='+b64url(JSON.stringify([{t:`🧳 Enviar maleta${cli?' a '+cli:''} · ${ciudad}`,u:$('wa').href,w:isoLocal(d)}]));
+}
+['diasAntes','horaAviso','cliente','destino','telCli','ida','vuelta','tipo','agencia'].forEach(id=>{$(id).addEventListener('input',()=>setTimeout(avisoUno));$(id).addEventListener('change',()=>setTimeout(avisoUno));});
+function avisosVarios(){
+  const c=$('cuandoV'),btn=$('recordarV'),dias=+$('diasAntesV').value||0,hora=$('horaAvisoV').value;
+  if(!visibles.length){c.textContent='';btn.classList.add('off');$('programarV').classList.add('off');return [];}
+  const ahora=new Date(),ok=[],tarde=[];
+  visibles.forEach(r=>{const d=momentoAviso(r.ida,dias,hora);(d>ahora?ok:tarde).push({r,d});});
+  c.textContent=`${visibles.length} viaje${visibles.length>1?'s':''} en la lista.`+(tarde.length?` ${tarde.length} ya ${tarde.length>1?'están':'está'} dentro de ese plazo: saldrá${tarde.length>1?'n':''} hoy mismo en «Hoy».`:'');
+  c.className='cuando';btn.classList.toggle('off',!ok.length);$('programarV').classList.toggle('off',!visibles.length);
+  $('programarV').textContent=visibles.length>1?`Programar los ${visibles.length} envíos`:'Programar el envío';
+  return ok;
+}
+['diasAntesV','horaAvisoV','rango'].forEach(id=>{$(id).addEventListener('input',()=>setTimeout(avisosVarios));$(id).addEventListener('change',()=>setTimeout(avisosVarios));});
+$('recordarV').onclick=(ev)=>{ev.preventDefault();
+  const ok=avisosVarios(); if(!ok.length) return;
+  const datos=ok.map(({r,d})=>{const ciudad=capital(r.destino),tel=telWa(r.tel);
+    return {t:`🧳 Enviar maleta a ${(r.nombre||'cliente').split(/\s+/)[0]} · ${ciudad}`,u:`https://wa.me/${tel}?text=${encodeURIComponent(r.msg)}`,w:isoLocal(d)};});
+  const f=document.createElement('form');f.method='POST';f.action='/.netlify/functions/recordatorio';
+  const i=document.createElement('input');i.type='hidden';i.name='datos';i.value=JSON.stringify(datos);f.appendChild(i);document.body.appendChild(f);f.submit();f.remove();
+};
+
+/* ---------- HOY: recuento diario de envíos (servidor) ---------- */
+async function apiV(body){
+  const r=await fetch('/.netlify/functions/viajes',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({...body,clave:CLAVE})});
+  let d={}; try{d=await r.json()}catch(e){} return {ok:r.ok,status:r.status,...d};
+}
+let CFGS={}, HOYDATA={};
+const slugActual=()=>$('agencia').value||'maletafacil';
+const nomAg=s=>nombres[s]||(s==='maletafacil'?'Maleta Fácil (sin agencia)':s);
+const cortoF=f=>{const M=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];const [,m,d]=f.split('-').map(Number);return `${d} ${M[m-1]}`;};
+const rangoV=v=>v.vu?`${cortoF(v.ida)} – ${cortoF(v.vu)}`:`sale el ${cortoF(v.ida)}`;
+function diaRel(f,hoy){const dd=Math.round((new Date(f+'T12:00')-new Date(hoy+'T12:00'))/864e5);if(dd===1)return 'Mañana';const d=new Date(f+'T12:00');return DIAS[d.getDay()].replace(/^./,c=>c.toUpperCase())+' '+d.getDate();}
+async function cargarHoy(){
+  const s=$('agHoy').value, cont=$('hoyCont');
+  const r=await apiV({accion:'hoy',slug:s}).catch(()=>({ok:false}));
+  if(!r.ok){cont.innerHTML='<p class="err" style="display:block">No se ha podido cargar la lista. Revisa la conexión.</p>';return;}
+  HOYDATA=r.agencias||{}; Object.entries(HOYDATA).forEach(([k,v])=>CFGS[k]=v.cfg);
+  aplicarCfg();
+  cont.innerHTML='';
+  if(!s){ pintarPanel(cont); $('hoyAjustes').classList.add('hide'); return; }
+  const a=HOYDATA[s]||{pend:[],hechos:[],prox:[],cfg:{},avisos:0};
+  const h=document.createElement('div');
+  h.innerHTML='<div class="hsec">Hoy toca enviar <small></small></div>';
+  h.querySelector('small').textContent=a.hoy?new Date(a.hoy+'T12:00').toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'short'}):'';
+  cont.appendChild(h);
+  if(!a.pend.length&&!a.hechos.length){const p=document.createElement('p');p.className='vacio2';p.textContent='🎉 Hoy no hay envíos pendientes.';cont.appendChild(p);}
+  a.pend.forEach(v=>cont.appendChild(itemHoy(s,v,false)));
+  a.hechos.forEach(v=>cont.appendChild(itemHoy(s,v,true)));
+  if(a.prox.length){
+    const g={}; a.prox.forEach(v=>(g[v.envio]=g[v.envio]||[]).push(v));
+    const t=document.createElement('div');t.className='hsec';t.innerHTML=`Próximos envíos <small>${a.prox.length} viaje${a.prox.length>1?'s':''}</small>`;cont.appendChild(t);
+    Object.keys(g).sort().slice(0,10).forEach(f=>{const d=document.createElement('div');d.className='hitem';
+      d.innerHTML='<div><b></b><span></span></div>';d.querySelector('b').textContent=`${diaRel(f,a.hoy)} · ${g[f].length} cliente${g[f].length>1?'s':''}`;
+      d.querySelector('span').textContent=g[f].map(v=>(v.cli?v.cli+' ('+v.des+')':v.des)).join(', ');cont.appendChild(d);});
+  }
+  const c=a.cfg||{}; $('hoyAjustes').classList.remove('hide');
+  $('avisoTxt').textContent=`Resumen cada día a las ${c.hora||'09:00'} · envío ${c.dias??5} días antes${c.email?' · email a '+c.email:''}. ${a.avisos?`Avisos activados en ${a.avisos} móvil${a.avisos>1?'es':''}.`:'Aún no hay ningún móvil con avisos.'} Puedes cambiarlo en Agencias.`;
+}
+function itemHoy(s,v,hecho){
+  const d=document.createElement('div');d.className='hitem'+(hecho?' hecho':'');
+  d.innerHTML='<div><b></b><span></span></div><div class="acc"></div>';
+  d.querySelector('b').textContent=(v.cli||'Cliente')+' · '+v.des;
+  d.querySelector('span').textContent=rangoV(v)+(v.tel?' · +'+v.tel:' · sin teléfono')+(hecho?' · ✓ enviado':'');
+  const acc=d.querySelector('.acc');
+  if(v.tel){const a=document.createElement('a');a.className='btn wa2';a.target='_blank';a.rel='noopener';a.href=v.ir;a.textContent=hecho?'Reenviar':'WhatsApp';
+    a.onclick=()=>{d.classList.add('hecho');d.querySelector('span').textContent=rangoV(v)+' · ✓ enviado';a.textContent='Reenviar';};acc.appendChild(a);}
+  else{const b=document.createElement('button');b.type='button';b.className='cp2';b.textContent='Copiar';b.onclick=async()=>{copiar(v.msg||'');await apiV({accion:'marcar',slug:s,id:v.id,enviado:true});d.classList.add('hecho');};acc.appendChild(b);}
+  const x=document.createElement('button');x.type='button';x.className='x';x.title='Quitar de la lista';x.textContent='×';
+  x.onclick=async()=>{if(!confirm('¿Quitar a '+(v.cli||'este cliente')+' de la lista de envíos?'))return;await apiV({accion:'borrar',slug:s,id:v.id});d.remove();};acc.appendChild(x);
+  return d;
+}
+function pintarPanel(cont){
+  const ags=Object.entries(HOYDATA);let pend=0,hechos=0,prox=0;ags.forEach(([,a])=>{pend+=a.pend.length;hechos+=a.hechos.length;prox+=a.prox.length;});
+  cont.innerHTML=`<div class="kpis"><div class="kpi"><b>${pend+hechos}</b><span>envíos para hoy</span></div><div class="kpi"><b>${hechos}</b><span>ya enviados hoy</span></div><div class="kpi"><b>${prox}</b><span>programados próximos días</span></div><div class="kpi"><b>${ags.length}</b><span>agencias con viajes</span></div></div>`;
+  if(!ags.length){cont.insertAdjacentHTML('beforeend','<p class="vacio2">Aún no hay envíos programados. Crea un enlace en «Un cliente» o sube un Excel en «Varios» y pulsa Programar.</p>');return;}
+  ags.sort((x,y)=>(y[1].pend.length+y[1].hechos.length)-(x[1].pend.length+x[1].hechos.length)).forEach(([k,a])=>{
+    const d=document.createElement('div');d.className='hag';const lg=logoUrl((AG[k]||{}).logo);
+    d.innerHTML=(lg?'<img alt="">':'')+'<b></b><span></span>';if(lg)d.querySelector('img').src=lg;
+    d.querySelector('b').textContent=nomAg(k);const tot=a.pend.length+a.hechos.length;
+    d.querySelector('span').textContent=tot?`${tot} hoy · ${a.hechos.length} enviado${a.hechos.length===1?'':'s'}`:`${a.prox.length} programado${a.prox.length===1?'':'s'}`;
+    d.onclick=()=>{$('agHoy').value=k;cargarHoy();};cont.appendChild(d);});
+}
+$('agHoy').addEventListener('change',()=>{try{localStorage.setItem('mf_hoy_ag',$('agHoy').value)}catch(e){};cargarHoy();});
+// Días por defecto y hora del aviso según la agencia elegida
+function aplicarCfg(){const c=CFGS[slugActual()];if(!c)return;
+  ['diasAntes','diasAntesV'].forEach(i=>{if(!$(i).dataset.tocado)$(i).value=c.dias??5;});
+  $('horaAviso').value=$('horaAvisoV').value=c.hora||'09:00'; avisoUno(); avisosVarios();}
+['diasAntes','diasAntesV'].forEach(i=>$(i).addEventListener('input',()=>$(i).dataset.tocado='1'));
+$('agencia').addEventListener('change',async()=>{if(!CFGS[slugActual()]){const r=await apiV({accion:'hoy',slug:slugActual()}).catch(()=>({}));if(r.agencias)Object.entries(r.agencias).forEach(([k,v])=>CFGS[k]=v.cfg);}aplicarCfg();});
+// Programar (un cliente)
+$('programar').onclick=async()=>{
+  const ida=$('ida').value,des=$('destino').value.trim(); if(!ida||!des) return;
+  const cli=$('cliente').value.trim(),vu=$('vuelta').value,tipo=$('tipo').value,{url,msg}=crear({cli,des,ida,vu,tipo});
+  $('programar').classList.add('off');
+  const r=await apiV({accion:'guardar',slug:slugActual(),viajes:[{cli,tel:telWa($('telCli').value),des:capital(des),ida,vu,tipo,dias:+$('diasAntes').value||0,msg,url}]}).catch(()=>({ok:false}));
+  $('programar').classList.remove('off');
+  if(!r.ok) return toast(r.status===401?'Vuelve a entrar':'No se ha podido programar');
+  toast('✅ Envío programado'); $('cuando').textContent='✅ Programado. '+$('cuando').textContent;
+};
+// Programar todos (Excel)
+$('programarV').onclick=async()=>{
+  if(!visibles.length) return; const dias=+$('diasAntesV').value||0;
+  const viajes=visibles.map(r=>({cli:(r.nombre||'').split(/\s+/)[0]||'',tel:telWa(r.tel),des:capital(r.destino),ida:r.ida,vu:r.vuelta&&r.vuelta>=r.ida?r.vuelta:'',tipo:'',dias,msg:r.msg,url:r.url}));
+  $('programarV').classList.add('off');
+  const r=await apiV({accion:'guardar',slug:slugActual(),viajes}).catch(()=>({ok:false}));
+  $('programarV').classList.remove('off');
+  if(!r.ok) return toast(r.status===401?'Vuelve a entrar':'No se ha podido programar');
+  toast(`✅ ${r.nuevos} nuevos · ${r.cambiados} actualizados`); $('cuandoV').textContent=`✅ Programados: ${r.nuevos} nuevos y ${r.cambiados} actualizados. Los verás en «Hoy» el día que toque.`;
+};
+// Avisos en el móvil (Web Push)
+const esIOS=/iPhone|iPad|iPod/.test(navigator.userAgent), instalada=window.matchMedia('(display-mode: standalone)').matches||navigator.standalone;
+if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});
+const aBytes=b=>{const p='='.repeat((4-b.length%4)%4),r=atob((b+p).replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from([...r].map(c=>c.charCodeAt(0)));};
+$('activarAvisos').onclick=async()=>{
+  const s=$('agHoy').value; if(!s) return toast('Elige primero una agencia');
+  if(esIOS&&!instalada) return alert('En iPhone, primero añade esta herramienta a la pantalla de inicio:\n\n1. Toca el botón Compartir de Safari.\n2. Elige «Añadir a pantalla de inicio».\n3. Ábrela desde el icono nuevo y pulsa otra vez «Activar avisos».');
+  if(!('serviceWorker' in navigator)||!('PushManager' in window)) return alert('Este móvil o navegador no permite avisos. Prueba con Safari (iPhone) o Chrome (Android).');
+  const perm=await Notification.requestPermission(); if(perm!=='granted') return alert('Sin permiso no podemos avisarte. Puedes activarlo en Ajustes → Notificaciones.');
+  try{
+    const {clave}=await (await fetch('/.netlify/functions/viajes?vapid=1')).json(); if(!clave) throw new Error('vapid');
+    const reg=await navigator.serviceWorker.ready;
+    let sub=await reg.pushManager.getSubscription(); if(!sub) sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:aBytes(clave)});
+    const r=await apiV({accion:'push',slug:s,sub:sub.toJSON(),quien:esIOS?'iPhone':'Android'}); if(!r.ok) throw new Error('guardar');
+    await apiV({accion:'pushPrueba',slug:s}); toast('🔔 Avisos activados'); cargarHoy();
+  }catch(e){alert('No se han podido activar los avisos. Inténtalo de nuevo en unos minutos.');}
+};
+$('probarResumen').onclick=async()=>{const s=$('agHoy').value;if(!s)return;const r=await apiV({accion:'resumenAhora',slug:s}).catch(()=>({ok:false}));
+  const i=(r.informe||[])[0]; toast(!r.ok?'No se ha podido enviar':!i||!i.pend?'Hoy no hay envíos pendientes':`Enviado: ${i.avisos} aviso${i.avisos===1?'':'s'}${i.email?' + email':''}`);};
 /* ---------- PESTAÑAS ---------- */
-function tab(n){['tUno','tVarios','tAg'].forEach((t,i)=>$(t).classList.toggle('on',i===n));
-  $('pUno').classList.toggle('hide',n!==0);$('pVarios').classList.toggle('hide',n!==1);
-  $('cardEnlaces').classList.toggle('hide',n===2);$('cardAg').classList.toggle('hide',n!==2);}
-$('tUno').onclick=()=>tab(0); $('tVarios').onclick=()=>tab(1); $('tAg').onclick=()=>tab(2);
+function tab(n){['tHoy','tUno','tVarios','tAg'].forEach((t,i)=>$(t).classList.toggle('on',i===n));
+  $('cardHoy').classList.toggle('hide',n!==0);
+  $('pUno').classList.toggle('hide',n!==1);$('pVarios').classList.toggle('hide',n!==2);
+  $('cardEnlaces').classList.toggle('hide',n!==1&&n!==2);$('cardAg').classList.toggle('hide',n!==3);
+  if(n===0) cargarHoy();}
+$('tHoy').onclick=()=>tab(0); $('tUno').onclick=()=>tab(1); $('tVarios').onclick=()=>tab(2); $('tAg').onclick=()=>tab(3);
 
 /* ---------- LECTOR DE EXCEL (.xlsx) SIN LIBRERÍAS ---------- */
 async function inflar(bytes){
@@ -414,6 +702,7 @@ function pintarLista(){
     cb.onchange=()=>{d.classList.toggle('sent',cb.checked);try{cb.checked?localStorage.setItem(claveEnviado(r),'1'):localStorage.removeItem(claveEnviado(r))}catch(e){}};
     $('lista').appendChild(d);
   });
+  avisosVarios();
 }
 $('descargar').onclick=()=>{
   if(!visibles.length) return;
@@ -448,6 +737,9 @@ function abrirForm(slug){
   $('agTit').textContent=slug?'Editar agencia':'Nueva agencia';
   $('aNombre').value=d.nombre||''; $('aModo').value=d.modo==='completo'?'completo':''; $('aTag').value=d.tag||''; $('aSeguro').value=d.seguro||''; $('aCiv').value=d.civitatis||''; $('aLogo').value=''; tamLogo=['s','l'].includes(d.tam)?d.tam:'m'; $('aTamF').style.display=d.modo==='completo'?'none':'';
   const src=logoUrl(d.logo); $('aPrev').innerHTML=src?'<img alt="">':'<span class="hint">Sin logo</span>'; if(src)$('aPrev').querySelector('img').src=src;
+  const cf={hora:'09:00',dias:5,tz:'Europe/Madrid',email:'',...(CFGS[slug]||{})};
+  $('aEmail').value=cf.email||''; $('aHora').value=cf.hora; $('aDias').value=cf.dias; $('aTz').value=cf.tz;
+  if(slug&&!CFGS[slug]) apiV({accion:'hoy',slug}).then(r=>{const c=r.agencias&&r.agencias[slug]&&r.agencias[slug].cfg;if(c&&editando===slug){CFGS[slug]=c;$('aEmail').value=c.email||'';$('aHora').value=c.hora;$('aDias').value=c.dias;$('aTz').value=c.tz;}}).catch(()=>{});
   $('errA').style.display='none'; actSlug();
   $('agLista').classList.add('hide'); $('agForm').classList.remove('hide'); window.scrollTo(0,0);
 }
@@ -599,11 +891,14 @@ $('aGuardar').onclick=async()=>{
   if(tag&&!/^[a-z0-9-]+-21$/i.test(tag)) return fallo('El código de Amazon debe acabar en -21 (ej. viajessol-21).');
   if(seguro&&!/^https:\/\//i.test(seguro)) return fallo('El enlace del seguro debe empezar por https://');
   if(civ&&!/^\d+$/.test(civ)) return fallo('El código de Civitatis son solo números.');
+  const emailR=$('aEmail').value.trim(); if(emailR&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(emailR)) return fallo('Revisa el email del resumen.');
   $('aGuardar').disabled=true;
   let og; try{og=await hacerTarjeta(logoData||logoUrl((AG[slug]||{}).logo),nombre);}catch(e){}
   const r=await api({accion:'guardar',slug,nombre,modo:$('aModo').value,tam:tamLogo,tag,seguro,civitatis:civ,logo:logoData||undefined,og}).catch(()=>({ok:false}));
   $('aGuardar').disabled=false;
   if(!r.ok) return fallo(r.status===401?'La sesión ha caducado: vuelve a entrar.':'No se ha podido guardar. Inténtalo de nuevo.');
+  const cfg={email:emailR,hora:$('aHora').value||'09:00',dias:+$('aDias').value||0,tz:$('aTz').value};
+  await apiV({accion:'config',slug,...cfg}).catch(()=>{}); CFGS[slug]={...(CFGS[slug]||{}),...cfg};
   toast('Agencia guardada'); $('agForm').classList.add('hide'); $('agLista').classList.remove('hide'); cargarAgencias();
 };
 </script>

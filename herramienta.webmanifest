@@ -1,0 +1,28 @@
+{
+ "id": "/enlace.html",
+ "name": "Maleta Fácil · Agencias",
+ "short_name": "MF Agencias",
+ "start_url": "/enlace.html#hoy",
+ "scope": "/",
+ "display": "standalone",
+ "background_color": "#12302E",
+ "theme_color": "#12302E",
+ "icons": [
+  {
+   "src": "/icon-192.png",
+   "sizes": "192x192",
+   "type": "image/png"
+  },
+  {
+   "src": "/icon-512.png",
+   "sizes": "512x512",
+   "type": "image/png"
+  },
+  {
+   "src": "/icon-maskable.png",
+   "sizes": "512x512",
+   "type": "image/png",
+   "purpose": "maskable"
+  }
+ ]
+}

@@ -1,3 +1,7 @@
 {
-  "coraltour": { "nombre": "Viajes Coraltour", "logo": "IMG_0151.jpeg" }
+  "coraltour": {
+    "nombre": "Viajes Coraltour",
+    "logo": "IMG_0151.jpeg",
+    "og": "og-coraltour.jpg"
+  }
 }

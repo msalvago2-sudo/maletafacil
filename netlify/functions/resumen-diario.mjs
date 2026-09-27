@@ -1,4 +1,4 @@
-// Recuento diario automático: Netlify lo ejecuta cada hora en punto.
+// Recuento diario automático: Netlify lo ejecuta cada 15 minutos.
 // A la hora elegida por cada agencia le manda un aviso al móvil y un email con los clientes
 // a los que toca enviar hoy su maleta por WhatsApp. También borra los viajes ya terminados.
 // (Toda la lógica está en viajes.mjs, función ejecutarResumen.)
@@ -10,4 +10,4 @@ export default async () => {
   return new Response("ok");
 };
 
-export const config = { schedule: "@hourly" };
+export const config = { schedule: "*/15 * * * *" }; // cada 15 minutos: cada agencia recibe su resumen a su hora

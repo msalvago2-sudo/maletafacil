@@ -1,9 +1,36 @@
 // Agencias de Maleta Fácil: lista (pública) y alta/edición/baja (solo con contraseña).
 // - GET  /.netlify/functions/agencias            → todas las agencias (agencias.json + las creadas desde la herramienta)
 // - GET  /.netlify/functions/agencias?logo=SLUG  → logo subido desde la herramienta
-// - POST /.netlify/functions/agencias            → {clave, accion:'login'|'guardar'|'borrar', ...}
-// La contraseña NO está en el código: se lee de la variable de entorno MF_ADMIN_CLAVE en Netlify.
+// - POST /.netlify/functions/agencias            → {token|clave, accion:'login'|'guardar'|'borrar'|..., ...}
+// Accesos: el administrador entra con MF_ADMIN_CLAVE; cada agencia entra con su email y su contraseña
+// (guardada cifrada con scrypt; nadie puede leerla, solo cambiarla).
 import { getStore } from "@netlify/blobs";
+import { createHmac, scryptSync, randomBytes, randomInt, timingSafeEqual } from "node:crypto";
+
+/* ---------- Accesos y sesiones ---------- */
+const SECRETO = () => process.env.MF_TOKEN_SECRET || process.env.MF_ADMIN_CLAVE || "";
+const cuentas = () => getStore({ name: "cuentas", consistency: "strong" });
+const hashClave = (pw, sal) => scryptSync(String(pw), sal, 32).toString("hex");
+const normEmail = e => String(e || "").trim().toLowerCase().slice(0, 120);
+const esEmail = e => /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(e);
+function firmarToken(d) { const p = Buffer.from(JSON.stringify({ ...d, x: Date.now() + 180 * 864e5 })).toString("base64url"); return p + "." + createHmac("sha256", SECRETO()).update(p).digest("base64url"); }
+// ¿Quién hace la petición? → {rol:'admin'} | {rol:'agencia', slug, email} | null
+export async function quien(body) {
+  const adm = process.env.MF_ADMIN_CLAVE;
+  if (adm && typeof body.clave === "string" && body.clave === adm) return { rol: "admin" };
+  const [p, f] = String(body.token || "").split(".");
+  if (!p || !f || !SECRETO()) return null;
+  const bueno = createHmac("sha256", SECRETO()).update(p).digest("base64url");
+  if (bueno.length !== f.length || !timingSafeEqual(Buffer.from(bueno), Buffer.from(f))) return null;
+  let d; try { d = JSON.parse(Buffer.from(p, "base64url").toString()); } catch (e) { return null; }
+  if (!d.x || d.x < Date.now()) return null;
+  if (d.r === "admin") return { rol: "admin" };
+  const u = await cuentas().get("u:" + d.e, { type: "json" });
+  if (!u || u.bloqueada || u.slug !== d.s || u.v !== d.v) return null;
+  return { rol: "agencia", slug: d.s, email: d.e };
+}
+const PALABRAS = ["Maleta", "Viaje", "Playa", "Brujula", "Mapa", "Isla", "Tren", "Barco", "Sol", "Luna", "Monte", "Puerto", "Faro", "Ruta", "Nube", "Palma"];
+const claveNueva = () => `${PALABRAS[randomInt(16)]}-${PALABRAS[randomInt(16)]}-${randomInt(100, 1000)}`;
 
 const json = (o, status = 200) => new Response(JSON.stringify(o), {
   status, headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" }
@@ -40,12 +67,60 @@ export default async (req) => {
   if (req.method === "POST") {
     let body = {};
     try { body = await req.json(); } catch (e) {}
-    const clave = process.env.MF_ADMIN_CLAVE;
-    if (!clave || typeof body.clave !== "string" || body.clave !== clave) {
-      await espera(1200); // frena los intentos a ciegas
-      return json({ error: "clave" }, 401);
+    // Entrar: el administrador con su contraseña; la agencia con su email + contraseña
+    if (body.accion === "login") {
+      const pw = String(body.pass || body.clave || "");
+      if (process.env.MF_ADMIN_CLAVE && pw === process.env.MF_ADMIN_CLAVE) return json({ ok: true, rol: "admin", token: firmarToken({ r: "admin" }) });
+      const email = normEmail(body.email);
+      const u = email ? await cuentas().get("u:" + email, { type: "json" }) : null;
+      if (!u || hashClave(pw, u.sal) !== u.hash) { await espera(1200); return json({ error: "clave" }, 401); }
+      if (u.bloqueada) return json({ error: "bloqueada" }, 403);
+      return json({ ok: true, rol: "agencia", slug: u.slug, email, cambiar: !!u.cambiar, token: firmarToken({ r: "agencia", s: u.slug, e: email, v: u.v }) });
     }
-    if (body.accion === "login") return json({ ok: true });
+    const yo = await quien(body);
+    if (!yo) { await espera(1200); return json({ error: "clave" }, 401); }
+    if (body.accion === "sesion") return json({ ok: true, ...yo, cambiar: yo.rol === "agencia" ? !!((await cuentas().get("u:" + yo.email, { type: "json" })) || {}).cambiar : false });
+
+    // La agencia cambia su propia contraseña
+    if (body.accion === "cambiarClave") {
+      if (yo.rol !== "agencia") return json({ error: "rol" }, 403);
+      const u = await cuentas().get("u:" + yo.email, { type: "json" });
+      if (hashClave(String(body.actual || ""), u.sal) !== u.hash) { await espera(800); return json({ error: "actual" }, 400); }
+      const nueva = String(body.nueva || "");
+      if (nueva.length < 8) return json({ error: "corta" }, 400);
+      u.sal = randomBytes(16).toString("hex"); u.hash = hashClave(nueva, u.sal); u.cambiar = false; u.v = (u.v || 0) + 1;
+      await cuentas().setJSON("u:" + yo.email, u);
+      return json({ ok: true, token: firmarToken({ r: "agencia", s: u.slug, e: yo.email, v: u.v }) });
+    }
+
+    // Solo el administrador: accesos, nombre, logo y códigos de afiliado
+    // (desde cualquier otra cuenta, todo lo demás se rechaza)
+    if (yo.rol !== "admin") return json({ error: "rol" }, 403);
+    if (body.accion === "accesos") {
+      const { blobs } = await cuentas().list({ prefix: "u:" });
+      const out = {};
+      for (const b of blobs) { const u = await cuentas().get(b.key, { type: "json" }); if (u) out[u.slug] = { email: b.key.slice(2), bloqueada: !!u.bloqueada, cambiar: !!u.cambiar, tel: u.tel || "" }; }
+      return json({ ok: true, accesos: out });
+    }
+    if (body.accion === "crearAcceso") {
+      const slug = slugify(body.slug), email = normEmail(body.email);
+      if (!slug || !esEmail(email)) return json({ error: "email" }, 400);
+      const otra = await cuentas().get("u:" + email, { type: "json" });
+      if (otra && otra.slug !== slug) return json({ error: "email-usado" }, 400);
+      // Una sola cuenta por agencia: si cambia el email, se borra el anterior
+      const { blobs } = await cuentas().list({ prefix: "u:" });
+      for (const b of blobs) { const u = await cuentas().get(b.key, { type: "json" }); if (u && u.slug === slug && b.key !== "u:" + email) await cuentas().delete(b.key); }
+      const pw = claveNueva(), sal = randomBytes(16).toString("hex");
+      await cuentas().setJSON("u:" + email, { slug, sal, hash: hashClave(pw, sal), cambiar: true, bloqueada: false, v: ((otra && otra.v) || 0) + 1, tel: String(body.tel || "").replace(/\D/g, "").slice(0, 15), creado: Date.now() });
+      return json({ ok: true, email, pass: pw });
+    }
+    if (body.accion === "bloquear") {
+      const email = normEmail(body.email);
+      const u = await cuentas().get("u:" + email, { type: "json" });
+      if (!u) return json({ error: "email" }, 404);
+      u.bloqueada = !!body.bloqueada; await cuentas().setJSON("u:" + email, u);
+      return json({ ok: true });
+    }
 
     const extra = (await store.get("lista", { type: "json" })) || {};
 

@@ -4,6 +4,7 @@
 // GET  ?ir=SLUG.ID&t=TOKEN      → marca el viaje como enviado y abre WhatsApp con el mensaje ya escrito
 // Los datos de los clientes se borran solos al terminar el viaje (lo hace resumen-diario).
 import { getStore } from "@netlify/blobs";
+import { quien } from "./agencias.mjs";
 import { createHmac, createHash, createECDH, createCipheriv, randomBytes, createPrivateKey, sign as firmar } from "node:crypto";
 
 /* ---------- Avisos al móvil (Web Push) sin librerías: cifrado aes128gcm (RFC 8291) + firma VAPID (RFC 8292) ---------- */
@@ -50,7 +51,14 @@ export function hoyEn(tz = "Europe/Madrid") {
 }
 export const sumaDias = (f, n) => { const d = new Date(f + "T12:00:00Z"); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
 export const fechaEnvio = v => sumaDias(v.ida, -(+v.dias || 0));
-export const CFG_DEF = { hora: "09:00", dias: 5, tz: "Europe/Madrid", email: "" };
+export const CFG_DEF = { hora: "09:30", dias: 7, tz: "Europe/Madrid", email: "" };
+// Días de antelación y hora del resumen: los decide el administrador (general y, si quiere, por agencia)
+export async function efectiva(store, slug) {
+  const g = (await store.get("cfg:_global", { type: "json" })) || {};
+  const a = (await store.get("cfg:" + slug, { type: "json" })) || {};
+  return { ...CFG_DEF, ...(g.hora ? { hora: g.hora } : {}), ...(g.dias != null ? { dias: g.dias } : {}), ...a, general: { hora: g.hora || CFG_DEF.hora, dias: g.dias ?? CFG_DEF.dias } };
+}
+const minutosEn = tz => { const [h, m] = new Intl.DateTimeFormat("en-GB", { timeZone: tz, hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date()).split(":").map(Number); return (h % 24) * 60 + m; };
 
 export function clasificar(viajes, hoy) {
   const pend = [], hechos = [], prox = [];
@@ -120,7 +128,7 @@ export async function ejecutarResumen(forzarSlug = "") {
 
   for (const slug of slugs) {
     const cfgGuardada = (await store.get("cfg:" + slug, { type: "json" })) || {};
-    const cfg = { ...CFG_DEF, ...cfgGuardada };
+    const cfg = await efectiva(store, slug);
     const hoy = hoyEn(cfg.tz);
     let lista = (await store.get("ag:" + slug, { type: "json" })) || [];
 
@@ -130,8 +138,9 @@ export async function ejecutarResumen(forzarSlug = "") {
     if (lista.length !== antes) await store.setJSON("ag:" + slug, lista);
 
     // ¿Es la hora del resumen de esta agencia y aún no se ha mandado hoy?
-    const horaCfg = parseInt(cfg.hora, 10);
-    if (!forzar && (horaEn(cfg.tz) !== horaCfg || cfgGuardada.ultimo === hoy)) continue;
+    // Se manda en la primera pasada a partir de su hora (la función se ejecuta cada 15 minutos)
+    const [hh, mm] = String(cfg.hora).split(":").map(Number), ahora = minutosEn(cfg.tz);
+    if (!forzar && (ahora < hh * 60 + mm || ahora >= 21 * 60 || cfgGuardada.ultimo === hoy)) continue;
 
     const { pend } = clasificar(lista, hoy);
     if (!forzar) await store.setJSON("cfg:" + slug, { ...cfgGuardada, ultimo: hoy }); // "Probar ahora" no gasta el resumen del día
@@ -174,7 +183,7 @@ export default async (req) => {
     const v = lista.find(x => x.id === id);
     if (!v) return new Response("Este viaje ya no está en la lista.", { status: 404, headers: { "content-type": "text/plain; charset=utf-8" } });
     if (!v.enviado) {
-      const cfg = { ...CFG_DEF, ...((await store.get("cfg:" + slug, { type: "json" })) || {}) };
+      const cfg = await efectiva(store, slug);
       v.enviado = Date.now(); v.enviadoDia = hoyEn(cfg.tz);
       await store.setJSON("ag:" + slug, lista);
     }
@@ -183,16 +192,19 @@ export default async (req) => {
 
   if (req.method !== "POST") return json({ error: "metodo" }, 405);
   let b = {}; try { b = await req.json(); } catch (e) {}
-  if (!process.env.MF_ADMIN_CLAVE || b.clave !== process.env.MF_ADMIN_CLAVE) { await new Promise(r => setTimeout(r, 1200)); return json({ error: "clave" }, 401); }
-  const slug = limpio(b.slug, 40).toLowerCase();
+  const yo = await quien(b);
+  if (!yo) { await new Promise(r => setTimeout(r, 1200)); return json({ error: "clave" }, 401); }
+  // Cada agencia solo ve y toca lo suyo; el administrador, todo
+  const slug = yo.rol === "agencia" ? yo.slug : limpio(b.slug, 40).toLowerCase();
 
   if (b.accion === "guardar") {
     if (!esSlug(slug)) return json({ error: "agencia" }, 400);
     const lista = (await store.get("ag:" + slug, { type: "json" })) || [];
     let nuevos = 0, cambiados = 0;
+    const diasFijos = yo.rol === "agencia" ? (await efectiva(store, slug)).dias : null;
     for (const e of (Array.isArray(b.viajes) ? b.viajes : []).slice(0, 500)) {
       const v = { cli: limpio(e.cli, 60), tel: String(e.tel || "").replace(/\D/g, "").slice(0, 15), des: limpio(e.des, 60), ida: e.ida, vu: esFecha(e.vu) ? e.vu : "",
-        tipo: limpio(e.tipo, 20), dias: Math.max(0, Math.min(60, parseInt(e.dias, 10) || 0)), msg: limpio(e.msg, 1500), url: limpio(e.url, 400) };
+        tipo: limpio(e.tipo, 20), dias: diasFijos != null ? diasFijos : Math.max(0, Math.min(60, parseInt(e.dias, 10) || 0)), msg: limpio(e.msg, 1500), url: limpio(e.url, 400) };
       if (!v.des || !esFecha(v.ida)) continue;
       v.id = createHash("sha1").update([slug, v.cli.toLowerCase(), v.tel, v.des.toLowerCase(), v.ida].join("|")).digest("hex").slice(0, 16);
       const i = lista.findIndex(x => x.id === v.id);
@@ -207,7 +219,7 @@ export default async (req) => {
     const slugs = esSlug(slug) ? [slug] : (await store.list({ prefix: "ag:" })).blobs.map(x => x.key.slice(3));
     const out = {};
     for (const s of slugs) {
-      const cfg = { ...CFG_DEF, ...((await store.get("cfg:" + s, { type: "json" })) || {}) };
+      const cfg = await efectiva(store, s);
       const hoy = hoyEn(cfg.tz);
       const { pend, hechos, prox } = clasificar((await store.get("ag:" + s, { type: "json" })) || [], hoy);
       const conLink = v => ({ ...v, ir: `/.netlify/functions/viajes?ir=${s}.${v.id}&t=${token(s + "." + v.id)}`, envio: fechaEnvio(v) });
@@ -222,7 +234,7 @@ export default async (req) => {
     const i = lista.findIndex(x => x.id === b.id);
     if (i < 0) return json({ error: "viaje" }, 404);
     if (b.accion === "borrar") lista.splice(i, 1);
-    else { const cfg = { ...CFG_DEF, ...((await store.get("cfg:" + slug, { type: "json" })) || {}) }; lista[i].enviado = b.enviado ? Date.now() : null; lista[i].enviadoDia = b.enviado ? hoyEn(cfg.tz) : ""; }
+    else { const cfg = await efectiva(store, slug); lista[i].enviado = b.enviado ? Date.now() : null; lista[i].enviadoDia = b.enviado ? hoyEn(cfg.tz) : ""; }
     await store.setJSON("ag:" + slug, lista);
     return json({ ok: true });
   }
@@ -232,9 +244,37 @@ export default async (req) => {
     const previa = (await store.get("cfg:" + slug, { type: "json" })) || {};
     const email = limpio(b.email, 200);
     if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return json({ error: "email" }, 400);
-    const hora = /^\d{2}:\d{2}$/.test(b.hora || "") ? b.hora : CFG_DEF.hora;
-    const tz = b.tz === "Europe/Lisbon" ? "Europe/Lisbon" : "Europe/Madrid";
-    await store.setJSON("cfg:" + slug, { ...previa, email, hora, tz, dias: Math.max(0, Math.min(60, parseInt(b.dias, 10) || CFG_DEF.dias)) });
+    const nueva = { ...previa, email };
+    if (yo.rol === "admin") nueva.tz = b.tz === "Europe/Lisbon" ? "Europe/Lisbon" : "Europe/Madrid"; // España/Portugal: solo el administrador
+    if (yo.rol === "admin") {
+      // Solo el administrador cambia días y hora; si coinciden con los generales, la agencia sigue los generales
+      const gen = (await efectiva(store, "_x_")).general;
+      const hora = /^\d{2}:\d{2}$/.test(b.hora || "") ? b.hora : gen.hora;
+      const dias = b.dias === "" || b.dias == null ? gen.dias : Math.max(0, Math.min(60, parseInt(b.dias, 10)));
+      if (hora === gen.hora) delete nueva.hora; else nueva.hora = hora;
+      if (dias === gen.dias) delete nueva.dias; else nueva.dias = dias;
+    }
+    await store.setJSON("cfg:" + slug, nueva);
+    return json({ ok: true });
+  }
+
+  if (b.accion === "global") {
+    if (yo.rol !== "admin") return json({ error: "rol" }, 403);
+    if (b.guardar) {
+      const hora = /^\d{2}:\d{2}$/.test(b.hora || "") ? b.hora : CFG_DEF.hora;
+      const dias = Math.max(0, Math.min(60, parseInt(b.dias, 10) || CFG_DEF.dias));
+      await store.setJSON("cfg:_global", { hora, dias });
+    }
+    return json({ ok: true, general: (await efectiva(store, "_x_")).general });
+  }
+
+  if (b.accion === "mapa") {
+    // Columnas del Excel de esta agencia (para que la próxima vez se reconozcan solas)
+    if (!esSlug(slug)) return json({ error: "agencia" }, 400);
+    const previa = (await store.get("cfg:" + slug, { type: "json" })) || {};
+    const cols = {};
+    for (const k of ["nombre", "destino", "ida", "vuelta", "tel", "email"]) cols[k] = limpio((b.cols || {})[k], 80);
+    await store.setJSON("cfg:" + slug, { ...previa, mapa: cols });
     return json({ ok: true });
   }
 

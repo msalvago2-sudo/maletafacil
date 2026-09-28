@@ -58,6 +58,17 @@ export async function leerRango(desde, hasta, soloSlug = "") {
   return { desde, hasta, agencias, dias, meses: [...new Set(mb.map(x => x.key.split(":")[2]))].sort().reverse() };
 }
 
+// Poner a cero las estadísticas de una agencia (meses y días). Solo el administrador, para borrar pruebas.
+export async function borrarStats(slug) {
+  const store = getStore({ name: "estadisticas", consistency: "strong" });
+  let n = 0;
+  for (const pre of [`st:${slug}:`, `dia:${slug}:`]) {
+    const { blobs } = await store.list({ prefix: pre });
+    for (const b of blobs) { await store.delete(b.key); n++; }
+  }
+  return n;
+}
+
 // Datos de una agencia en un mes (para el informe mensual)
 export async function statsAgencia(slug, mes) {
   const store = getStore({ name: "estadisticas", consistency: "strong" });

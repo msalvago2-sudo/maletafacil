@@ -5,7 +5,7 @@
 // Los datos de los clientes se borran solos al terminar el viaje (lo hace resumen-diario).
 import { getStore } from "@netlify/blobs";
 import { quien } from "./agencias.mjs";
-import { sumar, leerEstadisticas, statsAgencia, leerRango } from "./evento.mjs";
+import { sumar, leerEstadisticas, statsAgencia, leerRango, borrarStats } from "./evento.mjs";
 import { createHmac, createHash, createECDH, createCipheriv, randomBytes, createPrivateKey, sign as firmar } from "node:crypto";
 
 /* ---------- Avisos al móvil (Web Push) sin librerías: cifrado aes128gcm (RFC 8291) + firma VAPID (RFC 8292) ---------- */
@@ -375,6 +375,12 @@ export default async (req) => {
       texto = env.pocos ? textoVacio((nombres[slug] || {}).nombre || slug, env) : textoInforme((nombres[slug] || {}).nombre || slug, env);
     }
     return json({ ok: true, ...i, meses: blobs.map(x => x.key.split(":")[2]).sort().reverse(), texto, contenido });
+  }
+
+  if (b.accion === "borrarStats") {
+    if (yo.rol !== "admin") return json({ error: "rol" }, 403);
+    if (!esSlug(b.slug)) return json({ error: "agencia" }, 400);
+    return json({ ok: true, borrados: await borrarStats(b.slug) });
   }
 
   if (b.accion === "stats") {

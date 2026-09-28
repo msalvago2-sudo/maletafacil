@@ -641,7 +641,7 @@ async function cargarHoy(){
       d.innerHTML='<div><b></b><span></span></div>';d.querySelector('b').textContent=`${diaRel(f,a.hoy)} · ${g[f].length} cliente${g[f].length>1?'s':''}`;
       d.querySelector('span').textContent=g[f].map(v=>(v.cli?v.cli+' ('+v.des+')':v.des)).join(', ');cont.appendChild(d);});
   }
-  if(ROL==='admin'&&s!=='maletafacil'){const sb=document.createElement('div');sb.style.marginTop='18px';sb.innerHTML='<p class="hint">Cargando estadísticas…</p>';cont.appendChild(sb);pintarMiMes(undefined,s,sb);}
+  if(ROL==='admin'&&s!=='maletafacil'){const sb=document.createElement('div');sb.style.marginTop='18px';sb.innerHTML='<p class="hint">Cargando estadísticas…</p>';cont.appendChild(sb);if(rangoPer(AG_PER||''))pintarAgRango(s,sb);else pintarMiMes(AG_PER?AG_PER.slice(2):undefined,s,sb);}
   const c=a.cfg||{}; $('hoyAjustes').classList.remove('hide');
   $('avisoTxt').textContent=`Resumen cada día a las ${c.hora||'09:30'} · envío ${c.dias??7} días antes${c.email?' · email a '+c.email:''}. ${a.avisos?`Avisos activados en ${a.avisos} móvil${a.avisos>1?'es':''}.`:'Aún no hay ningún móvil con avisos.'} ${ROL==='agencia'?'':'Puedes cambiarlo en Agencias.'}`;
 }
@@ -802,6 +802,61 @@ async function pintarStats(cont,mes){
   box.appendChild(t);
   const n=document.createElement('p');n.className='hint';n.style.marginTop='8px';n.textContent='Cada agencia recibe sola su informe con la periodicidad, la forma y el contenido que elijas en su ficha (Agencias → Editar). Por defecto: mensual, por email y aviso, básico. Te llega copia de cada email.';box.appendChild(n);
 }
+/* ---------- Periodos para el administrador en la ficha de una agencia (Hoy → agencia) ---------- */
+let AG_PER='';
+function rangoPer(per){
+  if(per==='hoy')return{desde:diaMad(),hasta:diaMad(),etiq:'hoy'};
+  if(per==='ayer')return{desde:diaMad(1),hasta:diaMad(1),etiq:'ayer'};
+  if(per==='7')return{desde:diaMad(6),hasta:diaMad(),etiq:'los últimos 7 días'};
+  if(per==='30')return{desde:diaMad(29),hasta:diaMad(),etiq:'los últimos 30 días'};
+  if(per.startsWith('f:')){const [d,h]=per.slice(2).split('_');return{desde:d,hasta:h,etiq:'del '+fCorta(d)+' al '+fCorta(h)};}
+  return null;
+}
+function graficaEvo(desde,hasta,diasD){
+  if(desde===hasta)return null;const dias=[];let d=new Date(desde+'T12:00:00Z');const fin=new Date(hasta+'T12:00:00Z');
+  while(d<=fin&&dias.length<62){dias.push(d.toISOString().slice(0,10));d=new Date(d.getTime()+864e5);}
+  const mx=Math.max(1,...dias.map(x=>(diasD[x]||{}).envios||0),...dias.map(x=>(diasD[x]||{}).aperturas||0));
+  const g=document.createElement('div');g.className='sevo';
+  g.innerHTML='<div class="sevot">Evolución día a día <span><i class="le"></i>enviadas <i class="la"></i>abiertas</span></div><div class="sbars"></div>';
+  const bars=g.querySelector('.sbars');const cada=Math.ceil(dias.length/8);
+  dias.forEach((x,i)=>{const v=diasD[x]||{};const c=document.createElement('div');c.className='scol';c.title=fCorta(x)+': '+(v.envios||0)+' enviadas, '+(v.aperturas||0)+' abiertas';
+    c.innerHTML=`<div class="spar"><i class="be" style="height:${(v.envios||0)/mx*100}%"></i><i class="ba" style="height:${(v.aperturas||0)/mx*100}%"></i></div><small>${i%cada===0||i===dias.length-1?fCorta(x):''}</small>`;bars.appendChild(c);});
+  return g;
+}
+function selPeriodoAg(meses,slug,box){
+  const M=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  const esteMes=diaMad().slice(0,7);const lista=[esteMes,...meses.filter(m=>m!==esteMes)];
+  const sel=document.createElement('select');sel.style.cssText='width:auto;min-height:36px;padding:4px 8px;font-size:13px';
+  const op=(v,t)=>{const o=document.createElement('option');o.value=v;o.textContent=t;sel.appendChild(o);};
+  op('hoy','Hoy');op('ayer','Ayer');op('7','Últimos 7 días');op('30','Últimos 30 días');
+  lista.forEach(m=>op('m:'+m,(m===esteMes?'Este mes (':'')+M[+m.slice(5)-1]+(m===esteMes?')':' '+m.slice(0,4))));
+  op('fechas','Elegir fechas…');const rg=rangoPer(AG_PER||'');if(rg&&AG_PER.startsWith('f:'))op(AG_PER,'Del '+fCorta(rg.desde)+' al '+fCorta(rg.hasta));
+  sel.value=AG_PER||'m:'+esteMes;
+  const ir=per=>{AG_PER=per;if(per.startsWith('m:'))pintarMiMes(per.slice(2),slug,box);else pintarAgRango(slug,box);};
+  sel.onchange=()=>{if(sel.value!=='fechas'){ir(sel.value);return;}
+    let fx=box.querySelector('.sfechas');if(!fx){fx=document.createElement('div');fx.className='sfechas';box.querySelector('.hsec').after(fx);}
+    fx.innerHTML='<label>Desde <input type="date" class="fDe"></label><label>Hasta <input type="date" class="fHa"></label><button type="button" class="wa2 mini2">Ver</button>';
+    const de=fx.querySelector('.fDe'),ha=fx.querySelector('.fHa');de.value=diaMad(6);ha.value=diaMad();de.max=ha.max=diaMad();
+    fx.querySelector('button').onclick=()=>{if(!de.value||!ha.value)return toast('Elige las dos fechas');ir('f:'+(de.value<=ha.value?de.value+'_'+ha.value:ha.value+'_'+de.value));};};
+  return sel;
+}
+async function pintarAgRango(slug,box){
+  const rg=rangoPer(AG_PER);box.innerHTML='<p class="hint">Cargando estadísticas…</p>';
+  const r=await apiV({accion:'stats',desde:rg.desde,hasta:rg.hasta,slug}).catch(()=>({ok:false}));if(!r.ok){box.innerHTML='<p class="hint">No se han podido cargar.</p>';return;}
+  const a=r.agencias[slug]||{envios:0,aperturas:0,amazon:0,civitatis:0,sinTelefono:0,destinos:{}};
+  const pct=a.envios?Math.min(100,Math.round(a.aperturas/a.envios*100)):0;
+  box.innerHTML=`<div class="hsec" style="margin-top:0">📊 Estadísticas de ${String(nombres[slug]||slug).replace(/[<>&"]/g,'')} <small></small></div>
+   <div class="kpis"><div class="kpi"><b>${a.envios}</b><span>maletas enviadas</span></div>
+   <div class="kpi"><b>${pct} %</b><span>abiertas (${a.aperturas})</span></div>
+   <div class="kpi"><b>${a.civitatis}</b><span>clics a Civitatis</span></div>
+   <div class="kpi"><b>${a.sinTelefono}</b><span>sin teléfono</span>${a.sinTelefono?'<span class="dn">añádelo en tu Excel</span>':''}</div>
+   <div class="kpi"><b>${a.amazon||0}</b><span>clics a Amazon (tuyos)</span></div></div><div class="desch"></div>`;
+  box.querySelector('small').appendChild(selPeriodoAg(r.meses||[],slug,box));
+  const dc=box.querySelector('.desch');Object.entries(a.destinos||{}).forEach(([d,n])=>{const sp=document.createElement('span');sp.textContent=`${d} · ${n}`;dc.appendChild(sp);});
+  const g=graficaEvo(rg.desde,rg.hasta,r.dias||{});if(g)box.appendChild(g);
+  const n=document.createElement('p');n.className='hint';n.style.marginTop='8px';
+  n.textContent=(!a.envios&&!a.aperturas?'Sin datos '+rg.etiq+'. Los datos por días se guardan desde el 28/9/2026. ':'')+'El informe por WhatsApp va por meses: elige un mes en el desplegable para enviarlo.';box.appendChild(n);
+}
 /* ---------- Informe «Tu mes» para la agencia ---------- */
 async function pintarMiMes(mes,slugAdm,boxAdm){
   const box=boxAdm||$('miMes'); if(!box) return;
@@ -823,9 +878,10 @@ async function pintarMiMes(mes,slugAdm,boxAdm){
    <div class="kpi"><b>${r.act.sinTelefono}</b><span>sin teléfono</span>${r.act.sinTelefono?'<span class="dn">añádelo en tu Excel</span>':''}</div>
    ${slugAdm?`<div class="kpi"><b>${r.act.amazon||0}</b><span>clics a Amazon (tuyos)</span>${fl(r.act.amazon||0,r.ant.amazon||0)}</div>`:''}</div>
    <div class="desch"></div>`;
-  const sel=document.createElement('select');sel.style.cssText='width:auto;min-height:36px;padding:4px 8px;font-size:13px';
+  if(slugAdm){AG_PER='m:'+r.mes;box.querySelector('small').appendChild(selPeriodoAg(meses,slugAdm,box));}
+  else{const sel=document.createElement('select');sel.style.cssText='width:auto;min-height:36px;padding:4px 8px;font-size:13px';
   meses.forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=nm(m);sel.appendChild(o);});sel.value=r.mes;sel.onchange=()=>pintarMiMes(sel.value,slugAdm,boxAdm);
-  box.querySelector('small').appendChild(sel);
+  box.querySelector('small').appendChild(sel);}
   const dc=box.querySelector('.desch');if(dc)r.top.forEach(([d,n])=>{const sp=document.createElement('span');sp.textContent=`${d} · ${n}`;dc.appendChild(sp);});
   if(slugAdm&&r.texto){const w=document.createElement('button');w.type='button';w.className='btn wa';w.style.marginTop='12px';w.textContent='Enviar informe '+(r.contenido||'')+' por WhatsApp';
     w.onclick=()=>window.open('https://wa.me/'+telWa((ACCESOS[slugAdm]||{}).tel||'')+'?text='+encodeURIComponent(r.texto),'_blank');box.appendChild(w);}

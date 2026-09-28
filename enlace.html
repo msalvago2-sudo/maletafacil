@@ -334,6 +334,13 @@ body.rol-agencia #agForm .two{display:none}
 <div class="lrow solo-admin"><span>Hora del resumen</span><input id="aHora" type="time" value="09:30"></div>
 <div class="lrow solo-admin"><span>Enviar … días antes</span><div class="step"><button type="button" data-d="-1">−</button><input id="aDias" type="number" min="0" max="60" value="5" inputmode="numeric"><button type="button" data-d="1">+</button></div></div>
 <div class="lrow solo-admin"><span>Horario de</span><select id="aTz" style="width:auto"><option value="Europe/Madrid">España</option><option value="Europe/Lisbon">Portugal</option></select></div>
+<div class="solo-admin" style="border-top:1px solid #E0D6C2;margin-top:10px;padding-top:10px">
+<b style="font-size:14px">📊 Informe de la agencia</b>
+<div class="lrow"><span>Cada cuánto</span><select id="aInfCada" style="width:auto;max-width:64%"><option value="mensual">Mensual (día 1)</option><option value="quincenal">Quincenal (días 1 y 16)</option><option value="semanal">Semanal (lunes)</option><option value="trimestral">Trimestral</option><option value="nunca">Nunca (solo lo mando yo)</option></select></div>
+<div class="lrow"><span>Cómo</span><select id="aInfCanal" style="width:auto;max-width:64%"><option value="ambos">Email y aviso al móvil</option><option value="email">Solo email</option><option value="movil">Solo aviso al móvil</option></select></div>
+<div class="lrow"><span>Qué ve</span><select id="aInfCont" style="width:auto;max-width:64%"><option value="basico">Básico: enviadas y abiertas</option><option value="completo">Completo: + Civitatis y sin teléfono</option></select></div>
+<div class="hint">El básico solo enseña cifras a partir de 10 maletas en el periodo; si no, le anima a programar sus viajes. Tú siempre lo ves todo.</div>
+</div>
 </div>
 <div class="f"><label for="aTag">Código de Amazon (opcional)</label><input id="aTag" placeholder="Ej. viajessol-21" autocomplete="off"></div>
 <div class="f"><label for="aSeguro">Enlace de su seguro (opcional)</label><input id="aSeguro" placeholder="https://…" autocomplete="off" inputmode="url"></div>
@@ -757,7 +764,7 @@ async function pintarStats(cont,mes){
       acc.append(w,e);}
     t.appendChild(q);});
   box.appendChild(t);
-  const n=document.createElement('p');n.className='hint';n.style.marginTop='8px';n.textContent='El día 1 de cada mes cada agencia recibe sola su informe del mes anterior por email y aviso al móvil (con copia para ti).';box.appendChild(n);
+  const n=document.createElement('p');n.className='hint';n.style.marginTop='8px';n.textContent='Cada agencia recibe sola su informe con la periodicidad, la forma y el contenido que elijas en su ficha (Agencias → Editar). Por defecto: mensual, por email y aviso, básico. Te llega copia de cada email.';box.appendChild(n);
 }
 /* ---------- Informe «Tu mes» para la agencia ---------- */
 async function pintarMiMes(mes,slugAdm,boxAdm){
@@ -767,7 +774,13 @@ async function pintarMiMes(mes,slugAdm,boxAdm){
   const nm=m=>{const [a,b]=m.split('-');return M[+b-1]+' '+a;};
   const hayAnt=r.ant.envios||r.ant.aperturas||r.ant.civitatis;const fl=(a,b,suf='')=>{if(!hayAnt)return '';const d=a-b;return d>0?`<span class="up">▲ ${d}${suf}</span>`:d<0?`<span class="dn">▼ ${-d}${suf}</span>`:'';};
   const meses=r.meses.includes(r.mes)?r.meses:[r.mes,...r.meses];
-  box.innerHTML=`<div class="hsec" style="margin-top:0">📊 ${slugAdm?'Estadísticas de '+(nombres[slugAdm]||slugAdm):'Tu mes'} <small></small></div>
+  const gratis=!slugAdm&&r.plan==='gratis';
+  if(gratis&&r.pocos){box.innerHTML=`<div class="hsec" style="margin-top:0">📊 Tu mes <small></small></div><p class="fijo">🧳 Programa los viajes de tus clientes (uno a uno o subiendo tu Excel): a cada uno le llegará su maleta por WhatsApp antes de salir. Cuando hayas enviado 10 maletas este mes te contaremos aquí cómo les va a tus clientes.</p>`;}
+  else if(gratis){box.innerHTML=`<div class="hsec" style="margin-top:0">📊 Tu mes <small></small></div>
+   <div class="kpis"><div class="kpi"><b>${r.act.envios}</b><span>maletas enviadas</span>${fl(r.act.envios,r.ant.envios)}</div>
+   <div class="kpi"><b>${r.act.aperturas}</b><span>clientes la abrieron (${r.pctAct} %)</span></div></div>
+   <div class="desch"></div>`;}
+  else box.innerHTML=`<div class="hsec" style="margin-top:0">📊 ${slugAdm?'Estadísticas de '+(nombres[slugAdm]||slugAdm):'Tu mes'} <small></small></div>
    <div class="kpis"><div class="kpi"><b>${r.act.envios}</b><span>maletas enviadas</span>${fl(r.act.envios,r.ant.envios)}</div>
    <div class="kpi"><b>${r.pctAct} %</b><span>abiertas (${r.act.aperturas})</span>${r.ant.envios?fl(r.pctAct,r.pctAnt,' puntos'):''}</div>
    <div class="kpi"><b>${r.act.civitatis}</b><span>clics a Civitatis</span>${fl(r.act.civitatis,r.ant.civitatis)}</div>
@@ -777,7 +790,7 @@ async function pintarMiMes(mes,slugAdm,boxAdm){
   const sel=document.createElement('select');sel.style.cssText='width:auto;min-height:36px;padding:4px 8px;font-size:13px';
   meses.forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=nm(m);sel.appendChild(o);});sel.value=r.mes;sel.onchange=()=>pintarMiMes(sel.value,slugAdm,boxAdm);
   box.querySelector('small').appendChild(sel);
-  const dc=box.querySelector('.desch');r.top.forEach(([d,n])=>{const sp=document.createElement('span');sp.textContent=`${d} · ${n}`;dc.appendChild(sp);});
+  const dc=box.querySelector('.desch');if(dc)r.top.forEach(([d,n])=>{const sp=document.createElement('span');sp.textContent=`${d} · ${n}`;dc.appendChild(sp);});
   if(slugAdm&&r.texto){const w=document.createElement('button');w.type='button';w.className='btn wa';w.style.marginTop='12px';w.textContent='Enviar informe por WhatsApp';
     w.onclick=()=>window.open('https://wa.me/'+telWa((ACCESOS[slugAdm]||{}).tel||'')+'?text='+encodeURIComponent(r.texto),'_blank');box.appendChild(w);}
 }
@@ -934,8 +947,10 @@ function abrirForm(slug){
   const src=logoUrl(d.logo); $('aPrev').innerHTML=src?'<img alt="">':'<span class="hint">Sin logo</span>'; if(src)$('aPrev').querySelector('img').src=src;
   const cf={hora:'09:30',dias:7,tz:'Europe/Madrid',email:'',...(CFGS[slug]||{})};
   $('aEmail').value=cf.email||(ROL==='agencia'?MIEMAIL:'');
-  $('aFijo').textContent=`🧳 Tus clientes reciben la maleta ${cf.dias} días antes del viaje. Tú recibes el aviso cada día a las ${cf.hora}${cf.email?' en tu móvil y en '+cf.email:' en tu móvil'}.`; $('aHora').value=cf.hora; $('aDias').value=cf.dias; $('aTz').value=cf.tz;
-  if(slug&&!CFGS[slug]) apiV({accion:'hoy',slug}).then(r=>{const c=r.agencias&&r.agencias[slug]&&r.agencias[slug].cfg;if(c&&editando===slug){CFGS[slug]=c;$('aEmail').value=c.email||'';$('aHora').value=c.hora;$('aDias').value=c.dias;$('aTz').value=c.tz;}}).catch(()=>{});
+  const IC={mensual:'cada mes',quincenal:'cada quince días',semanal:'cada lunes',trimestral:'cada trimestre'},ICN={ambos:'por email y en tu móvil',email:'por email',movil:'en tu móvil'};
+  $('aFijo').textContent=`🧳 Tus clientes reciben la maleta ${cf.dias} días antes del viaje. Tú recibes el aviso cada día a las ${cf.hora}${cf.email?' en tu móvil y en '+cf.email:' en tu móvil'}.`+((cf.informeCada||'mensual')!=='nunca'?` Tu informe te llega ${IC[cf.informeCada||'mensual']} ${ICN[cf.informeCanal||'ambos']}.`:''); $('aHora').value=cf.hora; $('aDias').value=cf.dias; $('aTz').value=cf.tz;
+  $('aInfCada').value=cf.informeCada||'mensual'; $('aInfCanal').value=cf.informeCanal||'ambos'; $('aInfCont').value=cf.informeContenido||'basico';
+  if(slug&&!CFGS[slug]) apiV({accion:'hoy',slug}).then(r=>{const c=r.agencias&&r.agencias[slug]&&r.agencias[slug].cfg;if(c&&editando===slug){CFGS[slug]=c;$('aEmail').value=c.email||'';$('aHora').value=c.hora;$('aDias').value=c.dias;$('aTz').value=c.tz;$('aInfCada').value=c.informeCada||'mensual';$('aInfCanal').value=c.informeCanal||'ambos';$('aInfCont').value=c.informeContenido||'basico';}}).catch(()=>{});
   pintarAcceso(slug);
   if(ROL==='agencia') setTimeout(()=>{$('miCab').innerHTML=$('aCab').innerHTML;},400);
   $('agTit').textContent=ROL==='agencia'?'Mi agencia':$('agTit').textContent; $('aCancelar').style.display=ROL==='agencia'?'none':'';
@@ -1099,7 +1114,7 @@ $('aGuardar').onclick=async()=>{
   const r=await api({accion:'guardar',slug,nombre,modo:$('aModo').value,tam:tamLogo,tag,seguro,civitatis:civ,logo:logoData||undefined,og}).catch(()=>({ok:false}));
   $('aGuardar').disabled=false;
   if(!r.ok) return fallo(r.status===401?'La sesión ha caducado: vuelve a entrar.':'No se ha podido guardar. Inténtalo de nuevo.');
-  const cfg={email:emailR,hora:$('aHora').value||'09:30',dias:+$('aDias').value||0,tz:$('aTz').value};
+  const cfg={email:emailR,hora:$('aHora').value||'09:30',dias:+$('aDias').value||0,tz:$('aTz').value,informeCada:$('aInfCada').value,informeCanal:$('aInfCanal').value,informeContenido:$('aInfCont').value};
   await apiV({accion:'config',slug,...cfg}).catch(()=>{}); CFGS[slug]={...(CFGS[slug]||{}),...cfg};
   toast('Agencia guardada'); if(ROL!=='agencia'){$('agForm').classList.add('hide'); $('agLista').classList.remove('hide');} cargarAgencias();
 };

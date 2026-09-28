@@ -191,6 +191,9 @@ body.rol-agencia #agForm .two{display:none}
 .prev img{max-height:80px;max-width:90%;object-fit:contain}
 .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .salir{background:none;color:#9FC2BC;font-size:13px;min-height:auto;padding:6px;margin:14px auto 0;text-decoration:underline}
+.sfechas{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;margin:6px 0 10px}.sfechas label{font-size:12px;color:#6B6459;display:flex;flex-direction:column;gap:3px}.sfechas input{min-height:36px;padding:4px 6px;font-size:14px;width:auto}
+.sevo{background:#fff;border:1px solid #E4DCCB;border-radius:12px;padding:10px 10px 6px;margin:10px 0}.sevot{font-size:13px;font-weight:600;color:#12302E;display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px}.sevot span{font-weight:400;font-size:12px;color:#6B6459}.sevot i{display:inline-block;width:9px;height:9px;border-radius:2px;margin:0 3px 0 8px}.le,.be{background:#12302E}.la,.ba{background:#C9A24B}
+.sbars{display:flex;gap:2px;align-items:flex-end;height:120px;margin-top:8px}.scol{flex:1;display:flex;flex-direction:column;align-items:center;height:100%;min-width:0}.spar{flex:1;width:100%;display:flex;gap:1px;align-items:flex-end}.spar i{flex:1;border-radius:2px 2px 0 0;min-height:1px}.scol small{font-size:9px;color:#8A8276;height:13px;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -734,27 +737,60 @@ function guardarMapa(){const cols={};CAMPOS.forEach(k=>cols[k]=mapa[k]>=0?cab[ma
 /* ---------- Estadísticas ---------- */
 function evento(ev,ag,des){try{const u='/.netlify/functions/evento?ev='+ev+'&ag='+encodeURIComponent(ag||'maletafacil')+'&des='+encodeURIComponent(des||'');navigator.sendBeacon?navigator.sendBeacon(u):fetch(u,{method:'POST',keepalive:true});}catch(e){}}
 $('wa').addEventListener('click',()=>evento('envio',slugActual(),capital($('destino').value.trim())));
+let STATS_PER='mes';
+const diaMad=(n=0)=>{const d=new Date(Date.now()-n*864e5);return new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Madrid',year:'numeric',month:'2-digit',day:'2-digit'}).format(d);};
+const fCorta=f=>{const [a,m,d]=f.split('-');return (+d)+'/'+(+m);};
 async function pintarStats(cont,mes){
-  const box=document.createElement('div');box.id='statsBox';box.innerHTML='<div class="hsec">📊 Estadísticas <small></small></div><p class="hint">Cargando…</p>';cont.appendChild(box);
-  const r=await apiV({accion:'stats',mes}).catch(()=>({ok:false})); if(!r.ok){box.querySelector('p').textContent='No se han podido cargar.';return;}
+  if(mes) STATS_PER='m:'+mes;
+  const per=STATS_PER; let q={accion:'stats'},etiq='';
+  if(per==='hoy'){q.desde=q.hasta=diaMad();etiq='hoy';}
+  else if(per==='ayer'){q.desde=q.hasta=diaMad(1);etiq='ayer';}
+  else if(per==='7'){q.desde=diaMad(6);q.hasta=diaMad();etiq='los últimos 7 días';}
+  else if(per==='30'){q.desde=diaMad(29);q.hasta=diaMad();etiq='los últimos 30 días';}
+  else if(per.startsWith('f:')){[q.desde,q.hasta]=per.slice(2).split('_');etiq='del '+fCorta(q.desde)+' al '+fCorta(q.hasta);}
+  else if(per.startsWith('m:')) q.mes=per.slice(2);
+  const box=document.createElement('div');box.id='statsBox';box.innerHTML='<div class="hsec">📊 Estadísticas <small></small></div><div class="sfechas" hidden></div><p class="hint">Cargando…</p>';
+  const viejo=document.getElementById('statsBox'); if(viejo) viejo.replaceWith(box); else cont.appendChild(box);
+  const r=await apiV(q).catch(()=>({ok:false})); if(!r.ok){box.querySelector('p').textContent='No se han podido cargar.';return;}
   const M=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
   const nomMes=m=>{const [a,b]=m.split('-');return M[+b-1]+' '+a;};
-  const meses=r.meses.includes(r.mes)?r.meses:[r.mes,...r.meses];
-  const sel=document.createElement('select');sel.style.cssText='width:auto;min-height:36px;padding:4px 8px;font-size:13px';meses.forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=nomMes(m);sel.appendChild(o);});sel.value=r.mes;
-  sel.onchange=()=>{box.remove();pintarStats(cont,sel.value);};box.querySelector('small').appendChild(sel);
+  const esteMes=diaMad().slice(0,7);
+  const meses=[esteMes,...(r.meses||[]).filter(m=>m!==esteMes)];
+  const sel=document.createElement('select');sel.style.cssText='width:auto;min-height:36px;padding:4px 8px;font-size:13px';
+  const op=(v,t)=>{const o=document.createElement('option');o.value=v;o.textContent=t;sel.appendChild(o);};
+  op('hoy','Hoy');op('ayer','Ayer');op('7','Últimos 7 días');op('30','Últimos 30 días');
+  meses.forEach(m=>op('m:'+m,m===esteMes?'Este mes ('+M[+m.slice(5)-1]+')':nomMes(m)));
+  op('fechas','Elegir fechas…'); if(per.startsWith('f:')) op(per,'Del '+fCorta(q.desde)+' al '+fCorta(q.hasta));
+  sel.value=per==='mes'?'m:'+esteMes:per; if(per==='mes') STATS_PER='m:'+esteMes;
+  const fx=box.querySelector('.sfechas');
+  const abrirFechas=()=>{fx.hidden=false;fx.innerHTML='<label>Desde <input type="date" id="sfDe"></label><label>Hasta <input type="date" id="sfHa"></label><button type="button" class="wa2 mini2" id="sfOk">Ver</button>';
+    $('sfDe').value=q.desde||diaMad(6);$('sfHa').value=q.hasta||diaMad();$('sfDe').max=$('sfHa').max=diaMad();
+    $('sfOk').onclick=()=>{const d=$('sfDe').value,h=$('sfHa').value;if(!d||!h)return toast('Elige las dos fechas');STATS_PER='f:'+(d<=h?d+'_'+h:h+'_'+d);pintarStats(cont);};};
+  sel.onchange=()=>{if(sel.value==='fechas'){abrirFechas();return;}fx.hidden=true;STATS_PER=sel.value;pintarStats(cont);};
+  box.querySelector('small').appendChild(sel);
+  if(r.rango) r.mes=diaMad().slice(0,7);
   const ags=Object.entries(r.agencias);const p=box.querySelector('p');
-  if(!ags.length){p.textContent='Aún no hay datos este mes. Se irán sumando cuando se envíen y abran maletas.';return;}
+  if(!ags.length){p.textContent=r.rango?'Sin datos '+etiq+'. Los datos por días se guardan desde el 28/9/2026; para fechas anteriores mira el mes completo.':'Aún no hay datos este mes. Se irán sumando cuando se envíen y abran maletas.';return;}
   p.remove();
   const tot={envios:0,aperturas:0,amazon:0,civitatis:0};ags.forEach(([,d])=>Object.keys(tot).forEach(k=>tot[k]+=d[k]||0));
   const pct=(a,b)=>b?Math.min(100,Math.round(a/b*100))+' %':'—';
   box.insertAdjacentHTML('beforeend',`<div class="kpis"><div class="kpi"><b>${tot.envios}</b><span>maletas enviadas</span></div><div class="kpi"><b>${tot.aperturas}</b><span>maletas abiertas (${pct(tot.aperturas,tot.envios)})</span></div><div class="kpi"><b>${tot.amazon}</b><span>clics a Amazon</span></div><div class="kpi"><b>${tot.civitatis}</b><span>clics a Civitatis</span></div></div>`);
+  if(r.rango&&q.desde!==q.hasta){const dias=[];let d=new Date(q.desde+'T12:00:00Z');const fin=new Date(q.hasta+'T12:00:00Z');
+    while(d<=fin&&dias.length<62){dias.push(d.toISOString().slice(0,10));d=new Date(d.getTime()+864e5);}
+    const mx=Math.max(1,...dias.map(x=>(r.dias[x]||{}).envios||0),...dias.map(x=>(r.dias[x]||{}).aperturas||0));
+    const g=document.createElement('div');g.className='sevo';
+    g.innerHTML='<div class="sevot">Evolución día a día <span><i class="le"></i>enviadas <i class="la"></i>abiertas</span></div><div class="sbars"></div>';
+    const bars=g.querySelector('.sbars');const cada=Math.ceil(dias.length/8);
+    dias.forEach((x,i)=>{const v=r.dias[x]||{};const c=document.createElement('div');c.className='scol';c.title=fCorta(x)+': '+(v.envios||0)+' enviadas, '+(v.aperturas||0)+' abiertas';
+      c.innerHTML=`<div class="spar"><i class="be" style="height:${(v.envios||0)/mx*100}%"></i><i class="ba" style="height:${(v.aperturas||0)/mx*100}%"></i></div><small>${i%cada===0||i===dias.length-1?fCorta(x):''}</small>`;bars.appendChild(c);});
+    box.appendChild(g);}
   const t=document.createElement('div');t.className='stab';
   t.innerHTML='<div class="sfila scab"><span>Agencia</span><span>Enviadas</span><span>Abiertas</span><span>Amazon</span><span>Civit.</span></div>';
   ags.sort((a,b)=>(b[1].envios+b[1].aperturas)-(a[1].envios+a[1].aperturas)).forEach(([k,d])=>{const f=document.createElement('div');f.className='sfila';
     f.innerHTML='<b></b><span></span><span></span><span></span><span></span>';const c=f.children;c[0].textContent=nomAg(k);c[1].textContent=d.envios||0;c[2].textContent=`${d.aperturas||0} · ${pct(d.aperturas||0,d.envios||0)}`;c[3].textContent=d.amazon||0;c[4].textContent=d.civitatis||0;t.appendChild(f);
     const top=Object.entries(d.destinos||{}).slice(0,4).map(([x,n])=>`${x} (${n})`).join(', ');
     const q=document.createElement('div');q.className='sdes';q.innerHTML='<span></span><span class="sacc"></span>';q.firstChild.textContent=top?'Destinos: '+top:'';
-    if(k!=='maletafacil'){const acc=q.lastChild;
+    if(k!=='maletafacil'&&!r.rango){const acc=q.lastChild;
       const w=document.createElement('button');w.type='button';w.className='wa2 mini2';w.textContent='Enviar informe';
       w.onclick=async()=>{const ri=await apiV({accion:'informe',slug:k,mes:r.mes}).catch(()=>({ok:false}));if(!ri.ok)return toast('No se ha podido preparar');
         const tel=(ACCESOS[k]||{}).tel||'';window.open('https://wa.me/'+telWa(tel)+'?text='+encodeURIComponent(ri.texto),'_blank');};
@@ -775,7 +811,7 @@ async function pintarMiMes(mes,slugAdm,boxAdm){
   const hayAnt=r.ant.envios||r.ant.aperturas||r.ant.civitatis;const fl=(a,b,suf='')=>{if(!hayAnt)return '';const d=a-b;return d>0?`<span class="up">▲ ${d}${suf}</span>`:d<0?`<span class="dn">▼ ${-d}${suf}</span>`:'';};
   const meses=r.meses.includes(r.mes)?r.meses:[r.mes,...r.meses];
   const gratis=!slugAdm&&r.plan==='gratis';
-  if(gratis&&r.pocos){box.innerHTML=`<div class="hsec" style="margin-top:0">📊 Tu mes <small></small></div><p class="fijo">🧳 Programa los viajes de tus clientes (uno a uno o subiendo tu Excel): a cada uno le llegará su maleta por WhatsApp antes de salir. Cuando hayas enviado 10 maletas este mes te contaremos aquí cómo les va a tus clientes.</p>`;}
+  if(gratis&&r.pocos){box.innerHTML=`<div class="hsec" style="margin-top:0">📊 Tu mes <small></small></div><p class="fijo">🧳 Programa los viajes de tus clientes (uno a uno o subiendo tu Excel): a cada uno le llegará su maleta por WhatsApp antes de salir. En cuanto envíes la primera te contaremos aquí cómo les va a tus clientes.</p>`;}
   else if(gratis){box.innerHTML=`<div class="hsec" style="margin-top:0">📊 Tu mes <small></small></div>
    <div class="kpis"><div class="kpi"><b>${r.act.envios}</b><span>maletas enviadas</span>${fl(r.act.envios,r.ant.envios)}</div>
    <div class="kpi"><b>${r.act.aperturas}</b><span>clientes la abrieron (${r.pctAct} %)</span></div></div>
@@ -791,7 +827,7 @@ async function pintarMiMes(mes,slugAdm,boxAdm){
   meses.forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=nm(m);sel.appendChild(o);});sel.value=r.mes;sel.onchange=()=>pintarMiMes(sel.value,slugAdm,boxAdm);
   box.querySelector('small').appendChild(sel);
   const dc=box.querySelector('.desch');if(dc)r.top.forEach(([d,n])=>{const sp=document.createElement('span');sp.textContent=`${d} · ${n}`;dc.appendChild(sp);});
-  if(slugAdm&&r.texto){const w=document.createElement('button');w.type='button';w.className='btn wa';w.style.marginTop='12px';w.textContent='Enviar informe por WhatsApp';
+  if(slugAdm&&r.texto){const w=document.createElement('button');w.type='button';w.className='btn wa';w.style.marginTop='12px';w.textContent='Enviar informe '+(r.contenido||'')+' por WhatsApp';
     w.onclick=()=>window.open('https://wa.me/'+telWa((ACCESOS[slugAdm]||{}).tel||'')+'?text='+encodeURIComponent(r.texto),'_blank');box.appendChild(w);}
 }
 /* ---------- PESTAÑAS ---------- */

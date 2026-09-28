@@ -197,6 +197,11 @@ body.rol-agencia #agForm .two{display:none}
 .sbars{display:flex;gap:2px;align-items:flex-end;height:120px;margin-top:8px}.scol{flex:1;display:flex;flex-direction:column;align-items:center;height:100%;min-width:0}.spar{flex:1;width:100%;display:flex;gap:1px;align-items:flex-end}.spar i{flex:1;border-radius:2px 2px 0 0;min-height:1px}.scol small{font-size:9px;color:#8A8276;height:13px;white-space:nowrap}
 .pdia{font-weight:700;color:var(--teal,#12302E);margin:12px 0 4px;font-size:15px}.hitem.prox b{font-size:15px}
 .reset0{display:block;margin:16px auto 0;background:none;border:0;color:#B65B3F;text-decoration:underline;font-size:13px;cursor:pointer}
+.elige-t{font-weight:700;color:#12302E;margin:16px 0 8px;font-size:15px}
+.elige{display:grid;grid-template-columns:1fr 1fr;gap:10px}.opc{display:flex;flex-direction:column;gap:5px}.opc .btn{width:100%;margin:0;text-align:center;justify-content:center}.opc small{font-size:12px;color:#6B6459;text-align:center;line-height:1.3}
+.luego2{margin-top:8px}.sec2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}.sec2 .copy,.sec2 .test{margin:0;background:transparent!important;color:#12302E!important;border:1.5px solid #D9CFBC!important;font-size:14px!important;min-height:42px!important;padding:8px!important;box-shadow:none!important}
+.dwrap{position:relative}.sug{position:absolute;left:0;right:0;top:calc(100% + 4px);background:#fff;border:1.5px solid #E4DCCB;border-radius:10px;max-height:240px;overflow-y:auto;z-index:30;box-shadow:0 12px 24px -8px rgba(0,0,0,.2);display:none}.sug.on{display:block}
+.sug div{padding:11px 14px;font-size:15px;color:#12302E;cursor:pointer;border-bottom:1px solid #F0EADF}.sug div:last-child{border-bottom:0}.sug div:hover{background:#F6F1E4}.sug small{display:block;color:#8A8478;font-size:12.5px}
 </style>
 </head>
 <body>
@@ -241,8 +246,8 @@ body.rol-agencia #agForm .two{display:none}
 <input id="telCli" type="tel" inputmode="tel" placeholder="Ej. 612 345 678" autocomplete="off">
 <div class="hint">Así WhatsApp se abre directamente en su chat.</div></div>
 <div class="f"><label for="destino">Destino</label>
-<input id="destino" placeholder="Ej. Londres, Roma, Cancún…" autocomplete="off">
-<div class="hint">Escribe la ciudad como la diría el cliente.</div></div>
+<div class="dwrap"><input id="destino" placeholder="Ej. Londres, Roma, Cancún…" autocomplete="off"><div id="destSug" class="sug"></div></div>
+<div class="hint">Empieza a escribir y elige el destino de la lista.</div></div>
 <div class="f"><label for="fechasBtn">Fechas del viaje</label>
 <button type="button" id="fechasBtn" class="fbtn"><span id="fechasTxt" class="vacio">Elige ida y vuelta</span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4" stroke-linecap="round"/></svg></button>
 <input id="ida" type="hidden"><input id="vuelta" type="hidden"></div>
@@ -252,20 +257,16 @@ body.rol-agencia #agForm .two{display:none}
 <div class="out" id="out">
 <p class="msg" id="msg"></p>
 <p class="link" id="link"></p>
-<div class="btns">
-<a class="btn wa" id="wa" target="_blank" rel="noopener">Enviar por WhatsApp</a>
-<button type="button" class="copy" id="copiar">Copiar mensaje</button>
-<a class="btn test" id="probar" target="_blank" rel="noopener">Probar enlace</a>
+<p class="elige-t">¿Cuándo se lo mandas?</p>
+<div class="elige">
+<div class="opc"><a class="btn wa" id="wa" target="_blank" rel="noopener">📲 Enviar ahora</a><small>Se abre WhatsApp con el mensaje escrito</small></div>
+<div class="opc"><button type="button" class="btn recor" id="programar">⏰ Programar</button><small>Te lo recordamos el día que toca</small></div>
 </div>
-<div class="luego" id="luego">
-<b>⏰ Programar el envío</b>
-<p class="hint" style="margin:2px 0 10px">El día que toque aparecerá en <b>Hoy</b> y te llegará el aviso al móvil y por email. Solo hay que tocar WhatsApp y enviar.</p>
-<div class="lrow solo-admin"><span>Días antes del viaje</span><div class="step"><button type="button" data-d="-1">−</button><input id="diasAntes" type="number" min="0" max="60" value="5" inputmode="numeric"><button type="button" data-d="1">+</button></div></div>
-<input type="hidden" id="horaAviso" value="09:00">
 <p class="cuando" id="cuando"></p>
-<button type="button" class="btn recor" id="programar">Programar envío</button>
-<a class="mini" id="recordar">o añadir también un aviso a mi calendario</a>
-</div>
+<div class="lrow solo-admin luego2"><span>Días antes del viaje</span><div class="step"><button type="button" data-d="-1">−</button><input id="diasAntes" type="number" min="0" max="60" value="5" inputmode="numeric"><button type="button" data-d="1">+</button></div></div>
+<input type="hidden" id="horaAviso" value="09:00">
+<div class="sec2"><button type="button" class="copy" id="copiar">Copiar mensaje</button><a class="btn test" id="probar" target="_blank" rel="noopener">Probar enlace</a></div>
+<a class="mini" id="recordar">Añadir también un aviso a mi calendario</a>
 </div>
 </div>
 
@@ -345,7 +346,7 @@ body.rol-agencia #agForm .two{display:none}
 <div class="lrow"><span>Cada cuánto</span><select id="aInfCada" style="width:auto;max-width:64%"><option value="mensual">Mensual (día 1)</option><option value="quincenal">Quincenal (días 1 y 16)</option><option value="semanal">Semanal (lunes)</option><option value="trimestral">Trimestral</option><option value="nunca">Nunca (solo lo mando yo)</option></select></div>
 <div class="lrow"><span>Cómo</span><select id="aInfCanal" style="width:auto;max-width:64%"><option value="ambos">Email y aviso al móvil</option><option value="email">Solo email</option><option value="movil">Solo aviso al móvil</option></select></div>
 <div class="lrow"><span>Qué ve</span><select id="aInfCont" style="width:auto;max-width:64%"><option value="basico">Básico: enviadas y abiertas</option><option value="completo">Completo: + Civitatis y sin teléfono</option></select></div>
-<div class="hint">El básico solo enseña cifras a partir de 10 maletas en el periodo; si no, le anima a programar sus viajes. Tú siempre lo ves todo.</div>
+<div class="hint">Básico: maletas enviadas, abiertas y destinos. Completo: además clics a Civitatis y clientes sin teléfono. Tú siempre lo ves todo.</div>
 </div>
 </div>
 <div class="f"><label for="aTag">Código de Amazon (opcional)</label><input id="aTag" placeholder="Ej. viajessol-21" autocomplete="off"></div>
@@ -539,10 +540,56 @@ $('aTamF').classList.add('solo-admin');
 
 function fechaBonita(s){if(!s)return'';const d=new Date(s+'T12:00');return d.toLocaleDateString('es-ES',{day:'numeric',month:'long'});}
 function capital(s){return s.replace(/(^|\s)\S/g,l=>l.toUpperCase());}
+/* ---------- Destino: como en la web (sugerencias con mayúsculas y, si hay varios con el mismo nombre, el más conocido primero) ---------- */
+let DESTGEO=null; // destino elegido de la lista: {name,country,top}
+const slugTxt=t=>t.trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9ñ]+/g,'-').replace(/^-+|-+$/g,'');
+const ciudadDe=d=>capital(String(d||'').split(',')[0].trim());
+// En el enlace va solo la ciudad; si se eligió una que no es la más conocida con ese nombre (Mérida de México), se añade el país: merida,mexico
+function lugarSlug(d){const p=String(d||'').split(',').map(slugTxt).filter(Boolean);if(!p.length)return '';
+  if(DESTGEO&&ciudadDe(d)===DESTGEO.name)return DESTGEO.top?p[0]:p[0]+(DESTGEO.country?','+slugTxt(DESTGEO.country):'');
+  return p.slice(0,2).join(',');}
+const GEO='https://geocoding-api.open-meteo.com/v1';
+const normT=s=>(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+async function buscarLugares(texto,max,signal){
+  const partes=texto.split(',').map(t=>t.trim()).filter(Boolean),nombre=partes[0]||texto.trim(),pista=normT(partes.slice(1).join(' ')),q=normT(nombre);
+  if(!q)return[];
+  const pedir=lang=>fetch(`${GEO}/search?name=${encodeURIComponent(nombre)}&count=10&language=${lang}&format=json`,{signal}).then(r=>r.ok?r.json():{}).then(d=>d.results||[]).catch(e=>{if(e.name==='AbortError')throw e;return[];});
+  const [es,en]=await Promise.all([pedir('es'),pedir('en')]);const m=new Map();
+  es.forEach(r=>m.set(r.id,{...r,nEs:r.name,pEs:r.country,aEs:r.admin1,nEn:null}));
+  en.forEach(r=>{const x=m.get(r.id);if(x)x.nEn=r.name;else m.set(r.id,{...r,nEs:null,pEs:null,aEs:null,nEn:r.name});});
+  const punt=r=>{const ns=[r.nEs,r.nEn].filter(Boolean).map(normT);let p=0;if(ns.includes(q))p+=100;else if(ns.some(n=>n.startsWith(q)))p+=30;
+    if(r.population)p+=Math.log10(r.population)*10;if(r.feature_code==='PPLC')p+=25;else if(/^PPLA/.test(r.feature_code||''))p+=10;
+    if(pista&&normT([r.pEs,r.country,r.aEs,r.admin1].join(' ')).includes(pista))p+=200;return p;};
+  const top=[...m.values()].map(r=>({r,p:punt(r)})).sort((a,b)=>b.p-a.p).slice(0,max).map(x=>x.r);
+  await Promise.all(top.filter(r=>!r.nEs).map(async r=>{try{const d=await fetch(`${GEO}/get?id=${r.id}&language=es`,{signal}).then(x=>x.json());if(d&&d.name){r.nEs=d.name;r.pEs=d.country;r.aEs=d.admin1;}}catch(e){if(e.name==='AbortError')throw e;}}));
+  let pais=cc=>{try{return cc?new Intl.DisplayNames(['es'],{type:'region'}).of(cc):''}catch(e){return ''}};
+  return top.map(r=>({name:r.nEs||r.name,country:r.pEs||pais(r.country_code)||r.country||'',admin1:r.aEs||r.admin1||''}));
+}
+let sugT=null,sugAb=null;
+function ocultarSug(){$('destSug').classList.remove('on');$('destSug').innerHTML='';}
+async function sugerir(texto){
+  try{if(sugAb)sugAb.abort();sugAb=new AbortController();
+    const L=await buscarLugares(texto,6,sugAb.signal),vistos=new Set();
+    const res=L.filter(r=>{const k=r.name+'|'+r.admin1+'|'+r.country;if(vistos.has(k))return false;vistos.add(k);return true;}).slice(0,5);
+    if(!res.length)return ocultarSug();
+    // ¿Es el más conocido con ese nombre? (el primero de la búsqueda solo por el nombre)
+    const primero=normT(res[0].name);
+    $('destSug').innerHTML='';res.forEach((r,i)=>{const d=document.createElement('div');const sub=[r.admin1!==r.name?r.admin1:'',r.country].filter(Boolean).join(', ');
+      d.textContent=r.name;if(sub){const s2=document.createElement('small');s2.textContent=sub;d.appendChild(s2);}
+      d.onclick=()=>{const top=!texto.includes(',')&&(i===0||!res.slice(0,i).some(x=>normT(x.name)===normT(r.name)));
+        DESTGEO={name:r.name,country:r.country,top};$('destino').value=r.country?r.name+', '+r.country:r.name;ocultarSug();
+        $('destino').dispatchEvent(new Event('change'));};
+      $('destSug').appendChild(d);});
+    $('destSug').classList.add('on');
+  }catch(e){}
+}
+$('destino').addEventListener('input',()=>{DESTGEO=null;const t=$('destino').value.trim();clearTimeout(sugT);if(t.length<3)return ocultarSug();sugT=setTimeout(()=>sugerir(t),300);});
+$('destino').addEventListener('blur',()=>{setTimeout(()=>{const v=$('destino').value;if(v&&!DESTGEO)$('destino').value=capital(v.trim());},250);});
+document.addEventListener('click',e=>{if(!e.target.closest('.dwrap'))ocultarSug();});
 // Construye enlace y mensaje. Sin nombre: no se menciona nada del nombre.
 function crear({cli,des,ida,vu,tipo}){
   const ag=$('agencia').value;
-  const lugar=des.trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9ñ]+/g,'-').replace(/^-+|-+$/g,'');
+  const lugar=lugarSlug(des);
   const corta=d=>{const [a,m,dd]=d.split('-');return `${dd}-${m}-${a.slice(2)}`;};
   let url;
   if(ag){
@@ -554,7 +601,7 @@ function crear({cli,des,ida,vu,tipo}){
     if(ida){p.set('ida',ida);if(vu)p.set('vuelta',vu);} if(tipo)p.set('tipo',tipo);
     url='https://maletafacil.com/?'+p.toString();
   }
-  const ciudad=capital(des.trim());
+  const ciudad=ciudadDe(des);
   const fechas=(ida&&vu)?` (${rango(ida,vu)})`:'';
   const inicio=cli?`¡Hola, ${cli}! 🧳 Para`:`🧳 Para`;
   const firma=ag&&nombres[ag]?`\n\n¡Buen viaje! ${nombres[ag]}`:'\n\n¡Buen viaje!';
@@ -598,7 +645,7 @@ function avisoUno(){
   const d=momentoAviso(ida,+$('diasAntes').value||0,$('horaAviso').value);
   if(d<=new Date()){c.textContent='Ese día ya ha pasado: envíalo ahora con el botón de WhatsApp (o prográmalo y saldrá hoy en «Hoy»).';c.className='cuando mal';btn.classList.add('off');$('programar').classList.remove('off');return;}
   c.textContent='Toca enviarlo el '+bonitoAviso(d).replace(' a las ',' · aviso a las ')+'.';c.className='cuando';btn.classList.remove('off');$('programar').classList.remove('off');
-  const cli=$('cliente').value.trim(),ciudad=capital(des);
+  const cli=$('cliente').value.trim(),ciudad=ciudadDe(des);
   btn.href='/.netlify/functions/recordatorio?d='+b64url(JSON.stringify([{t:`🧳 Enviar maleta${cli?' a '+cli:''} · ${ciudad}`,u:$('wa').href,w:isoLocal(d)}]));
 }
 ['diasAntes','horaAviso','cliente','destino','telCli','ida','vuelta','tipo','agencia'].forEach(id=>{$(id).addEventListener('input',()=>setTimeout(avisoUno));$(id).addEventListener('change',()=>setTimeout(avisoUno));});
@@ -703,7 +750,7 @@ $('programar').onclick=async()=>{
   const ida=$('ida').value,des=$('destino').value.trim(); if(!ida||!des) return;
   const cli=$('cliente').value.trim(),vu=$('vuelta').value,tipo=$('tipo').value,{url,msg}=crear({cli,des,ida,vu,tipo});
   $('programar').classList.add('off');
-  const r=await apiV({accion:'guardar',slug:slugActual(),viajes:[{cli,tel:telWa($('telCli').value),des:capital(des),ida,vu,tipo,dias:+$('diasAntes').value||0,msg,url}]}).catch(()=>({ok:false}));
+  const r=await apiV({accion:'guardar',slug:slugActual(),viajes:[{cli,tel:telWa($('telCli').value),des:ciudadDe(des),ida,vu,tipo,dias:+$('diasAntes').value||0,msg,url}]}).catch(()=>({ok:false}));
   $('programar').classList.remove('off');
   if(!r.ok) return toast(r.status===401?'Vuelve a entrar':'No se ha podido programar');
   toast('✅ Envío programado'); $('cuando').textContent='✅ Programado. '+$('cuando').textContent;
@@ -757,7 +804,7 @@ function guardarMapa(){const cols={};CAMPOS.forEach(k=>cols[k]=mapa[k]>=0?cab[ma
   CFGS[s]={...(CFGS[s]||{}),mapa:cols}; apiV({accion:'mapa',slug:s,cols}).catch(()=>{});}
 /* ---------- Estadísticas ---------- */
 function evento(ev,ag,des){try{const u='/.netlify/functions/evento?ev='+ev+'&ag='+encodeURIComponent(ag||'maletafacil')+'&des='+encodeURIComponent(des||'');navigator.sendBeacon?navigator.sendBeacon(u):fetch(u,{method:'POST',keepalive:true});}catch(e){}}
-$('wa').addEventListener('click',()=>evento('envio',slugActual(),capital($('destino').value.trim())));
+$('wa').addEventListener('click',()=>evento('envio',slugActual(),ciudadDe($('destino').value)));
 let STATS_PER='mes';
 const diaMad=(n=0)=>{const d=new Date(Date.now()-n*864e5);return new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Madrid',year:'numeric',month:'2-digit',day:'2-digit'}).format(d);};
 const fCorta=f=>{const [a,m,d]=f.split('-');return (+d)+'/'+(+m);};

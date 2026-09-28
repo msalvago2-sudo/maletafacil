@@ -2828,7 +2828,7 @@ async function cargarDestinoDesdeURL(){
   }
   if(!destinoParam) return;
 
-  document.getElementById('destino').value = destinoParam.replace(/[-_]/g, ' ').trim().replace(/(^|\s)\S/g, l => l.toUpperCase());
+  document.getElementById('destino').value = destinoParam.replace(/[-_]/g, ' ').replace(/\s*,\s*/g, ', ').trim().replace(/(^|\s)\S/g, l => l.toUpperCase()); // merida,mexico → Merida, Mexico
 
   // Fechas del viaje en el enlace de la agencia: ?ida=2026-10-02&vuelta=2026-10-06
   const esFecha = v => /^\d{4}-\d{2}-\d{2}$/.test(v || '');

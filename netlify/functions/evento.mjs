@@ -40,13 +40,13 @@ export async function sumar(slug, ev, des = "", clave = "") {
 }
 
 // Estadísticas de un rango de días (desde/hasta en AAAA-MM-DD): totales por agencia y evolución día a día
-export async function leerRango(desde, hasta) {
+export async function leerRango(desde, hasta, soloSlug = "") {
   const store = getStore({ name: "estadisticas", consistency: "strong" });
   const { blobs } = await store.list({ prefix: "dia:" });
   const agencias = {}, dias = {};
   for (const b of blobs) {
     const [, slug, f] = b.key.split(":");
-    if (f < desde || f > hasta) continue;
+    if (f < desde || f > hasta || (soloSlug && slug !== soloSlug)) continue;
     const d = (await store.get(b.key, { type: "json" })) || {};
     const a = agencias[slug] || (agencias[slug] = { envios: 0, aperturas: 0, amazon: 0, civitatis: 0, sinTelefono: 0, destinos: {} });
     const t = dias[f] || (dias[f] = { envios: 0, aperturas: 0, amazon: 0, civitatis: 0 });

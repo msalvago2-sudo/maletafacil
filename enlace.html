@@ -21,6 +21,7 @@ body{margin:0;background:var(--teal);font-family:'Work Sans',sans-serif;color:va
 .brand{display:flex;align-items:center;gap:10px;color:var(--paper);margin-bottom:6px}
 .logo{width:46px;height:46px;border-radius:10px;background:var(--paper);position:relative;display:flex;align-items:center;justify-content:center;font:700 25px Fraunces,serif;color:var(--teal)}
 .logo:after{content:'';position:absolute;top:5px;right:5px;width:7px;height:7px;border-radius:50%;background:var(--rust)}
+.brandAg{margin-left:auto;height:46px;max-width:42%;display:flex;align-items:center;justify-content:flex-end}.brandAg.hide{display:none}.brandAg img{max-height:46px;max-width:100%;border-radius:8px;display:block;object-fit:contain}.brandAg span{font:600 15px Fraunces,serif;color:var(--paper);text-align:right;line-height:1.15}
 .brand b{font:600 19px Fraunces,serif;display:block;line-height:1.1;margin-bottom:4px}
 .etq{display:inline-flex;align-items:center;gap:5px;background:#8B5A2B;color:var(--paper);font:600 11px 'Work Sans',sans-serif;padding:3px 9px;border-radius:100px}
 h1{font:700 26px/1.15 Fraunces,serif;color:var(--paper);margin:16px 0 4px}
@@ -198,7 +199,7 @@ body.rol-agencia #agForm .two{display:none}
 </head>
 <body>
 <div class="wrap">
-<div class="brand"><div class="logo">M</div><div><b>Maleta Fácil</b><span class="etq"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="transform:rotate(45deg)"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2.5 1.8V22l3.5-1 3.5 1v-1.2L13 19v-5.5l8 2.5z"/></svg>Equipaje sin estrés</span></div></div>
+<div class="brand"><div class="logo">M</div><div><b>Maleta Fácil</b><span class="etq"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="transform:rotate(45deg)"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2.5 1.8V22l3.5-1 3.5 1v-1.2L13 19v-5.5l8 2.5z"/></svg>Equipaje sin estrés</span></div><div class="brandAg hide" id="brandAg"></div></div>
 <h1>Crear enlace de maleta</h1>
 <p class="sub">Envía a tus clientes su maleta ya preparada, con su destino y sus fechas.</p>
 
@@ -452,7 +453,12 @@ async function cargarAgencias(){
   [...Object.entries(AG).map(([k,d])=>[k,d.nombre||k]),['maletafacil','Maleta Fácil (sin agencia)']].forEach(([k,n])=>{const o=document.createElement('option');o.value=k;o.textContent=n;sh.appendChild(o);});
   if(ph&&[...sh.options].some(o=>o.value===ph)) sh.value=ph;
   if(ROL==='agencia'){ if(!nombres[MISLUG]){nombres[MISLUG]=MISLUG;const o=document.createElement('option');o.value=MISLUG;o.textContent=MISLUG;sel.appendChild(o);const o2=o.cloneNode(true);sh.appendChild(o2);}
-    sel.value=MISLUG; sh.value=MISLUG; generar(); }
+    sel.value=MISLUG; sh.value=MISLUG; generar();
+    // Logo de la agencia arriba a la derecha (si no tiene logo, su nombre)
+    const ba=$('brandAg'),src=logoUrl((AG[MISLUG]||{}).logo);ba.innerHTML='';
+    if(src){const im=document.createElement('img');im.alt=nombres[MISLUG]||'';im.src=src;im.onerror=()=>{ba.innerHTML='';const sp=document.createElement('span');sp.textContent=nombres[MISLUG]||'';ba.appendChild(sp);};ba.appendChild(im);}
+    else{const sp=document.createElement('span');sp.textContent=nombres[MISLUG]||'';ba.appendChild(sp);}
+    ba.classList.remove('hide'); }
   if(!$('cardHoy').classList.contains('hide')) cargarHoy();
 }
 const logoUrl=l=>!l?'':(/^(\/|https:\/\/)/.test(l)?l:'/agencias/'+encodeURIComponent(l));

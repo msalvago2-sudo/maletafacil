@@ -2,7 +2,7 @@
 // maletafacil.com/AGENCIA/DESTINO/... (o /?agencia=AGENCIA&destino=...) → título y logo de la agencia en la vista previa.
 // Si algo falla, se sirve la página normal sin tocar.
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-const bonito = s => { try { s = decodeURIComponent(s); } catch (e) {} return s.replace(/[-_]+/g, " ").trim().replace(/(^|\s)\S/g, l => l.toUpperCase()).slice(0, 60); };
+const bonito = s => { try { s = decodeURIComponent(s); } catch (e) {} return s.split(",")[0].replace(/[-_]+/g, " ").trim().replace(/(^|\s)\S/g, l => l.toUpperCase()).slice(0, 60); };
 
 export default async (req, context) => {
   try {

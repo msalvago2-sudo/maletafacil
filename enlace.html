@@ -195,6 +195,8 @@ body.rol-agencia #agForm .two{display:none}
 .sfechas{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;margin:6px 0 10px}.sfechas label{font-size:12px;color:#6B6459;display:flex;flex-direction:column;gap:3px}.sfechas input{min-height:36px;padding:4px 6px;font-size:14px;width:auto}
 .sevo{background:#fff;border:1px solid #E4DCCB;border-radius:12px;padding:10px 10px 6px;margin:10px 0}.sevot{font-size:13px;font-weight:600;color:#12302E;display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px}.sevot span{font-weight:400;font-size:12px;color:#6B6459}.sevot i{display:inline-block;width:9px;height:9px;border-radius:2px;margin:0 3px 0 8px}.le,.be{background:#12302E}.la,.ba{background:#C9A24B}
 .sbars{display:flex;gap:2px;align-items:flex-end;height:120px;margin-top:8px}.scol{flex:1;display:flex;flex-direction:column;align-items:center;height:100%;min-width:0}.spar{flex:1;width:100%;display:flex;gap:1px;align-items:flex-end}.spar i{flex:1;border-radius:2px 2px 0 0;min-height:1px}.scol small{font-size:9px;color:#8A8276;height:13px;white-space:nowrap}
+.pdia{font-weight:700;color:var(--teal,#12302E);margin:12px 0 4px;font-size:15px}.hitem.prox b{font-size:15px}
+.reset0{display:block;margin:16px auto 0;background:none;border:0;color:#B65B3F;text-decoration:underline;font-size:13px;cursor:pointer}
 </style>
 </head>
 <body>
@@ -649,9 +651,16 @@ async function cargarHoy(){
   if(a.prox.length){
     const g={}; a.prox.forEach(v=>(g[v.envio]=g[v.envio]||[]).push(v));
     const t=document.createElement('div');t.className='hsec';t.innerHTML=`Próximos envíos <small>${a.prox.length} viaje${a.prox.length>1?'s':''}</small>`;cont.appendChild(t);
-    Object.keys(g).sort().slice(0,10).forEach(f=>{const d=document.createElement('div');d.className='hitem';
-      d.innerHTML='<div><b></b><span></span></div>';d.querySelector('b').textContent=`${diaRel(f,a.hoy)} · ${g[f].length} cliente${g[f].length>1?'s':''}`;
-      d.querySelector('span').textContent=g[f].map(v=>(v.cli?v.cli+' ('+v.des+')':v.des)).join(', ');cont.appendChild(d);});
+    Object.keys(g).sort().slice(0,10).forEach(f=>{const h2=document.createElement('p');h2.className='pdia';
+      h2.textContent=`${diaRel(f,a.hoy)} · ${g[f].length} cliente${g[f].length>1?'s':''}`;cont.appendChild(h2);
+      g[f].forEach(v=>{const d=document.createElement('div');d.className='hitem prox';
+        d.innerHTML='<div><b></b><span></span></div><div class="acc"></div>';
+        d.querySelector('b').textContent=(v.cli||'Cliente')+' · '+v.des;d.querySelector('span').textContent=rangoV(v)+(v.tel?' · +'+v.tel:' · sin teléfono');
+        const x=document.createElement('button');x.type='button';x.className='x';x.title='Quitar de la lista';x.textContent='×';
+        x.onclick=async()=>{if(!confirm('¿Quitar a '+(v.cli||'este cliente')+' ('+v.des+') de los próximos envíos?'))return;
+          const r=await apiV({accion:'borrar',slug:s,id:v.id}).catch(()=>({ok:false}));if(!r.ok)return toast('No se ha podido quitar');
+          d.remove();toast('Quitado');cargarHoy();};
+        d.querySelector('.acc').appendChild(x);cont.appendChild(d);});});
   }
   if(ROL==='admin'&&s!=='maletafacil'){const sb=document.createElement('div');sb.style.marginTop='18px';sb.innerHTML='<p class="hint">Cargando estadísticas…</p>';cont.appendChild(sb);if(rangoPer(AG_PER||''))pintarAgRango(s,sb);else pintarMiMes(AG_PER?AG_PER.slice(2):undefined,s,sb);}
   const c=a.cfg||{}; $('hoyAjustes').classList.remove('hide');
@@ -867,8 +876,14 @@ async function pintarAgRango(slug,box){
   const dc=box.querySelector('.desch');Object.entries(a.destinos||{}).forEach(([d,n])=>{const sp=document.createElement('span');sp.textContent=`${d} · ${n}`;dc.appendChild(sp);});
   const g=graficaEvo(rg.desde,rg.hasta,r.dias||{});if(g)box.appendChild(g);
   const n=document.createElement('p');n.className='hint';n.style.marginTop='8px';
-  n.textContent=(!a.envios&&!a.aperturas?'Sin datos '+rg.etiq+'. Los datos por días se guardan desde el 28/9/2026. ':'')+'El informe por WhatsApp va por meses: elige un mes en el desplegable para enviarlo.';box.appendChild(n);
+  n.textContent=(!a.envios&&!a.aperturas?'Sin datos '+rg.etiq+'. Los datos por días se guardan desde el 28/9/2026. ':'')+'El informe por WhatsApp va por meses: elige un mes en el desplegable para enviarlo.';box.appendChild(n);botonCero(slug,box);
 }
+function botonCero(slug,box){const b=document.createElement('button');b.type='button';b.className='reset0';b.textContent='Poner a cero las estadísticas de '+(nombres[slug]||slug);
+  b.onclick=async()=>{if(!confirm('¿Borrar TODAS las estadísticas de '+(nombres[slug]||slug)+'? (maletas enviadas, abiertas, clics y destinos de todos los meses)'))return;
+    if(!confirm('Esto no se puede deshacer. Sus viajes programados, logo y acceso NO se tocan. ¿Seguro?'))return;
+    const r=await apiV({accion:'borrarStats',slug}).catch(()=>({ok:false}));if(!r.ok)return toast('No se ha podido borrar');
+    toast('✅ Estadísticas a cero');AG_PER='';pintarMiMes(undefined,slug,box);};
+  box.appendChild(b);}
 /* ---------- Informe «Tu mes» para la agencia ---------- */
 async function pintarMiMes(mes,slugAdm,boxAdm){
   const box=boxAdm||$('miMes'); if(!box) return;
@@ -897,6 +912,7 @@ async function pintarMiMes(mes,slugAdm,boxAdm){
   const dc=box.querySelector('.desch');if(dc)r.top.forEach(([d,n])=>{const sp=document.createElement('span');sp.textContent=`${d} · ${n}`;dc.appendChild(sp);});
   if(slugAdm&&r.texto){const w=document.createElement('button');w.type='button';w.className='btn wa';w.style.marginTop='12px';w.textContent='Enviar informe '+(r.contenido||'')+' por WhatsApp';
     w.onclick=()=>window.open('https://wa.me/'+telWa((ACCESOS[slugAdm]||{}).tel||'')+'?text='+encodeURIComponent(r.texto),'_blank');box.appendChild(w);}
+  if(slugAdm) botonCero(slugAdm,box);
 }
 /* ---------- PESTAÑAS ---------- */
 function tab(n){['tHoy','tUno','tVarios','tAg'].forEach((t,i)=>$(t).classList.toggle('on',i===n));

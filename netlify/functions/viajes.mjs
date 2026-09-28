@@ -130,6 +130,32 @@ export async function datosInforme(slug, mes) {
   return { mes, nombreMes: nomMes(mes), mesAnterior: nomMes(mesPrevio(mes)), act, ant, top,
     pctAct: pct(act.aperturas, act.envios), pctAnt: pct(ant.aperturas, ant.envios) };
 }
+// Informe de un periodo: "mes" (un mes cerrado), "parcial" (lo que va de mes, sin comparar) o "trimestre" (3 meses)
+async function sumaMeses(slug, meses) {
+  const t = { envios: 0, aperturas: 0, amazon: 0, civitatis: 0, sinTelefono: 0, destinos: {} };
+  for (const m of meses) { const d = await statsAgencia(slug, m); for (const k of ["envios", "aperturas", "amazon", "civitatis", "sinTelefono"]) t[k] += d[k] || 0; for (const [x, n] of Object.entries(d.destinos || {})) t.destinos[x] = (t.destinos[x] || 0) + n; }
+  return t;
+}
+export async function datosPeriodo(slug, tipo, mes) {
+  if (tipo === "parcial") { const i = await datosInforme(slug, mes); i.nombreMes = "lo que llevas de " + nomMes(mes); i.ant = { envios: 0, aperturas: 0, amazon: 0, civitatis: 0, sinTelefono: 0 }; i.pctAnt = 0; return i; }
+  if (tipo === "trimestre") {
+    const m3 = [mesPrevio(mesPrevio(mes)), mesPrevio(mes), mes], p3 = m3.map(x => mesPrevio(mesPrevio(mesPrevio(x))));
+    const act = await sumaMeses(slug, m3), ant = await sumaMeses(slug, p3);
+    return { mes, nombreMes: `${nomMes(m3[0])}–${nomMes(mes)}`, mesAnterior: "el trimestre anterior", act, ant,
+      top: Object.entries(act.destinos).sort((x, y) => y[1] - x[1]).slice(0, 4), pctAct: pct(act.aperturas, act.envios), pctAnt: pct(ant.aperturas, ant.envios) };
+  }
+  return datosInforme(slug, mes);
+}
+// ¿Toca informe hoy según la periodicidad elegida? → {tipo, mes, clave} o null
+export function informeToca(cada, hoy) {
+  const dia = +hoy.slice(8, 10), mesAct = hoy.slice(0, 7), mesAnt = mesPrevio(mesAct);
+  const dow = new Date(hoy + "T12:00:00Z").getUTCDay();
+  if (cada === "nunca") return null;
+  if (cada === "semanal") { if (dow !== 1) return null; return dia <= 7 ? { tipo: "mes", mes: mesAnt, clave: hoy } : { tipo: "parcial", mes: mesAct, clave: hoy }; }
+  if (cada === "quincenal") { if (dia === 1) return { tipo: "mes", mes: mesAnt, clave: mesAnt }; if (dia === 16) return { tipo: "parcial", mes: mesAct, clave: mesAct + "-16" }; return null; }
+  if (cada === "trimestral") { if (dia === 1 && [1, 4, 7, 10].includes(+mesAct.slice(5, 7))) return { tipo: "trimestre", mes: mesAnt, clave: "T" + mesAnt }; return null; }
+  return dia === 1 ? { tipo: "mes", mes: mesAnt, clave: mesAnt } : null; // mensual (por defecto)
+}
 const flecha = (a, b, suf = "") => { const d = a - b; return d > 0 ? `▲ ${d}${suf}` : d < 0 ? `▼ ${-d}${suf}` : "= igual"; };
 export function textoInforme(nombreAg, i) {
   const L = [`Hola, ${nombreAg} 👋 Tu mes en Maleta Fácil (${i.nombreMes}):`, "",
@@ -142,6 +168,7 @@ export function textoInforme(nombreAg, i) {
   return L.join("\n");
 }
 function htmlInforme(nombreAg, logo, i) {
+  const gratis = i.plan !== "pro";
   const caja = (num, txt, sub, color) => `<td width="50%" valign="top" style="padding:4px"><div style="background:#F6F1E4;border-radius:12px;padding:12px;min-height:92px"><div style="font-family:Georgia,serif;font-size:28px;font-weight:bold;color:#12302E">${num}</div><div style="font-size:13px;color:#6B665B">${txt}</div>${sub ? `<div style="font-size:12px;font-weight:bold;color:${color || "#2E827C"}">${sub}</div>` : ""}</div></td>`;
   const destinos = i.top.map(([d, n]) => `<span style="display:inline-block;background:#E3EFEC;color:#2E5E59;font-weight:bold;font-size:13px;padding:4px 10px;border-radius:100px;margin:0 4px 6px 0">${esc(d)} · ${n}</span>`).join("");
   const consejo = i.act.sinTelefono ? `${i.act.sinTelefono} cliente${i.act.sinTelefono > 1 ? "s no tenían" : " no tenía"} teléfono. Añádelo en tu Excel y les llegará su maleta por WhatsApp.`
@@ -151,25 +178,41 @@ function htmlInforme(nombreAg, logo, i) {
 <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#fff;border-radius:14px;overflow:hidden">
 <tr><td style="background:#12302E;padding:16px 20px;color:#F6F1E4"><table width="100%"><tr><td><b style="font-family:Georgia,serif;font-size:18px">Maleta Fácil</b><br><span style="font-size:12px;color:#9FC2BC">Informe de ${i.nombreMes} · ${esc(nombreAg)}</span></td>${logo ? `<td align="right"><img src="${logo}" alt="" height="28" style="border-radius:4px"></td>` : ""}</tr></table></td></tr>
 <tr><td style="padding:18px 20px;font-size:14px;line-height:1.5;color:#12302E">
-<div style="font-family:Georgia,serif;font-size:22px;font-weight:bold">${i.act.envios ? "¡Buen mes! 🎉" : "Tu mes en Maleta Fácil"}</div>
-<p style="margin:4px 0 10px">${i.act.envios ? "Tus clientes han recibido su maleta antes de viajar:" : "Este mes no se enviaron maletas. ¡Programa tus próximos viajes en la herramienta!"}</p>
-<table width="100%" cellpadding="0" cellspacing="0"><tr>${caja(i.act.envios, "maletas enviadas", i.ant.envios || i.act.envios ? flecha(i.act.envios, i.ant.envios) + " vs " + i.mesAnterior : "")}${caja(i.pctAct + " %", `la abrieron (${i.act.aperturas} clientes)`, i.ant.envios ? flecha(i.pctAct, i.pctAnt, " puntos") : "")}</tr>
-<tr>${caja(i.act.civitatis, "clics a Civitatis (tu comisión)", i.ant.civitatis || i.act.civitatis ? flecha(i.act.civitatis, i.ant.civitatis) : "")}${caja(i.act.sinTelefono, "sin teléfono en el Excel", i.act.sinTelefono ? "no recibieron WhatsApp" : "¡todos con teléfono!", i.act.sinTelefono ? "#B65B3F" : "#2E827C")}</tr></table>
+<div style="font-family:Georgia,serif;font-size:22px;font-weight:bold">${i.pocos ? "¡Empieza el mes con tus viajeros! 🧳" : "¡Buen mes! 🎉"}</div>
+<p style="margin:4px 0 10px">${i.pocos ? "Programa en la herramienta los viajes de tus clientes de este mes (uno a uno o subiendo tu Excel): a cada uno le llegará su maleta por WhatsApp antes de salir, con tu logo. El mes que viene te contamos cómo les ha ido." : "Tus clientes han recibido su maleta antes de viajar:"}</p>
+${i.pocos ? "" : `
+<table width="100%" cellpadding="0" cellspacing="0"><tr>${caja(i.act.envios, "maletas enviadas", i.ant.envios ? flecha(i.act.envios, i.ant.envios) + " vs " + i.mesAnterior : "")}${caja(i.pctAct + " %", `la abrieron (${i.act.aperturas} clientes)`, i.ant.envios ? flecha(i.pctAct, i.pctAnt, " puntos") : "")}</tr>
+${gratis ? "" : `<tr>${caja(i.act.civitatis, "clics a Civitatis (tu comisión)", i.ant.civitatis || i.act.civitatis ? flecha(i.act.civitatis, i.ant.civitatis) : "")}${caja(i.act.sinTelefono, "sin teléfono en el Excel", i.act.sinTelefono ? "no recibieron WhatsApp" : "¡todos con teléfono!", i.act.sinTelefono ? "#B65B3F" : "#2E827C")}</tr>`}</table>
 ${destinos ? `<p style="margin:14px 0 6px;font-weight:bold">Destinos del mes</p>${destinos}` : ""}
-<div style="background:#FCEFD8;border-radius:12px;padding:10px 12px;margin-top:10px">💡 <b>Consejo:</b> ${consejo}</div>
+<div style="background:#FCEFD8;border-radius:12px;padding:10px 12px;margin-top:10px">💡 <b>Consejo:</b> ${gratis ? "Sube tu Excel de reservas cada semana: así ningún cliente se queda sin su maleta." : consejo}</div>`}
 <p style="margin:14px 0 0">Gracias por cuidar así a tus viajeros.<br><b>Maleta Fácil</b></p></td></tr>
-<tr><td style="padding:0 20px 16px;font-size:11.5px;color:#999">Ves el informe completo en tu herramienta → Mi agencia.</td></tr></table></td></tr></table></body></html>`;
+<tr><td style="padding:0 20px 16px;font-size:11.5px;color:#999">Lo ves también en tu herramienta → Mi agencia.</td></tr></table></td></tr></table></body></html>`;
 }
-export async function enviarInforme(store, slug, mes, nombres, copia = true) {
+// Plan Gratis: la agencia solo ve lo que motiva (maletas enviadas y abiertas) y a partir de un mínimo.
+// Plan Pro (futuro): estadísticas completas. El administrador siempre lo ve todo.
+export const MINIMO_INFORME = 10;
+export const esPro = cfg => cfg && (cfg.plan === "pro" || cfg.informeContenido === "completo"); // informe completo: Pro o elegido por el administrador
+export function recortarGratis(i) {
+  const r = { ...i, plan: "gratis", pocos: i.act.envios < MINIMO_INFORME,
+    act: { envios: i.act.envios, aperturas: i.act.aperturas, destinos: i.act.destinos },
+    ant: { envios: i.ant.envios, aperturas: i.ant.aperturas } };
+  if (r.pocos) { r.pctAct = 0; r.pctAnt = 0; r.top = []; r.act = { envios: i.act.envios, aperturas: 0 }; }
+  return r;
+}
+export async function enviarInforme(store, slug, mes, nombres, copia = true, tipo = "mes") {
   const cfg = await efectiva(store, slug);
-  const i = await datosInforme(slug, mes);
+  const completo = await datosPeriodo(slug, tipo, mes);
+  const i = esPro(cfg) ? { ...completo, plan: "pro" } : recortarGratis(completo);
   const ag = nombres[slug] || {}, nombreAg = ag.nombre || slug;
   const WEB_ = process.env.URL || "https://maletafacil.com";
   const logo = ag.logo ? (/^https?:/.test(ag.logo) ? ag.logo : WEB_ + (ag.logo.startsWith("/") ? ag.logo : "/agencias/" + encodeURIComponent(ag.logo))) : "";
   let email = false, avisos = 0;
-  try { email = await enviarEmail(cfg.email, `📊 Tu mes en Maleta Fácil: ${i.nombreMes}`, htmlInforme(nombreAg, logo, i), copia); } catch (e) {}
+  const canal = cfg.informeCanal || "ambos";
+  if (canal !== "movil") { try { email = await enviarEmail(cfg.email, i.pocos ? "🧳 Programa los viajes de tus clientes" : `📊 Tu informe de Maleta Fácil: ${i.nombreMes}`, htmlInforme(nombreAg, logo, i), copia); } catch (e) {} }
   const subs = (await store.get("push:" + slug, { type: "json" })) || [];
-  for (const sb of subs) { try { const r = await enviarPush(sb, { title: `📊 Tu informe de ${i.nombreMes} está listo`, body: `${i.act.envios} maletas enviadas, ${i.pctAct} % abiertas.`, url: "/enlace.html#miagencia" }); if (r.ok) avisos++; } catch (e) {} }
+  const aviso = i.pocos ? { title: "🧳 Nuevo mes en Maleta Fácil", body: "Programa los viajes de tus clientes de este mes: les llegará su maleta antes de salir." }
+    : { title: `📊 Tu informe de ${i.nombreMes} está listo`, body: `${i.act.envios} maletas enviadas y ${i.act.aperturas} clientes la abrieron.` };
+  if (canal !== "email") for (const sb of subs) { try { const r = await enviarPush(sb, { ...aviso, url: "/enlace.html#miagencia" }); if (r.ok) avisos++; } catch (e) {} }
   return { slug, mes, email, avisos };
 }
 
@@ -196,11 +239,11 @@ export async function ejecutarResumen(forzarSlug = "") {
     const [hh, mm] = String(cfg.hora).split(":").map(Number), ahora = minutosEn(cfg.tz);
     if (!forzar && (ahora < hh * 60 + mm || ahora >= 21 * 60 || cfgGuardada.ultimo === hoy)) continue;
 
-    // Día 1 de cada mes: informe del mes anterior (una sola vez)
-    const mesAnt = mesPrevio(hoy.slice(0, 7));
-    if (!forzar && hoy.slice(8, 10) === "01" && cfgGuardada.informe !== mesAnt) {
-      try { informe.push({ ...(await enviarInforme(store, slug, mesAnt, nombres)), tipo: "informe" }); } catch (e) {}
-      cfgGuardada.informe = mesAnt;
+    // Informe de la agencia según la periodicidad que elija el administrador (por defecto, el día 1 de cada mes)
+    const toca = informeToca(cfg.informeCada || "mensual", hoy);
+    if (!forzar && toca && cfgGuardada.informe !== toca.clave) {
+      try { informe.push({ ...(await enviarInforme(store, slug, toca.mes, nombres, true, toca.tipo)), tipo: "informe" }); } catch (e) {}
+      cfgGuardada.informe = toca.clave;
     }
 
     const { pend } = clasificar(lista, hoy);
@@ -313,8 +356,9 @@ export default async (req) => {
       if (yo.rol !== "admin") return json({ error: "rol" }, 403);
       return json({ ok: true, ...(await enviarInforme(store, slug, mes, await nombresAgencias(), false)) });
     }
-    const i = await datosInforme(slug, mes);
-    if (yo.rol !== "admin") { delete i.act.amazon; delete i.ant.amazon; } // la comisión de Amazon solo la ve el administrador
+    const completo = await datosInforme(slug, mes);
+    // El administrador lo ve todo; la agencia, según su plan (Gratis: solo maletas enviadas y abiertas)
+    const i = yo.rol === "admin" ? completo : esPro(await efectiva(store, slug)) ? (() => { const x = { ...completo, plan: "pro" }; delete x.act.amazon; delete x.ant.amazon; return x; })() : recortarGratis(completo);
     const nombres = await nombresAgencias();
     const { blobs } = await getStore({ name: "estadisticas", consistency: "strong" }).list({ prefix: `st:${slug}:` });
     return json({ ok: true, ...i, meses: blobs.map(x => x.key.split(":")[2]).sort().reverse(), texto: yo.rol === "admin" ? textoInforme((nombres[slug] || {}).nombre || slug, i) : undefined });
@@ -342,6 +386,10 @@ export default async (req) => {
       const dias = b.dias === "" || b.dias == null ? gen.dias : Math.max(0, Math.min(60, parseInt(b.dias, 10)));
       if (hora === gen.hora) delete nueva.hora; else nueva.hora = hora;
       if (dias === gen.dias) delete nueva.dias; else nueva.dias = dias;
+      // Cómo, cuándo y qué recibe la agencia en su informe
+      if (["mensual", "quincenal", "semanal", "trimestral", "nunca"].includes(b.informeCada)) nueva.informeCada = b.informeCada;
+      if (["ambos", "email", "movil"].includes(b.informeCanal)) nueva.informeCanal = b.informeCanal;
+      if (["basico", "completo"].includes(b.informeContenido)) nueva.informeContenido = b.informeContenido;
     }
     await store.setJSON("cfg:" + slug, nueva);
     return json({ ok: true });

@@ -2836,6 +2836,18 @@ async function cargarDestinoDesdeURL(){
   if(esFecha(ida) && esFecha(vuelta) && vuelta >= ida){
     if(ida < MIN_DATE) ida = MIN_DATE;          // viaje ya empezado: desde hoy
     if(vuelta >= ida && ida <= MAX_DATE) aplicarFechas(ida, vuelta > MAX_DATE ? MAX_DATE : vuelta);
+  }else if(esFecha(ida)){
+    // Viaje solo de ida: maleta genérica para la primera semana en destino
+    if(ida < MIN_DATE) ida = MIN_DATE;
+    if(ida <= MAX_DATE){
+      const f = new Date(ida + 'T12:00:00'); f.setDate(f.getDate() + 6);
+      let fin = `${f.getFullYear()}-${pad2(f.getMonth()+1)}-${pad2(f.getDate())}`; if(fin > MAX_DATE) fin = MAX_DATE;
+      aplicarFechas(ida, fin);
+      const nota = document.createElement('p'); nota.className = 'hint'; nota.id = 'notaSoloIda';
+      nota.textContent = '✈️ Viaje solo de ida: te preparamos la maleta para tu primera semana allí, con el tiempo que hará.';
+      document.getElementById('fechasTrigger').after(nota);
+      document.getElementById('fechasTrigger').addEventListener('click', () => nota.remove(), { once: true });
+    }
   }
   // Tipo de viaje opcional: ?tipo=playa, ciudad, montana…
   const tipo = (params.get('tipo') || (rutaCorta && rutaCorta.tipo) || '').toLowerCase();

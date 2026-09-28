@@ -280,7 +280,7 @@ body.rol-agencia #agForm .two{display:none}
 <div><label>Nombre</label><select data-k="nombre"></select></div>
 <div><label>Destino *</label><select data-k="destino"></select></div>
 <div><label>Fecha de ida *</label><select data-k="ida"></select></div>
-<div><label>Fecha de vuelta *</label><select data-k="vuelta"></select></div>
+<div><label>Fecha de vuelta (vacía = solo ida)</label><select data-k="vuelta"></select></div>
 <div><label>Teléfono</label><select data-k="tel"></select></div>
 <div><label>Email</label><select data-k="email"></select></div>
 </div>
@@ -386,6 +386,7 @@ body.rol-agencia #agForm .two{display:none}
 <div class="cfw"><span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
 <div class="cfg" id="cfGrid"></div>
 <p class="cfpaso" id="cfPaso"></p>
+<button type="button" class="ok hide" id="cfSoloIda" style="margin:6px 0 0">✈ Solo ida (sin vuelta)</button>
 <div class="two" style="margin-top:8px"><button type="button" class="ed" id="cfBorrar">Borrar fechas</button><button type="button" class="ok" id="cfCerrar" style="margin:0">Cerrar</button></div>
 </div></div>
 <div id="edLogo" class="hide"><div class="caja">
@@ -408,7 +409,9 @@ const HOY=ymd(new Date());
 const MESES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 const CAL={mes:null,ini:'',fin:''};
 function textoFechas(){const a=$('ida').value,b=$('vuelta').value,t=$('fechasTxt');
-  if(a&&b){const f=d=>d.split('-').reverse().join('/');t.textContent=f(a)+' — '+f(b);t.classList.remove('vacio');}
+  const f=d=>d.split('-').reverse().join('/');
+  if(a&&b){t.textContent=f(a)+' — '+f(b);t.classList.remove('vacio');}
+  else if(a){t.textContent=f(a)+' · solo ida';t.classList.remove('vacio');}
   else{t.textContent='Elige ida y vuelta';t.classList.add('vacio');}}
 function abrirCal(){CAL.ini=$('ida').value;CAL.fin=$('vuelta').value;const b=CAL.ini||HOY;CAL.mes=new Date(+b.slice(0,4),+b.slice(5,7)-1,1);
   $('calF').classList.remove('hide');document.body.style.overflow='hidden';pintarCal();}
@@ -421,15 +424,17 @@ function pintarCal(){
   for(let d=1;d<=dias;d++){const k=`${y}-${pad(m+1)}-${pad(d)}`,b=document.createElement('button');b.type='button';b.textContent=d;
     if(k<HOY)b.disabled=true;if(k===HOY)b.classList.add('hoy');
     if(k===CAL.ini)b.classList.add('ini');if(k===CAL.fin)b.classList.add('fin');if(CAL.ini&&CAL.fin&&k>CAL.ini&&k<CAL.fin)b.classList.add('en');
-    b.onclick=()=>{ if(!CAL.ini||CAL.fin||k<CAL.ini){CAL.ini=k;CAL.fin='';pintarCal();}
+    b.onclick=()=>{ if(!CAL.ini||CAL.fin||k<CAL.ini){CAL.ini=k;CAL.fin='';$('ida').value=k;$('vuelta').value='';textoFechas();$('vuelta').dispatchEvent(new Event('change'));pintarCal();}
       else{CAL.fin=k;pintarCal();$('ida').value=CAL.ini;$('vuelta').value=CAL.fin;textoFechas();$('vuelta').dispatchEvent(new Event('change'));setTimeout(cerrarCal,250);} };
     g.appendChild(b);}
-  $('cfPaso').textContent=!CAL.ini||CAL.fin?'Toca el día de ida':'Ahora toca el día de vuelta';
+  $('cfPaso').textContent=!CAL.ini||CAL.fin?'Toca el día de ida':'Ahora toca el día de vuelta, o pulsa «Solo ida»';
+  $('cfSoloIda').classList.toggle('hide',!(CAL.ini&&!CAL.fin));
 }
 $('fechasBtn').onclick=abrirCal;
 $('cfPrev').onclick=()=>{CAL.mes.setMonth(CAL.mes.getMonth()-1);pintarCal();};
 $('cfNext').onclick=()=>{CAL.mes.setMonth(CAL.mes.getMonth()+1);pintarCal();};
 $('cfCerrar').onclick=cerrarCal;
+$('cfSoloIda').onclick=()=>{$('ida').value=CAL.ini;$('vuelta').value='';textoFechas();$('vuelta').dispatchEvent(new Event('change'));cerrarCal();};
 $('cfBorrar').onclick=()=>{CAL.ini=CAL.fin='';$('ida').value=$('vuelta').value='';textoFechas();$('vuelta').dispatchEvent(new Event('change'));pintarCal();};
 $('calF').addEventListener('click',e=>{if(e.target.id==='calF')cerrarCal();});
 let nombres={};
@@ -540,10 +545,11 @@ function crear({cli,des,ida,vu,tipo}){
   let url;
   if(ag){
     // Enlace corto: maletafacil.com/coraltour/lisboa/27-09-26/28-09-26
-    url='https://maletafacil.com/'+ag+'/'+lugar+(ida&&vu?'/'+corta(ida)+'/'+corta(vu)+(tipo?'/'+tipo:''):'');
+    // Solo ida: maletafacil.com/coraltour/lisboa/27-09-26  (con tipo: /27-09-26/ida/playa)
+    url='https://maletafacil.com/'+ag+'/'+lugar+(ida&&vu?'/'+corta(ida)+'/'+corta(vu)+(tipo?'/'+tipo:''):ida?'/'+corta(ida)+(tipo?'/ida/'+tipo:''):'');
   }else{
     const p=new URLSearchParams(); p.set('destino',lugar);
-    if(ida&&vu){p.set('ida',ida);p.set('vuelta',vu);} if(tipo)p.set('tipo',tipo);
+    if(ida){p.set('ida',ida);if(vu)p.set('vuelta',vu);} if(tipo)p.set('tipo',tipo);
     url='https://maletafacil.com/?'+p.toString();
   }
   const ciudad=capital(des.trim());

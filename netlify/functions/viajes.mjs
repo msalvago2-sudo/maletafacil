@@ -5,7 +5,7 @@
 // Los datos de los clientes se borran solos al terminar el viaje (lo hace resumen-diario).
 import { getStore } from "@netlify/blobs";
 import { quien } from "./agencias.mjs";
-import { sumar, leerEstadisticas, statsAgencia } from "./evento.mjs";
+import { sumar, leerEstadisticas, statsAgencia, leerRango } from "./evento.mjs";
 import { createHmac, createHash, createECDH, createCipheriv, randomBytes, createPrivateKey, sign as firmar } from "node:crypto";
 
 /* ---------- Avisos al móvil (Web Push) sin librerías: cifrado aes128gcm (RFC 8291) + firma VAPID (RFC 8292) ---------- */
@@ -159,13 +159,18 @@ export function informeToca(cada, hoy) {
 const flecha = (a, b, suf = "") => { const d = a - b; return d > 0 ? `▲ ${d}${suf}` : d < 0 ? `▼ ${-d}${suf}` : "= igual"; };
 export function textoInforme(nombreAg, i) {
   const L = [`Hola, ${nombreAg} 👋 Tu mes en Maleta Fácil (${i.nombreMes}):`, "",
-    `🧳 *${i.act.envios} maletas enviadas*` + (i.ant.envios ? ` (${i.act.envios >= i.ant.envios ? (i.act.envios - i.ant.envios) + " más" : (i.ant.envios - i.act.envios) + " menos"} que en ${i.mesAnterior})` : ""),
-    `✅ *${i.act.aperturas} clientes la abrieron (${i.pctAct} %)*`];
+    `🧳 *${i.act.envios} maleta${i.act.envios === 1 ? " enviada" : "s enviadas"}*` + (i.ant.envios ? ` (${i.act.envios >= i.ant.envios ? (i.act.envios - i.ant.envios) + " más" : (i.ant.envios - i.act.envios) + " menos"} que en ${i.mesAnterior})` : ""),
+    `✅ *${i.act.aperturas} cliente${i.act.aperturas === 1 ? " la abrió" : "s la abrieron"} (${i.pctAct} %)*`];
   if (i.top.length) L.push(`🌍 Destinos estrella: ${i.top.slice(0, 3).map(x => x[0]).join(", ").replace(/, ([^,]*)$/, " y $1")}`);
-  if (i.act.civitatis) L.push(`🎟️ ${i.act.civitatis} clics a Civitatis`);
-  if (i.act.sinTelefono) L.push("", `💡 ${i.act.sinTelefono} cliente${i.act.sinTelefono > 1 ? "s no tenían" : " no tenía"} teléfono: añádelo en tu Excel y también les llegará por WhatsApp.`);
+  if (i.act.civitatis) L.push(`🎟️ ${i.act.civitatis} clic${i.act.civitatis === 1 ? "" : "s"} a Civitatis`);
+  if (i.act.sinTelefono) L.push("", `💡 ${i.act.sinTelefono} cliente${i.act.sinTelefono > 1 ? "s no tenían" : " no tenía"} teléfono: añádelo en tu Excel y también ${i.act.sinTelefono > 1 ? "les" : "le"} llegará por WhatsApp.`);
   L.push("", "¡Gracias por cuidar así a tus viajeros! Maleta Fácil");
   return L.join("\n");
+}
+function textoVacio(nombreAg, i) {
+  return [`Hola, ${nombreAg} 👋 Tu mes en Maleta Fácil (${i.nombreMes}):`, "",
+    "🧳 Este mes aún no has enviado maletas. Programa en la herramienta los viajes de tus clientes (uno a uno o subiendo tu Excel) y a cada uno le llegará su maleta por WhatsApp antes de salir, con tu logo.",
+    "", "¡Gracias por cuidar así a tus viajeros! Maleta Fácil"].join("\n");
 }
 function htmlInforme(nombreAg, logo, i) {
   const gratis = i.plan !== "pro";
@@ -188,9 +193,10 @@ ${destinos ? `<p style="margin:14px 0 6px;font-weight:bold">Destinos del mes</p>
 <p style="margin:14px 0 0">Gracias por cuidar así a tus viajeros.<br><b>Maleta Fácil</b></p></td></tr>
 <tr><td style="padding:0 20px 16px;font-size:11.5px;color:#999">Lo ves también en tu herramienta → Mi agencia.</td></tr></table></td></tr></table></body></html>`;
 }
-// Plan Gratis: la agencia solo ve lo que motiva (maletas enviadas y abiertas) y a partir de un mínimo.
+// Informe básico: la agencia solo ve lo que motiva (maletas enviadas, abiertas y destinos). Sin mínimo de maletas:
+// solo si en el periodo no ha enviado ninguna recibe el mensaje de «programa los viajes de tus clientes».
 // Plan Pro (futuro): estadísticas completas. El administrador siempre lo ve todo.
-export const MINIMO_INFORME = 10;
+export const MINIMO_INFORME = 1;
 export const esPro = cfg => cfg && (cfg.plan === "pro" || cfg.informeContenido === "completo"); // informe completo: Pro o elegido por el administrador
 export function recortarGratis(i) {
   const r = { ...i, plan: "gratis", pocos: i.act.envios < MINIMO_INFORME,
@@ -361,11 +367,19 @@ export default async (req) => {
     const i = yo.rol === "admin" ? completo : esPro(await efectiva(store, slug)) ? (() => { const x = { ...completo, plan: "pro" }; delete x.act.amazon; delete x.ant.amazon; return x; })() : recortarGratis(completo);
     const nombres = await nombresAgencias();
     const { blobs } = await getStore({ name: "estadisticas", consistency: "strong" }).list({ prefix: `st:${slug}:` });
-    return json({ ok: true, ...i, meses: blobs.map(x => x.key.split(":")[2]).sort().reverse(), texto: yo.rol === "admin" ? textoInforme((nombres[slug] || {}).nombre || slug, i) : undefined });
+    // Lo que se manda por WhatsApp es lo mismo que marca la ficha de la agencia (básico o completo), nunca los clics a Amazon
+    let texto, contenido;
+    if (yo.rol === "admin") {
+      const pro = esPro(await efectiva(store, slug)); contenido = pro ? "completo" : "básico";
+      const env = pro ? { ...completo, plan: "pro" } : recortarGratis(completo);
+      texto = env.pocos ? textoVacio((nombres[slug] || {}).nombre || slug, env) : textoInforme((nombres[slug] || {}).nombre || slug, env);
+    }
+    return json({ ok: true, ...i, meses: blobs.map(x => x.key.split(":")[2]).sort().reverse(), texto, contenido });
   }
 
   if (b.accion === "stats") {
     if (yo.rol !== "admin") return json({ error: "rol" }, 403);
+    if (esFecha(b.desde) && esFecha(b.hasta)) return json({ ok: true, rango: true, ...(await leerRango(b.desde <= b.hasta ? b.desde : b.hasta, b.desde <= b.hasta ? b.hasta : b.desde)) });
     const mes = /^\d{4}-\d{2}$/.test(b.mes || "") ? b.mes : hoyEn().slice(0, 7);
     return json({ ok: true, ...(await leerEstadisticas(mes)) });
   }

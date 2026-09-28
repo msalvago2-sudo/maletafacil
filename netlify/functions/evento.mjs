@@ -5,6 +5,7 @@ import { getStore } from "@netlify/blobs";
 import { createHash } from "node:crypto";
 
 const EVENTOS = { abre: "aperturas", envio: "envios", amazon: "amazon", civitatis: "civitatis", sintel: "sinTelefono" };
+const diaEn = (tz = "Europe/Madrid") => new Intl.DateTimeFormat("en-CA", { timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit" }).format(new Date());
 const mesEn = (tz = "Europe/Madrid") => new Intl.DateTimeFormat("en-CA", { timeZone: tz, year: "numeric", month: "2-digit" }).format(new Date()).slice(0, 7);
 const bonito = s => String(s || "").replace(/[-_]+/g, " ").trim().replace(/(^|\s)\S/g, l => l.toUpperCase()).slice(0, 40);
 
@@ -29,7 +30,32 @@ export async function sumar(slug, ev, des = "", clave = "") {
     d.destinos = Object.fromEntries(orden);
   }
   await store.setJSON(key, d);
+  // Además, el día (para ver la evolución: ayer, última semana, fechas a elegir)
+  const kd = `dia:${slug}:${diaEn()}`;
+  const x = (await store.get(kd, { type: "json" })) || { envios: 0, aperturas: 0, amazon: 0, civitatis: 0, sinTelefono: 0, destinos: {} };
+  x[campo] = (x[campo] || 0) + 1;
+  if (dd && campo === "envios") x.destinos[dd] = (x.destinos[dd] || 0) + 1;
+  await store.setJSON(kd, x);
   return true;
+}
+
+// Estadísticas de un rango de días (desde/hasta en AAAA-MM-DD): totales por agencia y evolución día a día
+export async function leerRango(desde, hasta) {
+  const store = getStore({ name: "estadisticas", consistency: "strong" });
+  const { blobs } = await store.list({ prefix: "dia:" });
+  const agencias = {}, dias = {};
+  for (const b of blobs) {
+    const [, slug, f] = b.key.split(":");
+    if (f < desde || f > hasta) continue;
+    const d = (await store.get(b.key, { type: "json" })) || {};
+    const a = agencias[slug] || (agencias[slug] = { envios: 0, aperturas: 0, amazon: 0, civitatis: 0, sinTelefono: 0, destinos: {} });
+    const t = dias[f] || (dias[f] = { envios: 0, aperturas: 0, amazon: 0, civitatis: 0 });
+    for (const k of ["envios", "aperturas", "amazon", "civitatis", "sinTelefono"]) { a[k] += d[k] || 0; if (k in t) t[k] += d[k] || 0; }
+    for (const [x, n] of Object.entries(d.destinos || {})) a.destinos[x] = (a.destinos[x] || 0) + n;
+  }
+  for (const a of Object.values(agencias)) a.destinos = Object.fromEntries(Object.entries(a.destinos).sort((p, q) => q[1] - p[1]).slice(0, 10));
+  const { blobs: mb } = await store.list({ prefix: "st:" });
+  return { desde, hasta, agencias, dias, meses: [...new Set(mb.map(x => x.key.split(":")[2]))].sort().reverse() };
 }
 
 // Datos de una agencia en un mes (para el informe mensual)

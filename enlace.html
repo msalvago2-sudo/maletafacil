@@ -727,7 +727,8 @@ function itemHoy(s,v,hecho){
   return d;
 }
 function pintarPanel(cont){
-  const ags=Object.entries(HOYDATA);let pend=0,hechos=0,prox=0;ags.forEach(([,a])=>{pend+=a.pend.length;hechos+=a.hechos.length;prox+=a.prox.length;});
+  // Solo cuentan las agencias con algo que enviar hoy o más adelante (los viajes ya enviados esperan a borrarse solos al terminar)
+  const ags=Object.entries(HOYDATA).filter(([,a])=>a.pend.length+a.hechos.length+a.prox.length>0);let pend=0,hechos=0,prox=0;ags.forEach(([,a])=>{pend+=a.pend.length;hechos+=a.hechos.length;prox+=a.prox.length;});
   cont.innerHTML=`<div class="kpis"><div class="kpi"><b>${pend+hechos}</b><span>envíos para hoy</span></div><div class="kpi"><b>${hechos}</b><span>ya enviados hoy</span></div><div class="kpi"><b>${prox}</b><span>programados próximos días</span></div><div class="kpi"><b>${ags.length}</b><span>agencias con viajes</span></div></div>`;
   if(!ags.length){cont.insertAdjacentHTML('beforeend','<p class="vacio2">Aún no hay envíos programados. Crea un enlace en «Un cliente» o sube un Excel en «Varios» y pulsa Programar.</p>');if(ROL==='admin')pintarStats(cont);return;}
   ags.sort((x,y)=>(y[1].pend.length+y[1].hechos.length)-(x[1].pend.length+x[1].hechos.length)).forEach(([k,a])=>{

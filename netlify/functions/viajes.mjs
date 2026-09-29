@@ -51,7 +51,8 @@ export function hoyEn(tz = "Europe/Madrid") {
   return p; // AAAA-MM-DD
 }
 export const sumaDias = (f, n) => { const d = new Date(f + "T12:00:00Z"); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
-export const fechaEnvio = v => sumaDias(v.ida, -(+v.dias || 0));
+// Los días de antelación siguen siempre el ajuste actual de la agencia (si cambia de 7 a 5, cambia toda la programación pendiente)
+export const fechaEnvio = (v, dias) => sumaDias(v.ida, -(dias != null ? +dias : (+v.dias || 0)));
 export const CFG_DEF = { hora: "09:30", dias: 7, tz: "Europe/Madrid", email: "" };
 // Días de antelación y hora del resumen: los decide el administrador (general y, si quiere, por agencia)
 export async function efectiva(store, slug) {
@@ -61,16 +62,16 @@ export async function efectiva(store, slug) {
 }
 const minutosEn = tz => { const [h, m] = new Intl.DateTimeFormat("en-GB", { timeZone: tz, hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date()).split(":").map(Number); return (h % 24) * 60 + m; };
 
-export function clasificar(viajes, hoy) {
+export function clasificar(viajes, hoy, dias) {
   const pend = [], hechos = [], prox = [];
   for (const v of viajes) {
     if (v.ida < hoy) continue;
-    const env = fechaEnvio(v);
+    const env = fechaEnvio(v, dias);
     if (v.enviado) { if (String(v.enviadoDia || "") === hoy) hechos.push(v); continue; }
     if (env <= hoy) pend.push(v); else prox.push(v);
   }
   const orden = (a, b) => a.ida.localeCompare(b.ida);
-  return { pend: pend.sort(orden), hechos: hechos.sort(orden), prox: prox.sort((a, b) => fechaEnvio(a).localeCompare(fechaEnvio(b))) };
+  return { pend: pend.sort(orden), hechos: hechos.sort(orden), prox: prox.sort((a, b) => fechaEnvio(a, dias).localeCompare(fechaEnvio(b, dias))) };
 }
 
 /* ---------- Recuento diario (lo llama resumen-diario cada hora, o "Probar ahora" desde la herramienta) ---------- */
@@ -252,7 +253,7 @@ export async function ejecutarResumen(forzarSlug = "") {
       cfgGuardada.informe = toca.clave;
     }
 
-    const { pend } = clasificar(lista, hoy);
+    const { pend } = clasificar(lista, hoy, cfg.dias);
     if (!forzar) await store.setJSON("cfg:" + slug, { ...cfgGuardada, ultimo: hoy }); // "Probar ahora" no gasta el resumen del día
     if (!pend.length) { informe.push({ slug, pend: 0 }); continue; }
     pend.forEach(v => { v.slug = slug; });
@@ -275,8 +276,27 @@ export async function ejecutarResumen(forzarSlug = "") {
     let email = false;
     try { email = await enviarEmail(cfg.email, titulo, htmlEmail(nombreAg, hoy, pend)); } catch (e) {}
     informe.push({ slug, pend: pend.length, avisos, email });
+
+    // 3) Si algo ha fallado, aviso para el administrador (en su panel y por email)
+    if (!forzar) {
+      let problema = "";
+      if (cfg.email && !email) problema = `no se ha podido mandar el email del resumen a ${cfg.email}`;
+      else if (!cfg.email && !avisos) problema = subs.length ? "el aviso al móvil no ha llegado a ningún móvil" : "no tiene email ni ningún móvil con avisos, así que nadie se ha enterado";
+      if (problema) await apuntarAlerta(store, { slug, dia: hoy, texto: `${nombreAg}: hoy tocaba enviar ${pend.length} maleta${pend.length > 1 ? "s" : ""} y ${problema}.` });
+    }
   }
+  if (!forzar) await store.setJSON("latido", { t: Date.now() }); // prueba de que el recuento automático sigue funcionando
   return informe;
+}
+
+// Alertas para el administrador: se guardan (las ve en «Hoy») y se le mandan por email
+async function apuntarAlerta(store, a) {
+  const lista = (await store.get("alertas", { type: "json" })) || [];
+  if (lista.some(x => x.slug === a.slug && x.dia === a.dia)) return; // una por agencia y día
+  lista.unshift({ ...a, t: Date.now() });
+  await store.setJSON("alertas", lista.slice(0, 30));
+  const para = process.env.MF_ADMIN_EMAIL || process.env.BREVO_SENDER_EMAIL;
+  try { await enviarEmail(para, "⚠️ Maleta Fácil: aviso de envíos", `<p style="font-family:Arial,sans-serif;font-size:15px">${esc(a.texto)}</p><p style="font-family:Arial,sans-serif;font-size:13px;color:#666">Lo ves también en la herramienta, pestaña Hoy.</p>`); } catch (e) {}
 }
 
 
@@ -311,18 +331,47 @@ export default async (req) => {
   if (b.accion === "guardar") {
     if (!esSlug(slug)) return json({ error: "agencia" }, 400);
     const lista = (await store.get("ag:" + slug, { type: "json" })) || [];
-    let nuevos = 0, cambiados = 0;
+    let nuevos = 0, cambiados = 0, fechaCambiada = 0;
+    const excel = b.origen === "excel", cfgAg = await efectiva(store, slug), hoyAg = hoyEn(cfgAg.tz), subidos = new Set();
+    let minIda = "9999", maxIda = "";
     const diasFijos = yo.rol === "agencia" ? (await efectiva(store, slug)).dias : null;
     for (const e of (Array.isArray(b.viajes) ? b.viajes : []).slice(0, 500)) {
       const v = { cli: limpio(e.cli, 60), tel: String(e.tel || "").replace(/\D/g, "").slice(0, 15), des: limpio(e.des, 60), ida: e.ida, vu: esFecha(e.vu) ? e.vu : "",
         tipo: limpio(e.tipo, 20), dias: diasFijos != null ? diasFijos : Math.max(0, Math.min(60, parseInt(e.dias, 10) || 0)), msg: limpio(e.msg, 1500), url: limpio(e.url, 400) };
       if (!v.des || !esFecha(v.ida)) continue;
       v.id = createHash("sha1").update([slug, v.cli.toLowerCase(), v.tel, v.des.toLowerCase(), v.ida].join("|")).digest("hex").slice(0, 16);
+      subidos.add(v.id); if (v.ida < minIda) minIda = v.ida; if (v.ida > maxIda) maxIda = v.ida;
       const i = lista.findIndex(x => x.id === v.id);
-      if (i >= 0) { lista[i] = { ...lista[i], ...v }; cambiados++; } else { lista.push({ ...v, creado: Date.now(), enviado: null }); nuevos++; if (!v.tel) { try { await sumar(slug, "sintel"); } catch (e) {} } }
+      if (i >= 0) { lista[i] = { ...lista[i], ...v }; cambiados++; continue; }
+      // ¿Es el mismo cliente con otra fecha de ida? (cambio de fecha): se sustituye el viaje anterior si aún no se había enviado
+      const mismo = (v.cli || v.tel) ? lista.findIndex(x => !x.enviado && x.ida >= hoyAg && x.ida !== v.ida && (x.cli || "").toLowerCase() === v.cli.toLowerCase() && (x.tel || "") === v.tel && (x.des || "").toLowerCase() === v.des.toLowerCase()) : -1;
+      if (mismo >= 0) { lista[mismo] = { ...v, origen: excel ? "excel" : lista[mismo].origen || "", creado: lista[mismo].creado, enviado: null }; fechaCambiada++; continue; }
+      lista.push({ ...v, origen: excel ? "excel" : "uno", creado: Date.now(), enviado: null }); nuevos++; if (!v.tel) { try { await sumar(slug, "sintel"); } catch (e) {} }
     }
     await store.setJSON("ag:" + slug, lista);
-    return json({ ok: true, nuevos, cambiados });
+    // Excel: los viajes de un Excel anterior que ya no aparecen en este (en las mismas fechas) pueden ser cancelaciones: se proponen para quitar
+    let faltan = [];
+    if (excel && subidos.size) {
+      faltan = lista.filter(x => x.origen === "excel" && !x.enviado && x.ida >= hoyAg && x.ida >= minIda && x.ida <= maxIda && !subidos.has(x.id)).map(x => ({ id: x.id, cli: x.cli, des: x.des, ida: x.ida }));
+      await store.setJSON("meta:" + slug, { ...((await store.get("meta:" + slug, { type: "json" })) || {}), ultExcel: Date.now(), ultExcelN: subidos.size });
+    }
+    return json({ ok: true, nuevos, cambiados, fechaCambiada, faltan });
+  }
+
+  if (b.accion === "alertas") {
+    if (yo.rol !== "admin") return json({ error: "rol" }, 403);
+    if (b.limpiar) await store.setJSON("alertas", []);
+    const lat = (await store.get("latido", { type: "json" })) || {};
+    return json({ ok: true, alertas: b.limpiar ? [] : ((await store.get("alertas", { type: "json" })) || []), latido: lat.t || 0 });
+  }
+
+  if (b.accion === "borrarVarios") {
+    if (!esSlug(slug)) return json({ error: "agencia" }, 400);
+    const ids = new Set(Array.isArray(b.ids) ? b.ids.map(String) : []);
+    const lista = (await store.get("ag:" + slug, { type: "json" })) || [];
+    const quedan = lista.filter(x => !ids.has(x.id));
+    await store.setJSON("ag:" + slug, quedan);
+    return json({ ok: true, quitados: lista.length - quedan.length });
   }
 
   if (b.accion === "hoy") {
@@ -332,9 +381,9 @@ export default async (req) => {
     for (const s of slugs) {
       const cfg = await efectiva(store, s);
       const hoy = hoyEn(cfg.tz);
-      const { pend, hechos, prox } = clasificar((await store.get("ag:" + s, { type: "json" })) || [], hoy);
-      const conLink = v => ({ ...v, ir: `/.netlify/functions/viajes?ir=${s}.${v.id}&t=${token(s + "." + v.id)}`, envio: fechaEnvio(v) });
-      out[s] = { hoy, cfg, pend: pend.map(conLink), hechos: hechos.map(conLink), prox: prox.slice(0, 60).map(conLink), avisos: ((await store.get("push:" + s, { type: "json" })) || []).length };
+      const { pend, hechos, prox } = clasificar((await store.get("ag:" + s, { type: "json" })) || [], hoy, cfg.dias);
+      const conLink = v => ({ ...v, ir: `/.netlify/functions/viajes?ir=${s}.${v.id}&t=${token(s + "." + v.id)}`, envio: fechaEnvio(v, cfg.dias) });
+      out[s] = { hoy, cfg, pend: pend.map(conLink), hechos: hechos.map(conLink), prox: prox.slice(0, 400).map(conLink), avisos: ((await store.get("push:" + s, { type: "json" })) || []).length, ultExcel: ((await store.get("meta:" + s, { type: "json" })) || {}).ultExcel || 0, ultExcelN: ((await store.get("meta:" + s, { type: "json" })) || {}).ultExcelN || 0 };
     }
     return json({ ok: true, agencias: out });
   }

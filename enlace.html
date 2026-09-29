@@ -202,6 +202,9 @@ body.rol-agencia #agForm .two{display:none}
 .luego2{margin-top:8px}.sec2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}.sec2 .copy,.sec2 .test{margin:0;background:transparent!important;color:#12302E!important;border:1.5px solid #D9CFBC!important;font-size:14px!important;min-height:42px!important;padding:8px!important;box-shadow:none!important}
 .dwrap{position:relative}.sug{position:absolute;left:0;right:0;top:calc(100% + 4px);background:#fff;border:1.5px solid #E4DCCB;border-radius:10px;max-height:240px;overflow-y:auto;z-index:30;box-shadow:0 12px 24px -8px rgba(0,0,0,.2);display:none}.sug.on{display:block}
 .sug div{padding:11px 14px;font-size:15px;color:#12302E;cursor:pointer;border-bottom:1px solid #F0EADF}.sug div:last-child{border-bottom:0}.sug div:hover{background:#F6F1E4}.sug small{display:block;color:#8A8478;font-size:12.5px}
+.vermas{display:block;width:100%;margin:10px 0 0;background:transparent;border:1.5px dashed #D9CFBC;border-radius:12px;padding:10px;color:#12302E;font-weight:600;font-size:14px;cursor:pointer}
+.ultx{background:#E3EFEC;color:#2E5E59;border-radius:10px;padding:8px 12px;font-size:14px;margin:0 0 10px}
+.alerta{background:#FBE9E2;border:1.5px solid #E8B9A6;border-radius:12px;padding:12px 14px;margin:0 0 12px;color:#7A2E17;font-size:14px}.alerta ul{margin:6px 0 8px;padding-left:18px}.alerta li{margin:3px 0}.alerta button{background:#7A2E17;color:#fff;border:0;border-radius:100px;padding:7px 14px;font-weight:600;font-size:13px;cursor:pointer}
 </style>
 </head>
 <body>
@@ -263,7 +266,7 @@ body.rol-agencia #agForm .two{display:none}
 <div class="opc"><button type="button" class="btn recor" id="programar">⏰ Programar</button><small>Te lo recordamos el día que toca</small></div>
 </div>
 <p class="cuando" id="cuando"></p>
-<div class="lrow solo-admin luego2"><span>Días antes del viaje</span><div class="step"><button type="button" data-d="-1">−</button><input id="diasAntes" type="number" min="0" max="60" value="5" inputmode="numeric"><button type="button" data-d="1">+</button></div></div>
+<div class="lrow hide luego2"><span>Días antes del viaje</span><div class="step"><button type="button" data-d="-1">−</button><input id="diasAntes" type="number" min="0" max="60" value="5" inputmode="numeric"><button type="button" data-d="1">+</button></div></div>
 <input type="hidden" id="horaAviso" value="09:00">
 <div class="sec2"><button type="button" class="copy" id="copiar">Copiar mensaje</button><a class="btn test" id="probar" target="_blank" rel="noopener">Probar enlace</a></div>
 <a class="mini" id="recordar">Añadir también un aviso a mi calendario</a>
@@ -272,6 +275,7 @@ body.rol-agencia #agForm .two{display:none}
 
 <!-- VARIOS -->
 <div id="pVarios" class="hide">
+<p class="ultx hide" id="ultExcel"></p>
 <label class="drop" for="fichero"><b>Subir Excel de reservas</b><span class="hint">Archivo .xlsx o .csv exportado de tu programa de gestión</span></label>
 <input type="file" id="fichero" accept=".xlsx,.csv,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="hide">
 <p class="err" id="errX"></p>
@@ -289,12 +293,12 @@ body.rol-agencia #agForm .two{display:none}
 </div>
 </div>
 <div class="bar"><b id="cuenta"></b>
-<select id="rango"><option value="7">Próximos 7 días</option><option value="15" selected>Próximos 15 días</option><option value="30">Próximos 30 días</option><option value="9999">Todos los futuros</option></select></div>
+<select id="rango"><option value="7">Próximos 7 días</option><option value="15">Próximos 15 días</option><option value="30">Próximos 30 días</option><option value="9999" selected>Todos los futuros</option></select></div>
 <div id="lista"></div>
 <div class="luego" id="luegoV" style="margin-top:14px">
 <b>⏰ Programar todos los envíos</b>
 <p class="hint" style="margin:2px 0 10px">Se guardan todos los viajes de la lista. Cada día aparecerán en <b>Hoy</b> los clientes a los que toca enviar, con aviso al móvil y por email.</p>
-<div class="lrow solo-admin"><span>Días antes del viaje</span><div class="step"><button type="button" data-d="-1">−</button><input id="diasAntesV" type="number" min="0" max="60" value="5" inputmode="numeric"><button type="button" data-d="1">+</button></div></div>
+<div class="lrow hide"><span>Días antes del viaje</span><div class="step"><button type="button" data-d="-1">−</button><input id="diasAntesV" type="number" min="0" max="60" value="5" inputmode="numeric"><button type="button" data-d="1">+</button></div></div>
 <input type="hidden" id="horaAvisoV" value="09:00">
 <p class="cuando" id="cuandoV"></p>
 <button type="button" class="btn recor" id="programarV">Programar todos</button>
@@ -605,7 +609,8 @@ function crear({cli,des,ida,vu,tipo}){
   const fechas=(ida&&vu)?` (${rango(ida,vu)})`:'';
   const inicio=cli?`¡Hola, ${cli}! 🧳 Para`:`🧳 Para`;
   const firma=ag&&nombres[ag]?`\n\n¡Buen viaje! ${nombres[ag]}`:'\n\n¡Buen viaje!';
-  const msg=`${inicio} que no se te olvide nada en *${ciudad}*, aquí tienes tu maleta según el tiempo que hará:\n${url}${firma}`;
+  const varios=/ y |, /.test(cli||''); // varios pasajeros de la misma reserva: «os», «tenéis vuestra»
+  const msg=`${inicio} que no se ${varios?'os':'te'} olvide nada en *${ciudad}*, aquí ${varios?'tenéis vuestra':'tienes tu'} maleta según el tiempo que hará:\n${url}${firma}`;
   return {url,msg,ciudad};
 }
 // "27–28 sep" · "30 sep – 3 oct"
@@ -698,7 +703,8 @@ async function cargarHoy(){
   if(a.prox.length){
     const g={}; a.prox.forEach(v=>(g[v.envio]=g[v.envio]||[]).push(v));
     const t=document.createElement('div');t.className='hsec';t.innerHTML=`Próximos envíos <small>${a.prox.length} viaje${a.prox.length>1?'s':''}</small>`;cont.appendChild(t);
-    Object.keys(g).sort().slice(0,10).forEach(f=>{const h2=document.createElement('p');h2.className='pdia';
+    const diasP=Object.keys(g).sort();let ocultos=0;
+    diasP.forEach((f,di)=>{const tapa=di>=2;if(tapa)ocultos+=g[f].length;const h2=document.createElement('p');h2.className='pdia'+(tapa?' pmas hide':'');
       h2.textContent=`${diaRel(f,a.hoy)} · ${g[f].length} cliente${g[f].length>1?'s':''}`;cont.appendChild(h2);
       g[f].forEach(v=>{const d=document.createElement('div');d.className='hitem prox';
         d.innerHTML='<div><b></b><span></span></div><div class="acc"></div>';
@@ -707,7 +713,10 @@ async function cargarHoy(){
         x.onclick=async()=>{if(!confirm('¿Quitar a '+(v.cli||'este cliente')+' ('+v.des+') de los próximos envíos?'))return;
           const r=await apiV({accion:'borrar',slug:s,id:v.id}).catch(()=>({ok:false}));if(!r.ok)return toast('No se ha podido quitar');
           d.remove();toast('Quitado');cargarHoy();};
-        d.querySelector('.acc').appendChild(x);cont.appendChild(d);});});
+        d.querySelector('.acc').appendChild(x);if(tapa)d.classList.add('pmas','hide');cont.appendChild(d);});});
+    if(ocultos){const m=document.createElement('button');m.type='button';m.className='vermas';m.textContent=`Ver los ${ocultos} envíos programados más adelante`;
+      m.onclick=()=>{cont.querySelectorAll('.pmas.hide').forEach(x=>x.classList.remove('hide'));m.remove();};cont.appendChild(m);}
+    if(a.ultExcel){const u=document.createElement('p');u.className='hint';u.style.marginTop='8px';u.textContent='📄 Último Excel subido: '+fechaHora(a.ultExcel)+(a.ultExcelN?` (${a.ultExcelN} viajes)`:'');cont.appendChild(u);}
   }
   if(ROL==='admin'){const sb=document.createElement('div');sb.style.marginTop='18px';sb.innerHTML='<p class="hint">Cargando estadísticas…</p>';cont.appendChild(sb);if(rangoPer(AG_PER||''))pintarAgRango(s,sb);else pintarMiMes(AG_PER?AG_PER.slice(2):undefined,s,sb);}
   const c=a.cfg||{}; $('hoyAjustes').classList.remove('hide');
@@ -737,12 +746,23 @@ function pintarPanel(cont){
     d.querySelector('b').textContent=nomAg(k);const tot=a.pend.length+a.hechos.length;
     d.querySelector('span').textContent=tot?`${tot} hoy · ${a.hechos.length} enviado${a.hechos.length===1?'':'s'}`:`${a.prox.length} programado${a.prox.length===1?'':'s'}`;
     d.onclick=()=>{$('agHoy').value=k;cargarHoy();};cont.appendChild(d);});
-  if(ROL==='admin') pintarStats(cont);
+  if(ROL==='admin'){pintarStats(cont);pintarAlertas(cont);}
+}
+async function pintarAlertas(cont){
+  const r=await apiV({accion:'alertas'}).catch(()=>({ok:false}));if(!r.ok)return;
+  const box=document.createElement('div');const msgs=[];
+  if(r.latido&&Date.now()-r.latido>2*3600e3)msgs.push('El recuento automático no se ejecuta desde '+fechaHora(r.latido)+'. Hay que revisarlo en Netlify (pídemelo y lo miro).');
+  const rec=(r.alertas||[]).filter(a=>Date.now()-a.t<4*864e5);rec.forEach(a=>msgs.push(a.texto));
+  if(!msgs.length)return;
+  box.className='alerta';box.innerHTML='<b>⚠️ Atención</b><ul></ul><button type="button">Entendido</button>';
+  msgs.forEach(m=>{const li=document.createElement('li');li.textContent=m;box.querySelector('ul').appendChild(li);});
+  box.querySelector('button').onclick=async()=>{await apiV({accion:'alertas',limpiar:true}).catch(()=>{});box.remove();};
+  cont.prepend(box);
 }
 $('agHoy').addEventListener('change',()=>{try{localStorage.setItem('mf_hoy_ag',$('agHoy').value)}catch(e){};cargarHoy();});
 // Días por defecto y hora del aviso según la agencia elegida
 function aplicarCfg(){const c=CFGS[slugActual()];if(!c)return;
-  ['diasAntes','diasAntesV'].forEach(i=>{if(!$(i).dataset.tocado||ROL==='agencia')$(i).value=c.dias??7;});
+  ['diasAntes','diasAntesV'].forEach(i=>{$(i).value=c.dias??7;}); // siempre el ajuste de la agencia
   $('horaAviso').value=$('horaAvisoV').value=c.hora||'09:30'; avisoUno(); avisosVarios();}
 ['diasAntes','diasAntesV'].forEach(i=>$(i).addEventListener('input',()=>$(i).dataset.tocado='1'));
 $('agencia').addEventListener('change',async()=>{if(!CFGS[slugActual()]){const r=await apiV({accion:'hoy',slug:slugActual()}).catch(()=>({}));if(r.agencias)Object.entries(r.agencias).forEach(([k,v])=>CFGS[k]=v.cfg);}aplicarCfg();});
@@ -760,12 +780,22 @@ $('programar').onclick=async()=>{
 $('mapaVer').onclick=e=>{e.preventDefault();$('mapaCols').classList.remove('hide');$('mapaOk').classList.add('hide');};
 $('programarV').onclick=async()=>{
   if(!visibles.length) return; guardarMapa(); const dias=+$('diasAntesV').value||0;
-  const viajes=visibles.map(r=>({cli:(r.nombre||'').split(/\s+/)[0]||'',tel:telWa(r.tel),des:capital(r.destino),ida:r.ida,vu:r.vuelta&&r.vuelta>=r.ida?r.vuelta:'',tipo:'',dias,msg:r.msg,url:r.url}));
+  const viajes=visibles.map(r=>({cli:r.cli||'',tel:telWa(r.tel),des:capital(r.destino),ida:r.ida,vu:r.vuelta&&r.vuelta>=r.ida?r.vuelta:'',tipo:'',dias,msg:r.msg,url:r.url}));
   $('programarV').classList.add('off');
-  const r=await apiV({accion:'guardar',slug:slugActual(),viajes}).catch(()=>({ok:false}));
+  const r=await apiV({accion:'guardar',slug:slugActual(),origen:'excel',viajes}).catch(()=>({ok:false}));
   $('programarV').classList.remove('off');
   if(!r.ok) return toast(r.status===401?'Vuelve a entrar':'No se ha podido programar');
-  toast(`✅ ${r.nuevos} nuevos · ${r.cambiados} actualizados`); $('cuandoV').textContent=`✅ Programados: ${r.nuevos} nuevos y ${r.cambiados} actualizados. Los verás en «Hoy» el día que toque.`;
+  toast(`✅ ${r.nuevos} nuevo${r.nuevos===1?'':'s'} · ${r.cambiados} ya estaba${r.cambiados===1?'':'n'}`);
+  const pl=(n,a,b)=>n+' '+(n===1?a:b);
+  $('cuandoV').textContent=`✅ Programados: ${pl(r.nuevos,'nuevo','nuevos')}, ${r.cambiados} ya estaba${r.cambiados===1?'':'n'}${r.fechaCambiada?` y ${pl(r.fechaCambiada,'con la fecha cambiada (se ha sustituido la anterior)','con la fecha cambiada (se han sustituido las anteriores)')}`:''}. Los verás en «Hoy» el día que toque.`;
+  if(r.faltan&&r.faltan.length){
+    const lis=r.faltan.slice(0,8).map(x=>`· ${x.cli||'Cliente'} · ${x.des} (${cortoF(x.ida)})`).join('\n')+(r.faltan.length>8?`\n… y ${r.faltan.length-8} más`:'');
+    if(confirm(`${r.faltan.length===1?'Este viaje estaba en un Excel anterior y ya no está':'Estos '+r.faltan.length+' viajes estaban en un Excel anterior y ya no están'} en este (${r.faltan.length===1?'¿cancelado?':'¿cancelados?'}):\n\n${lis}\n\n¿Los quito de los envíos?`)){
+      const q=await apiV({accion:'borrarVarios',slug:slugActual(),ids:r.faltan.map(x=>x.id)}).catch(()=>({ok:false}));
+      if(q.ok){toast(`🗑 ${q.quitados} quitado${q.quitados===1?'':'s'}`);$('cuandoV').textContent+=q.quitados===1?' Se ha quitado 1 viaje que ya no estaba.':` Se han quitado ${q.quitados} viajes que ya no estaban.`;}
+    }
+  }
+  mostrarUltExcel();
 };
 // Avisos en el móvil (Web Push)
 const esIOS=/iPhone|iPad|iPod/.test(navigator.userAgent), instalada=window.matchMedia('(display-mode: standalone)').matches||navigator.standalone;
@@ -968,7 +998,15 @@ function tab(n){['tHoy','tUno','tVarios','tAg'].forEach((t,i)=>$(t).classList.to
   $('pUno').classList.toggle('hide',n!==1);$('pVarios').classList.toggle('hide',n!==2);
   $('cardEnlaces').classList.toggle('hide',n!==1&&n!==2);$('cardAg').classList.toggle('hide',n!==3);
   if(n===0) cargarHoy();
+  if(n===2) mostrarUltExcel();
   if(n===3&&ROL==='agencia'){abrirForm(MISLUG);pintarMiMes();}}
+// Fecha del último Excel subido (pestaña Varios)
+const fechaHora=ms=>{const d=new Date(ms);return d.toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'short'})+' a las '+d.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});};
+async function mostrarUltExcel(){const s=slugActual(),el=$('ultExcel');if(!s){el.classList.add('hide');return;}
+  const r=await apiV({accion:'hoy',slug:s}).catch(()=>({}));const a=r.agencias&&r.agencias[s];
+  if(a&&a.ultExcel){el.textContent='📄 Último Excel subido: '+fechaHora(a.ultExcel)+(a.ultExcelN?` · ${a.ultExcelN} viajes`:'');el.classList.remove('hide');}
+  else{el.textContent='📄 Aún no se ha subido ningún Excel.';el.classList.remove('hide');}}
+$('agencia').addEventListener('change',()=>{if(!$('pVarios').classList.contains('hide'))mostrarUltExcel();});
 $('tHoy').onclick=()=>tab(0); $('tUno').onclick=()=>tab(1); $('tVarios').onclick=()=>tab(2); $('tAg').onclick=()=>tab(3);
 
 /* ---------- LECTOR DE EXCEL (.xlsx) SIN LIBRERÍAS ---------- */
@@ -1048,25 +1086,39 @@ $('fichero').addEventListener('change',async e=>{
   }
 });
 $('rango').addEventListener('change',()=>pintarLista());
-function telWa(t){let d=String(t||'').replace(/\D/g,''); if(!d) return ''; if(d.startsWith('00'))d=d.slice(2); if(d.length===9)d='34'+d; return d;}
+// Número sin prefijo (9 cifras): se pone el del país de la agencia (Portugal +351, si no +34)
+function telWa(t,slug){let d=String(t||'').replace(/\D/g,''); if(!d) return ''; if(d.startsWith('00'))d=d.slice(2); if(d.length===9){const tz=((CFGS[slug||slugActual()]||{}).tz)||'';d=(tz==='Europe/Lisbon'?'351':'34')+d;} return d;}
 function claveEnviado(r){return 'mf_env_'+[r.nombre,r.destino,r.ida].join('|');}
 let visibles=[];
+let LISTA_TODA=false;
 function pintarLista(){
   if(!filas.length) return;
   const val=(r,k)=>mapa[k]>=0?String(r[mapa[k]]||'').trim():'';
   const lim=new Date(); lim.setDate(lim.getDate()+(+$('rango').value)); const LIM=ymd(lim);
   visibles=filas.map(r=>({nombre:val(r,'nombre'),destino:val(r,'destino'),ida:aFecha(val(r,'ida')),vuelta:aFecha(val(r,'vuelta')),tel:val(r,'tel'),email:val(r,'email')}))
     .filter(r=>r.destino&&r.ida&&r.ida>=HOY&&r.ida<=LIM).sort((a,b)=>a.ida.localeCompare(b.ida));
-  $('cuenta').textContent=visibles.length?`${visibles.length} viaje${visibles.length>1?'s':''}`:'Ningún viaje en esas fechas';
+  // Una fila por pasajero → un solo WhatsApp por reserva (mismo teléfono, destino y fecha de ida)
+  const grupos=new Map(),solos=[];
+  visibles.forEach(r=>{const t=telWa(r.tel);if(!t){solos.push({...r,pax:[r.nombre]});return;}
+    const k=t+'|'+normT(r.destino)+'|'+r.ida;const g=grupos.get(k);
+    if(g){if(r.nombre&&!g.pax.includes(r.nombre))g.pax.push(r.nombre);if(!g.vuelta&&r.vuelta)g.vuelta=r.vuelta;if(!g.email&&r.email)g.email=r.email;}
+    else grupos.set(k,{...r,pax:[r.nombre].filter(Boolean)});});
+  const nomPila=n=>capital(String(n||'').trim().split(/\s+/)[0].toLowerCase());
+  visibles=[...grupos.values(),...solos].sort((a,b)=>a.ida.localeCompare(b.ida)).map(r=>{const p=(r.pax||[]).filter(Boolean).map(nomPila);
+    const cli=!p.length?'':p.length===1?p[0]:p.length===2?p[0]+' y '+p[1]:p.length===3?p[0]+', '+p[1]+' y '+p[2]:p[0]+' y compañía';
+    return {...r,cli,nombre:(r.pax||[]).filter(Boolean).join(', ')||r.nombre,npax:(r.pax||[]).filter(Boolean).length};});
+  const npas=visibles.reduce((n,r)=>n+Math.max(1,r.npax||1),0);
+  $('cuenta').textContent=visibles.length?`${visibles.length} viaje${visibles.length>1?'s':''}${npas>visibles.length?` (${npas} pasajeros)`:''}`:'Ningún viaje en esas fechas';
   $('lista').innerHTML='';
+  const MAXV=20;
   visibles.forEach((r,i)=>{
     const vu=r.vuelta&&r.vuelta>=r.ida?r.vuelta:'';
-    const {url,msg,ciudad}=crear({cli:r.nombre.split(/\s+/)[0]||'',des:r.destino,ida:r.ida,vu,tipo:''});
+    const {url,msg,ciudad}=crear({cli:r.cli,des:r.destino,ida:r.ida,vu,tipo:''});
     r.url=url; r.msg=msg;
     const tel=telWa(r.tel); let env=false; try{env=localStorage.getItem(claveEnviado(r))==='1'}catch(e){}
     const d=document.createElement('div'); d.className='item'+(env?' sent':'');
     d.innerHTML=`<h3></h3><p></p><div class="ib"><a class="btn wa" target="_blank" rel="noopener">WhatsApp</a>${r.email?'<a class="btn mail">Email</a>':''}<button type="button" class="copy">Copiar</button></div><label class="chk"><input type="checkbox"> Enviado</label>`;
-    d.querySelector('h3').textContent=(r.nombre||'Sin nombre')+' · '+ciudad;
+    d.querySelector('h3').textContent=(r.npax>1?r.cli+' ('+r.npax+' pasajeros)':(r.nombre||'Sin nombre'))+' · '+ciudad;
     d.querySelector('p').textContent=vu?`Del ${fechaBonita(r.ida)} al ${fechaBonita(vu)}`:`Sale el ${fechaBonita(r.ida)}`;
     d.querySelector('.wa').href=`https://wa.me/${tel}?text=${encodeURIComponent(msg)}`;
     if(r.email) d.querySelector('.mail').href=`mailto:${encodeURIComponent(r.email)}?subject=${encodeURIComponent('Tu maleta para '+ciudad)}&body=${encodeURIComponent(msg.replace(/\*/g,''))}`;
@@ -1075,8 +1127,11 @@ function pintarLista(){
     const marcar=()=>{cb.checked=true;d.classList.add('sent');try{localStorage.setItem(claveEnviado(r),'1')}catch(e){}};
     d.querySelector('.wa').addEventListener('click',()=>{marcar();evento('envio',slugActual(),capital(r.destino));}); if(r.email) d.querySelector('.mail').addEventListener('click',marcar);
     cb.onchange=()=>{d.classList.toggle('sent',cb.checked);try{cb.checked?localStorage.setItem(claveEnviado(r),'1'):localStorage.removeItem(claveEnviado(r))}catch(e){}};
+    if(i>=MAXV&&!LISTA_TODA)d.classList.add('hide');
     $('lista').appendChild(d);
   });
+  if(visibles.length>MAXV&&!LISTA_TODA){const m=document.createElement('button');m.type='button';m.className='vermas';m.textContent=`Ver los ${visibles.length-MAXV} viajes restantes`;
+    m.onclick=()=>{LISTA_TODA=true;$('lista').querySelectorAll('.item.hide').forEach(x=>x.classList.remove('hide'));m.remove();};$('lista').appendChild(m);}
   avisosVarios();
 }
 $('descargar').onclick=()=>{

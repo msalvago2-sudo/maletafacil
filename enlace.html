@@ -868,9 +868,13 @@ async function pintarStats(cont,mes){
   sel.onchange=()=>{if(sel.value==='fechas'){abrirFechas();return;}fx.hidden=true;STATS_PER=sel.value;pintarStats(cont);};
   box.querySelector('small').appendChild(sel);
   if(r.rango) r.mes=diaMad().slice(0,7);
+  // Todas las agencias aparecen siempre (aunque estén a cero), para tener a mano sus botones de informe
+  Object.keys(AG||{}).forEach(k=>{if(!r.agencias[k])r.agencias[k]={envios:0,aperturas:0,amazon:0,civitatis:0,destinos:{}};});
+  if(!r.agencias.maletafacil)r.agencias.maletafacil={envios:0,aperturas:0,amazon:0,civitatis:0,destinos:{}};
   const ags=Object.entries(r.agencias);const p=box.querySelector('p');
-  if(!ags.length){p.textContent=r.rango?'Sin datos '+etiq+'. Los datos por días se guardan desde el 28/9/2026; para fechas anteriores mira el mes completo.':'Aún no hay datos este mes. Se irán sumando cuando se envíen y abran maletas.';return;}
-  p.remove();
+  const vacio=!ags.some(([,d])=>(d.envios||0)+(d.aperturas||0)+(d.amazon||0)+(d.civitatis||0));
+  if(vacio)p.textContent=r.rango?'Sin datos '+etiq+'. Los datos por días se guardan desde el 28/9/2026; para fechas anteriores mira el mes completo.':'Aún no hay datos este mes. Se irán sumando cuando se envíen y abran maletas.';
+  else p.remove();
   const tot={envios:0,aperturas:0,amazon:0,civitatis:0};ags.forEach(([,d])=>Object.keys(tot).forEach(k=>tot[k]+=d[k]||0));
   const pct=(a,b)=>b?Math.min(100,Math.round(a/b*100))+' %':'—';
   box.insertAdjacentHTML('beforeend',`<div class="kpis"><div class="kpi"><b>${tot.envios}</b><span>maletas enviadas</span></div><div class="kpi"><b>${tot.aperturas}</b><span>maletas abiertas (${pct(tot.aperturas,tot.envios)})</span></div><div class="kpi"><b>${tot.amazon}</b><span>clics a Amazon</span></div><div class="kpi"><b>${tot.civitatis}</b><span>clics a Civitatis</span></div></div>`);
@@ -989,7 +993,12 @@ async function pintarMiMes(mes,slugAdm,boxAdm){
   box.querySelector('small').appendChild(sel);}
   const dc=box.querySelector('.desch');if(dc)r.top.forEach(([d,n])=>{const sp=document.createElement('span');sp.textContent=`${d} · ${n}`;dc.appendChild(sp);});
   if(slugAdm&&slugAdm!=='maletafacil'&&r.texto){const w=document.createElement('button');w.type='button';w.className='btn wa';w.style.marginTop='12px';w.textContent='Enviar informe '+(r.contenido||'')+' por WhatsApp';
-    w.onclick=()=>window.open('https://wa.me/'+telWa((ACCESOS[slugAdm]||{}).tel||'')+'?text='+encodeURIComponent(r.texto),'_blank');box.appendChild(w);}
+    w.onclick=()=>window.open('https://wa.me/'+telWa((ACCESOS[slugAdm]||{}).tel||'')+'?text='+encodeURIComponent(r.texto),'_blank');box.appendChild(w);
+    const e=document.createElement('button');e.type='button';e.className='btn recor';e.style.marginTop='10px';e.textContent='Mandar informe '+(r.contenido||'')+' por email';
+    e.onclick=async()=>{if(!confirm('¿Mandar ya a '+nomAg(slugAdm)+' el informe de '+nm(r.mes)+' por email (y aviso al móvil)? Te llega copia.'))return;
+      e.classList.add('off');const ri=await apiV({accion:'informeAhora',slug:slugAdm,mes:r.mes}).catch(()=>({ok:false}));e.classList.remove('off');
+      toast(!ri.ok?'No se ha podido enviar':ri.email?'✅ Informe enviado por email':'⚠️ Esta agencia no tiene email puesto (Agencias → Editar)'+(ri.avisos?' · aviso al móvil enviado':''));};
+    box.appendChild(e);}
   if(slugAdm) botonCero(slugAdm,box);
 }
 /* ---------- PESTAÑAS ---------- */

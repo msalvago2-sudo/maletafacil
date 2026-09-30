@@ -36,9 +36,6 @@ input:focus,select:focus{outline:none;border-color:var(--teal5)}
 .f{margin-bottom:14px}
 .row{display:flex;gap:10px}.row .f{flex:1;min-width:0}
 input[type=date]{-webkit-appearance:none;appearance:none;display:block;min-width:0;max-width:100%;min-height:50px;line-height:22px;text-align:left}
-input[type=date]::-webkit-date-and-time-value{text-align:left}
-input[type=date]:invalid::before{content:'dd/mm/aaaa';color:#9A9284}
-input[type=date]:focus::before,input[type=date]:valid::before{content:none}
 .hint{font-size:12px;color:#7A7468;margin-top:5px;line-height:1.4}
 .out{margin-top:16px;background:#fff;border:1.5px dashed var(--line);border-radius:14px;padding:14px;display:none}
 .out.show{display:block}
@@ -47,10 +44,8 @@ input[type=date]:focus::before,input[type=date]:valid::before{content:none}
 .btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
 button,.btn{font:700 15px 'Work Sans',sans-serif;border:0;border-radius:100px;padding:12px;cursor:pointer;text-align:center;text-decoration:none;display:flex;align-items:center;justify-content:center;gap:8px;min-height:46px}
 .wa{background:#25D366;color:#0B3B21}
-.btns .wa{grid-column:1/-1}
 .copy{background:var(--teal);color:var(--paper)}
 .test{background:#F5C86A;color:var(--teal)}
-.mail{background:#E3EFEC;color:var(--teal)}
 .err{color:var(--rust);font-size:13px;font-weight:600;margin-top:8px;display:none}
 .toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--paper);color:var(--teal);font-weight:700;padding:10px 18px;border-radius:100px;opacity:0;transition:opacity .3s;pointer-events:none}
 .toast.on{opacity:1}
@@ -74,1282 +69,177 @@ button,.btn{font:700 15px 'Work Sans',sans-serif;border:0;border-radius:100px;pa
 .login{background:var(--paper);border-radius:18px;padding:22px 18px}
 .login h2{font:700 20px Fraunces,serif;margin:0 0 4px}
 .ok{background:var(--teal);color:var(--paper);width:100%;margin-top:6px}
-.ag{display:flex;align-items:center;gap:12px;background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:10px 12px;margin-bottom:10px}
-.ag .lg{width:54px;height:54px;border-radius:10px;background:#F2EDE1;display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0}
-.ag .lg img{max-width:100%;max-height:100%;object-fit:contain}
-.ag .tx{flex:1;min-width:0}
-.ag .tx b{display:block;font-size:15px}
-.ag .tx small{color:#7A7468;font-size:12px;word-break:break-all}
-.ag .bd{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
-.ag .bd span{font-size:10.5px;font-weight:700;background:#E3EFEC;color:var(--teal);padding:2px 7px;border-radius:100px}
-.ag .ac{display:flex;flex-direction:column;gap:6px}
-.ag .ac button{font-size:12.5px;padding:7px 12px;min-height:36px}
-.ed{background:#E3EFEC;color:var(--teal)}
-.del{background:#F6E1DA;color:#8F4430}
-.add{background:var(--rust);color:#fff;width:100%;margin-bottom:14px}
-.prev{width:100%;height:90px;border-radius:12px;background:#F2EDE1;display:flex;align-items:center;justify-content:center;overflow:hidden;margin-top:8px}
-.genF{background:#F2EDE1;border-radius:14px;padding:12px;margin-bottom:12px}
-.genF input[type=time]{width:120px;min-height:44px;padding:8px;text-align:center;-webkit-appearance:none;appearance:none}
-.fijo{background:#E3EFEC;color:#2E5E59;border-radius:10px;padding:9px 11px;font-size:13.5px;margin:8px 0}
-/* Accesos */
-.accesoF{background:#F2EDE1;border-radius:12px;padding:12px}
-.modal{position:fixed;inset:0;background:rgba(10,24,23,.75);z-index:60;display:flex;align-items:flex-end;justify-content:center}
-.modal .caja{background:var(--paper);width:100%;max-width:520px;border-radius:22px 22px 0 0;padding:20px 16px calc(20px + env(safe-area-inset-bottom))}
-.cred{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;background:#fff;border-radius:12px;padding:12px;font-size:14px;align-items:baseline}
-.cred span{color:#6B665B;font-size:12.5px}.cred b{word-break:break-all}
-.bd .acc{background:#E3EFEC;color:#2E5E59}.bd .noacc{background:#F3E1D8;color:#8F4430}
-body.rol-agencia .solo-admin{display:none!important}
-.soloAg{display:none}body.rol-agencia .soloAg{display:block}
-/* Estadísticas */
-.sdes{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:6px}
-.sacc{display:flex;gap:6px}.sacc .wa2{background:#25D366;color:#0B3B21;font-weight:700}.sacc .cp2{background:#E8E1D1;color:var(--teal);font-weight:700}.mini2{font-size:11.5px!important;padding:6px 10px!important;min-height:auto!important;border-radius:100px}
-.kpi .up{display:block;color:#2E827C;font-weight:700;font-size:12px}.kpi .dn{display:block;color:#B65B3F;font-weight:700;font-size:12px}
-.desch{display:flex;gap:6px;flex-wrap:wrap}.desch span{background:#E3EFEC;color:#2E5E59;font-weight:700;font-size:12.5px;padding:4px 10px;border-radius:100px}
-.stab{background:#fff;border-radius:12px;padding:4px 10px;margin-top:6px}
-.sfila{display:grid;grid-template-columns:1.6fr .9fr 1.2fr .9fr .7fr;gap:6px;padding:8px 0;border-bottom:1px solid #EEE7D8;font-size:13px;align-items:center}
-.sfila span{text-align:right}.scab span:first-child{text-align:left}.scab{font-size:11px;font-weight:700;color:#8A8276;text-transform:uppercase}
-.sfila b{font-size:13px}.sdes{font-size:11.5px;color:#6B665B;padding:0 0 8px;border-bottom:1px solid #EEE7D8}
-/* Pestaña Hoy */
-.tabs button{font-size:13.5px;white-space:nowrap;padding-left:4px;padding-right:4px}
-body.rol-agencia #agForm .two{display:none}
-.hitem{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 0;border-bottom:1px solid #EEE7D8}
-.hitem:last-child{border-bottom:0}
-.hitem b{display:block;font-size:15px}.hitem span{font-size:12.5px;color:#6B665B}
-.hitem .acc{display:flex;gap:6px;align-items:center;flex-shrink:0}
-.hitem .wa2{background:#25D366;color:#0B3B21;font-weight:700;font-size:13px;padding:9px 14px;border-radius:100px;text-decoration:none;min-height:auto}
-.hitem .cp2{background:#E8E1D1;color:var(--teal);font-weight:700;font-size:13px;padding:9px 12px;border-radius:100px;min-height:auto}
-.hitem .x{background:none;color:#B3A993;font-size:18px;padding:4px 6px;min-height:auto}
-.hitem.hecho{opacity:.55}.hitem.hecho .wa2{background:#E3EFEC;color:#2E5E59}
-.hitem .ok2{color:#2E827C;font-weight:700;font-size:12px}
-.hsec{font:700 18px Fraunces,serif;margin:14px 0 2px;display:flex;justify-content:space-between;align-items:baseline}
-.hsec small{font:500 12px 'Work Sans',sans-serif;color:#6B665B}
-.hag{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #EEE7D8;cursor:pointer}
-.hag img{height:26px;max-width:80px;object-fit:contain;border-radius:4px}
-.hag b{flex:1;font-size:14px}.hag span{font-size:13px;color:#6B665B;text-align:right}
-.kpis{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0 10px}
-.kpi{background:#fff;border-radius:12px;padding:10px 12px}.kpi b{display:block;font:700 26px Fraunces,serif}.kpi span{font-size:12px;color:#6B665B}
-.vacio2{text-align:center;padding:18px 6px;color:#6B665B;font-size:14px}
-.mini{display:block;text-align:center;font-size:13px;color:var(--rust);text-decoration:underline;margin-top:10px;cursor:pointer}
-.resumenF{background:#F2EDE1;border-radius:12px;padding:12px}
-.resumenF input[type=time]{width:120px;min-height:44px;padding:8px;text-align:center;-webkit-appearance:none;appearance:none}
-/* Enviar más tarde (recordatorio en el calendario) */
-.luego{margin-top:14px;background:#F6F1E4;border-radius:12px;padding:12px}
-.luego>b{font-size:15px}
-.lrow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:8px 0}
-.lrow span{font-size:14px;font-weight:600}
-.lrow input[type=time]{width:140px;min-height:44px;padding:8px 10px;-webkit-appearance:none;appearance:none;text-align:center}
-.step{display:flex;align-items:center;gap:6px}
-.step button{width:40px;min-height:40px;padding:0;background:#E3EFEC;color:var(--teal);font-size:20px}
-.step input{width:56px;min-height:40px;text-align:center;padding:6px}
-.cuando{font-size:13px;margin:8px 0 10px;color:#2E5E59;min-height:18px}
-.cuando.mal{color:var(--rust)}
-.recor{background:var(--teal);color:var(--paper);width:100%}
-.recor.off{opacity:.4;pointer-events:none}
-/* Calendario de ida y vuelta */
-.fbtn{width:100%;min-height:50px;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;font:500 16px 'Work Sans',sans-serif;color:var(--teal);text-align:left}
-.fbtn .vacio{color:#9A9284}
-#calF{position:fixed;inset:0;background:rgba(10,24,23,.7);z-index:50;display:flex;align-items:flex-end;justify-content:center}
-#calF .caja{background:var(--paper);width:100%;max-width:520px;border-radius:22px 22px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom))}
-.cfh{display:flex;align-items:center;justify-content:space-between;margin:4px 0 12px}
-.cfh b{font:700 17px Fraunces,serif;text-transform:capitalize}
-.cfh button{width:40px;min-height:40px;padding:0;background:#E3EFEC;color:var(--teal);font-size:22px}
-.cfh button:disabled{opacity:.3}
-.cfw,.cfg{display:grid;grid-template-columns:repeat(7,1fr)}
-.cfw span{text-align:center;font-size:11px;font-weight:700;color:#A9A296;padding-bottom:6px}
-.cfg button{min-height:44px;padding:0;border-radius:0;background:transparent;color:var(--teal);font:500 15px 'Work Sans',sans-serif}
-.cfg button:disabled{color:#D2C9B6}
-.cfg button.hoy{font-weight:700;color:var(--teal5)}
-.cfg button.en{background:rgba(46,130,124,.14)}
-.cfg button.ini,.cfg button.fin{background:var(--teal);color:#fff;font-weight:700}
-.cfg button.ini{border-radius:50% 0 0 50%}.cfg button.fin{border-radius:0 50% 50% 0}.cfg button.ini.fin{border-radius:50%}
-.cfpaso{text-align:center;font-size:13px;color:#6B665B;margin:10px 0 4px;min-height:18px}
-/* Vista previa de la cabecera */
-.cab{margin-top:10px;background:#12302E;border-radius:14px;padding:16px 10px;display:flex;align-items:center;justify-content:center;gap:10px;min-height:96px}
-.cabmf{display:flex;align-items:center;gap:7px;flex-shrink:0}
-.cabic{width:40px;height:40px;border-radius:10px;background:var(--paper);color:var(--teal);font:700 26px Fraunces,serif;display:flex;align-items:center;justify-content:center;position:relative}
-.cabic i{position:absolute;top:-3px;right:-3px;width:9px;height:9px;border-radius:50%;background:var(--rust)}
-.cabmf b{display:block;font:600 14px Fraunces,serif;color:var(--paper);margin-bottom:4px}
-.cabtag{display:inline-block;background:#8B5A2B;color:var(--paper);font-size:9.5px;font-weight:600;padding:3px 8px;border-radius:100px;white-space:nowrap}
-.cabsep{width:1px;height:40px;background:rgba(246,241,228,.25);flex-shrink:0}
-.cablogo{display:flex;align-items:center;min-width:0}
-.cablogo img{object-fit:contain;border-radius:4px;display:block}
-.cablogo span{color:var(--paper);font-weight:700;font-size:14px}
-/* Editor de logo */
-#edLogo{position:fixed;inset:0;background:rgba(10,24,23,.82);z-index:50;display:flex;align-items:flex-end;justify-content:center}
-#edLogo .caja{background:var(--paper);width:100%;max-width:520px;border-radius:22px 22px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom))}
-#edLogo h3{margin:0 0 4px;font:700 20px Fraunces,serif}
-#edLogo .sub2{font-size:13px;color:#6B665B;margin:0 0 12px}
-.zona{position:relative;width:100%;background:repeating-conic-gradient(#E8E1D1 0 25%,#F6F1E4 0 50%) 0 0/18px 18px;border-radius:14px;overflow:hidden;touch-action:none;cursor:grab}
-.zona canvas{display:block;width:100%;height:100%}
-.zona .marco{position:absolute;inset:0;border:2px dashed rgba(18,48,46,.55);border-radius:14px;pointer-events:none}
-.fila{display:flex;align-items:center;gap:10px;margin-top:12px}
-.fila input[type=range]{flex:1;accent-color:var(--teal)}
-.fila .zb{width:40px;min-height:40px;padding:0;background:#E3EFEC;color:var(--teal);font-size:22px}
-.segm{display:flex;background:#E8E1D1;border-radius:100px;padding:3px;flex:1}
-.segm button{flex:1;min-height:36px;padding:6px;font-size:13px;background:transparent;color:var(--teal)}
-.segm button.on{background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.12)}
-.lbl{font-size:12px;font-weight:700;color:#6B665B;width:54px}
-.prev img{max-height:80px;max-width:90%;object-fit:contain}
-.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .salir{background:none;color:#9FC2BC;font-size:13px;min-height:auto;padding:6px;margin:14px auto 0;text-decoration:underline}
-.sfechas{display:flex;gap:8px;align-items:flex-end;flex-wrap:wrap;margin:6px 0 10px}.sfechas label{font-size:12px;color:#6B6459;display:flex;flex-direction:column;gap:3px}.sfechas input{min-height:36px;padding:4px 6px;font-size:14px;width:auto}
-.sevo{background:#fff;border:1px solid #E4DCCB;border-radius:12px;padding:10px 10px 6px;margin:10px 0}.sevot{font-size:13px;font-weight:600;color:#12302E;display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px}.sevot span{font-weight:400;font-size:12px;color:#6B6459}.sevot i{display:inline-block;width:9px;height:9px;border-radius:2px;margin:0 3px 0 8px}.le,.be{background:#12302E}.la,.ba{background:#C9A24B}
-.sbars{display:flex;gap:2px;align-items:flex-end;height:120px;margin-top:8px}.scol{flex:1;display:flex;flex-direction:column;align-items:center;height:100%;min-width:0}.spar{flex:1;width:100%;display:flex;gap:1px;align-items:flex-end}.spar i{flex:1;border-radius:2px 2px 0 0;min-height:1px}.scol small{font-size:9px;color:#8A8276;height:13px;white-space:nowrap}
-.pdia{font-weight:700;color:var(--teal,#12302E);margin:12px 0 4px;font-size:15px}.hitem.prox b{font-size:15px}
-.reset0{display:block;margin:16px auto 0;background:none;border:0;color:#B65B3F;text-decoration:underline;font-size:13px;cursor:pointer}
-.elige-t{font-weight:700;color:#12302E;margin:16px 0 8px;font-size:15px}
-.elige{display:grid;grid-template-columns:1fr 1fr;gap:10px}.opc{display:flex;flex-direction:column;gap:5px}.opc .btn{width:100%;margin:0;text-align:center;justify-content:center}.opc small{font-size:12px;color:#6B6459;text-align:center;line-height:1.3}
-.luego2{margin-top:8px}.sec2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}.sec2 .copy,.sec2 .test{margin:0;background:transparent!important;color:#12302E!important;border:1.5px solid #D9CFBC!important;font-size:14px!important;min-height:42px!important;padding:8px!important;box-shadow:none!important}
-.dwrap{position:relative}.sug{position:absolute;left:0;right:0;top:calc(100% + 4px);background:#fff;border:1.5px solid #E4DCCB;border-radius:10px;max-height:240px;overflow-y:auto;z-index:30;box-shadow:0 12px 24px -8px rgba(0,0,0,.2);display:none}.sug.on{display:block}
-.sug div{padding:11px 14px;font-size:15px;color:#12302E;cursor:pointer;border-bottom:1px solid #F0EADF}.sug div:last-child{border-bottom:0}.sug div:hover{background:#F6F1E4}.sug small{display:block;color:#8A8478;font-size:12.5px}
-.vermas{display:block;width:100%;margin:10px 0 0;background:transparent;border:1.5px dashed #D9CFBC;border-radius:12px;padding:10px;color:#12302E;font-weight:600;font-size:14px;cursor:pointer}
 .ultx{background:#E3EFEC;color:#2E5E59;border-radius:10px;padding:8px 12px;font-size:14px;margin:0 0 10px}
-.alerta{background:#FBE9E2;border:1.5px solid #E8B9A6;border-radius:12px;padding:12px 14px;margin:0 0 12px;color:#7A2E17;font-size:14px}.alerta ul{margin:6px 0 8px;padding-left:18px}.alerta li{margin:3px 0}.alerta button{background:#7A2E17;color:#fff;border:0;border-radius:100px;padding:7px 14px;font-weight:600;font-size:13px;cursor:pointer}
 </style>
 </head>
 <body>
 <div class="wrap">
-<div class="brand"><div class="logo">M</div><div><b>Maleta Fácil</b><span class="etq"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="transform:rotate(45deg)"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2.5 1.8V22l3.5-1 3.5 1v-1.2L13 19v-5.5l8 2.5z"/></svg>Equipaje sin estrés</span></div><div class="brandAg hide" id="brandAg"></div></div>
+<div class="brand"><div class="logo">M</div><div><b>Maleta Fácil</b><span class="etq">✈ Equipaje sin estrés</span></div><div class="brandAg hide" id="brandAg"></div></div>
 <h1>Crear enlace de maleta</h1>
 <p class="sub">Envía a tus clientes su maleta ya preparada, con su destino y sus fechas.</p>
 
 <div id="login" class="login">
 <h2>Acceso</h2><p class="hint" style="margin:0 0 14px">Herramienta privada de Maleta Fácil para agencias.</p>
-<div class="f"><label for="usuario">Email de la agencia</label><input id="usuario" type="email" inputmode="email" autocomplete="username" placeholder="reservas@tuagencia.es"></div>
-<div class="f"><label for="clave">Contraseña</label><input id="clave" type="password" autocomplete="current-password"></div>
+<div class="f"><label for="usuario">Email de la agencia</label><input id="usuario" type="email" placeholder="reservas@tuagencia.es"></div>
+<div class="f"><label for="clave">Contraseña</label><input id="clave" type="password"></div>
 <button type="button" class="ok" id="entrar">Entrar</button>
 <p class="err" id="errL"></p>
 </div>
+
 <div id="app" class="hide">
-<div class="tabs"><button type="button" id="tHoy" class="on">Hoy</button><button type="button" id="tUno">Un cliente</button><button type="button" id="tVarios">Varios</button><button type="button" id="tAg">Agencias</button></div>
+<div class="tabs"><button type="button" id="tVarios" class="on">Excel / Reservas</button><button type="button" id="tUno">Un cliente</button></div>
 
-<!-- HOY -->
-<div id="cardHoy">
-<div class="card">
-<div class="f" style="margin-bottom:6px"><label for="agHoy">Agencia</label><select id="agHoy"><option value="">Todas las agencias</option></select></div>
-<div id="hoyCont"><p class="hint">Cargando…</p></div>
-</div>
-<div class="card hide" id="hoyAjustes" style="margin-top:12px">
-<b style="font:700 17px Fraunces,serif">🔔 Avisos en este móvil</b>
-<p class="hint" id="avisoTxt" style="margin:4px 0 10px"></p>
-<button type="button" class="btn recor" id="activarAvisos">Activar avisos en este móvil</button>
-<a class="mini" id="probarResumen">Probar el resumen ahora</a>
-</div>
-</div>
-
-<div class="card hide" id="cardEnlaces">
-<div class="f"><label for="agencia">Agencia</label>
-<select id="agencia"><option value="">Sin agencia (solo Maleta Fácil)</option></select></div>
-
-<!-- UN CLIENTE -->
-<div id="pUno">
-<div class="f"><label for="cliente">Nombre del cliente (opcional)</label>
-<input id="cliente" placeholder="Ej. Ana" autocomplete="off"></div>
-<div class="f"><label for="telCli">Teléfono del cliente (opcional)</label>
-<input id="telCli" type="tel" inputmode="tel" placeholder="Ej. 612 345 678" autocomplete="off">
-<div class="hint">Así WhatsApp se abre directamente en su chat.</div></div>
-<div class="f"><label for="destino">Destino</label>
-<div class="dwrap"><input id="destino" placeholder="Ej. Londres, Roma, Cancún…" autocomplete="off"><div id="destSug" class="sug"></div></div>
-<div class="hint">Empieza a escribir y elige el destino de la lista.</div></div>
-<div class="f"><label for="fechasBtn">Fechas del viaje</label>
-<button type="button" id="fechasBtn" class="fbtn"><span id="fechasTxt" class="vacio">Elige ida y vuelta</span><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4" stroke-linecap="round"/></svg></button>
-<input id="ida" type="hidden"><input id="vuelta" type="hidden"></div>
-<div class="f"><label for="tipo">Tipo de viaje</label>
-<select id="tipo"><option value="">Ciudad</option><option value="playa">Playa</option><option value="negocios">Negocios</option><option value="aventura">Aventura</option></select></div>
-<p class="err" id="err"></p>
-<div class="out" id="out">
-<p class="msg" id="msg"></p>
-<p class="link" id="link"></p>
-<p class="elige-t">¿Cuándo se lo mandas?</p>
-<div class="elige">
-<div class="opc"><a class="btn wa" id="wa" target="_blank" rel="noopener">📲 Enviar ahora</a><small>Se abre WhatsApp con el mensaje escrito</small></div>
-<div class="opc"><button type="button" class="btn recor" id="programar">⏰ Programar</button><small>Te lo recordamos el día que toca</small></div>
-</div>
-<p class="cuando" id="cuando"></p>
-<div class="lrow hide luego2"><span>Días antes del viaje</span><div class="step"><button type="button" data-d="-1">−</button><input id="diasAntes" type="number" min="0" max="60" value="5" inputmode="numeric"><button type="button" data-d="1">+</button></div></div>
-<input type="hidden" id="horaAviso" value="09:00">
-<div class="sec2"><button type="button" class="copy" id="copiar">Copiar mensaje</button><a class="btn test" id="probar" target="_blank" rel="noopener">Probar enlace</a></div>
-<a class="mini" id="recordar">Añadir también un aviso a mi calendario</a>
-</div>
-</div>
-
-<!-- VARIOS -->
-<div id="pVarios" class="hide">
+<!-- VARIOS EXCEL -->
+<div id="pVarios">
 <p class="ultx hide" id="ultExcel"></p>
 <label class="drop" for="fichero"><b>Subir Excel de reservas</b><span class="hint">Archivo .xlsx o .csv exportado de tu programa de gestión</span></label>
 <input type="file" id="fichero" accept=".xlsx,.csv,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="hide">
 <p class="err" id="errX"></p>
 <div id="mapWrap" class="hide">
-<p class="fijo hide" id="mapaOk">✓ Columnas reconocidas como la última vez. <a href="#" id="mapaVer" style="color:#2E5E59">Cambiar</a></p>
 <div id="mapaCols">
-<p class="hint" style="margin-top:14px">Comprueba qué columna es cada dato (lo he intentado adivinar). Lo recordaremos para la próxima vez:</p>
+<p class="hint" style="margin-top:14px">Mapeo de columnas detectado de tu Excel:</p>
 <div class="map">
-<div><label>Nombre</label><select data-k="nombre"></select></div>
-<div><label>Destino *</label><select data-k="destino"></select></div>
-<div><label>Fecha de ida *</label><select data-k="ida"></select></div>
-<div><label>Fecha de vuelta (vacía = solo ida)</label><select data-k="vuelta"></select></div>
+<div><label>Expediente / Nombre</label><select data-k="nombre"></select></div>
+<div><label>Descripción / Destino *</label><select data-k="destino"></select></div>
+<div><label>Fecha Salida *</label><select data-k="ida"></select></div>
+<div><label>Fecha Regreso</label><select data-k="vuelta"></select></div>
 <div><label>Teléfono</label><select data-k="tel"></select></div>
-<div><label>Email</label><select data-k="email"></select></div>
 </div>
 </div>
 <div class="bar"><b id="cuenta"></b>
 <select id="rango"><option value="7">Próximos 7 días</option><option value="15">Próximos 15 días</option><option value="30">Próximos 30 días</option><option value="9999" selected>Todos los futuros</option></select></div>
 <div id="lista"></div>
-<div class="luego" id="luegoV" style="margin-top:14px">
-<b>⏰ Programar todos los envíos</b>
-<p class="hint" style="margin:2px 0 10px">Se guardan todos los viajes de la lista. Cada día aparecerán en <b>Hoy</b> los clientes a los que toca enviar, con aviso al móvil y por email.</p>
-<div class="lrow hide"><span>Días antes del viaje</span><div class="step"><button type="button" data-d="-1">−</button><input id="diasAntesV" type="number" min="0" max="60" value="5" inputmode="numeric"><button type="button" data-d="1">+</button></div></div>
-<input type="hidden" id="horaAvisoV" value="09:00">
-<p class="cuando" id="cuandoV"></p>
-<button type="button" class="btn recor" id="programarV">Programar todos</button>
-<a class="mini" id="recordarV" href="#">o añadir también los avisos a mi calendario</a>
-</div>
 <button type="button" class="dl" id="descargar">Descargar lista con enlaces (.csv)</button>
 </div>
 </div>
+
+<!-- UN CLIENTE -->
+<div id="pUno" class="hide">
+<div class="card">
+<div class="f"><label for="cliente">Nombre del cliente</label><input id="cliente" placeholder="Ej. Ana"></div>
+<div class="f"><label for="telCli">Teléfono</label><input id="telCli" type="tel" placeholder="Ej. 612 345 678"></div>
+<div class="f"><label for="destino">Destino</label><input id="destino" placeholder="Ej. Madrid, Quito, Londres..."></div>
+<div class="f"><label for="ida">Fecha de Salida</label><input id="ida" type="date"></div>
+<div class="f"><label for="vuelta">Fecha de Regreso</label><input id="vuelta" type="date"></div>
+</div>
+<div class="out" id="out">
+<p class="msg" id="msg"></p>
+<p class="link" id="link"></p>
+<div class="btns"><a class="btn wa" id="wa" target="_blank" rel="noopener">📲 Enviar WhatsApp</a><button type="button" class="copy" id="copiar">Copiar mensaje</button></div>
+</div>
 </div>
 
-<div class="card hide" id="cardAg">
-<div id="agLista">
-<div class="genF">
-<b style="font:700 17px Fraunces,serif">⏰ Envíos de todas las agencias</b>
-<p class="hint" style="margin:4px 0 8px">Cuántos días antes del viaje se manda la maleta y a qué hora reciben las agencias el aviso. Las agencias no pueden cambiarlo.</p>
-<div class="lrow"><span>Días antes del viaje</span><div class="step"><button type="button" data-d="-1">−</button><input id="gDias" type="number" min="0" max="60" value="7" inputmode="numeric"><button type="button" data-d="1">+</button></div></div>
-<div class="lrow"><span>Hora del aviso</span><input id="gHora" type="time" value="09:30"></div>
-<button type="button" class="btn recor" id="gGuardar" style="margin-top:6px">Guardar para todas</button>
-</div>
-<button type="button" class="add" id="agNueva">+ Añadir agencia</button>
-<div id="agItems"></div>
-</div>
-<div id="agForm" class="hide">
-<h3 style="margin:0 0 12px;font:700 19px Fraunces,serif" id="agTit">Nueva agencia</h3>
-<div class="f"><label for="aNombre">Nombre de la agencia *</label><input id="aNombre" placeholder="Ej. Viajes Sol" autocomplete="off">
-<div class="hint" id="aSlug"></div></div>
-<div class="f"><label for="aLogo">Logo</label><input id="aLogo" type="file" accept="image/*">
-<div class="prev" id="aPrev"><span class="hint">Sin logo</span></div></div>
-<div class="f"><label for="aModo">Cómo se ve</label><select id="aModo"><option value="">Compartida: Maleta Fácil + su logo</option><option value="completo">Marca blanca: solo su logo</option></select></div>
-<div class="f" id="aTamF"><label>Tamaño del logo en la cabecera</label>
-<div class="segm" id="aTam"><button type="button" data-v="s">Pequeño</button><button type="button" data-v="m" class="on">Mediano</button><button type="button" data-v="l">Grande</button></div>
-<div class="cab" id="aCab"><div class="cabmf"><div class="cabic">M<i></i></div><div><b>Maleta Fácil</b><span class="cabtag">✈ Equipaje sin estrés</span></div></div><div class="cabsep"></div><div class="cablogo" id="aCabLogo"></div></div>
-<div class="hint">Así se verá arriba en la web cuando el cliente entre con su enlace.</div></div>
-<div class="soloAg" id="miMes" style="margin-bottom:14px"><p class="hint">Cargando tu mes…</p></div>
-<div class="f soloAg" id="miCabF"><label>Así ven tus clientes tu cabecera</label>
-<div class="cab" id="miCab"></div>
-<div class="hint">¿Quieres cambiar el nombre o el logo? Habla con Maleta Fácil y te lo dejamos perfecto.</div></div>
-<div class="f resumenF"><label>Resumen diario de envíos</label>
-<div class="hint" style="margin:0 0 8px">Cada mañana la agencia recibe la lista de clientes a los que toca enviar la maleta por WhatsApp.</div>
-<input id="aEmail" type="email" inputmode="email" placeholder="Email para el resumen (ej. reservas@agencia.es)" autocomplete="off">
-<p class="fijo soloAg" id="aFijo"></p>
-<p class="hint soloAg" style="margin:6px 0 0">Si necesitas cambiar algo, habla con Maleta Fácil.</p>
-<div class="hint solo-admin" style="margin:8px 0 0">Solo para esta agencia (si lo dejas igual que el general, seguirá el general):</div>
-<div class="lrow solo-admin"><span>Hora del resumen</span><input id="aHora" type="time" value="09:30"></div>
-<div class="lrow solo-admin"><span>Enviar … días antes</span><div class="step"><button type="button" data-d="-1">−</button><input id="aDias" type="number" min="0" max="60" value="5" inputmode="numeric"><button type="button" data-d="1">+</button></div></div>
-<div class="lrow solo-admin"><span>Horario de</span><select id="aTz" style="width:auto"><option value="Europe/Madrid">España</option><option value="Europe/Lisbon">Portugal</option></select></div>
-<div class="solo-admin" style="border-top:1px solid #E0D6C2;margin-top:10px;padding-top:10px">
-<b style="font-size:14px">📊 Informe de la agencia</b>
-<div class="lrow"><span>Cada cuánto</span><select id="aInfCada" style="width:auto;max-width:64%"><option value="mensual">Mensual (día 1)</option><option value="quincenal">Quincenal (días 1 y 16)</option><option value="semanal">Semanal (lunes)</option><option value="trimestral">Trimestral</option><option value="nunca">Nunca (solo lo mando yo)</option></select></div>
-<div class="lrow"><span>Cómo</span><select id="aInfCanal" style="width:auto;max-width:64%"><option value="ambos">Email y aviso al móvil</option><option value="email">Solo email</option><option value="movil">Solo aviso al móvil</option></select></div>
-<div class="lrow"><span>Qué ve</span><select id="aInfCont" style="width:auto;max-width:64%"><option value="basico">Básico: enviadas y abiertas</option><option value="completo">Completo: + Civitatis y sin teléfono</option></select></div>
-<div class="hint">Básico: maletas enviadas, abiertas y destinos. Completo: además clics a Civitatis y clientes sin teléfono. Tú siempre lo ves todo.</div>
-</div>
-</div>
-<div class="f"><label for="aTag">Código de Amazon (opcional)</label><input id="aTag" placeholder="Ej. viajessol-21" autocomplete="off"></div>
-<div class="f"><label for="aSeguro">Enlace de su seguro (opcional)</label><input id="aSeguro" placeholder="https://…" autocomplete="off" inputmode="url"></div>
-<div class="f"><label for="aCiv">Código de Civitatis (opcional)</label><input id="aCiv" placeholder="Ej. 12345" autocomplete="off" inputmode="numeric"></div>
-<div class="f accesoF" id="accesoF"><label>Acceso de la agencia a esta herramienta</label>
-<div class="hint" id="accesoEstado" style="margin:0 0 8px"></div>
-<input id="accEmail" type="email" inputmode="email" placeholder="Email de la agencia (será su usuario)" autocomplete="off">
-<input id="accTel" type="tel" inputmode="tel" placeholder="Móvil para enviarle el acceso por WhatsApp" autocomplete="off" style="margin-top:8px">
-<button type="button" class="btn recor" id="accCrear" style="margin-top:10px">Crear acceso y contraseña</button>
-<a class="mini" id="accBloq"></a>
-</div>
-<p class="err" id="errA"></p>
-<div class="two"><button type="button" class="ed" id="aCancelar">Cancelar</button><button type="button" class="ok" id="aGuardar" style="margin:0">Guardar</button></div>
-</div>
-</div>
 <button type="button" class="salir" id="salir">Cerrar sesión</button>
 </div>
 </div>
 <div class="toast" id="toast">¡Copiado!</div>
 
-<div id="credF" class="modal hide"><div class="caja">
-<h3 style="margin:0 0 6px;font:700 20px Fraunces,serif">🔑 Acceso creado</h3>
-<p class="hint" style="margin:0 0 12px">Mándaselo a la agencia. La primera vez que entre le pediremos que ponga una contraseña suya.</p>
-<div class="cred"><span>Web</span><b>maletafacil.com/enlace.html</b><span>Usuario</span><b id="credEmail"></b><span>Contraseña</span><b id="credPass"></b></div>
-<a class="btn wa" id="credWa" target="_blank" rel="noopener" style="margin-top:12px">Enviar por WhatsApp</a>
-<div class="two" style="margin-top:10px"><button type="button" class="copy" id="credCopiar">Copiar</button><button type="button" class="ed" id="credCerrar">Cerrar</button></div>
-<p class="hint" style="margin-top:10px">Por seguridad, esta contraseña no se vuelve a mostrar. Si la pierden, crea una nueva.</p>
-</div></div>
-<div id="claveF" class="modal hide"><div class="caja">
-<h3 style="margin:0 0 6px;font:700 20px Fraunces,serif">Pon tu propia contraseña</h3>
-<p class="hint" style="margin:0 0 12px">Es tu primera vez: cambia la contraseña que te hemos dado por una tuya (mínimo 8 caracteres).</p>
-<div class="f"><label for="cActual">Contraseña actual</label><input id="cActual" type="password" autocomplete="current-password"></div>
-<div class="f"><label for="cNueva">Contraseña nueva</label><input id="cNueva" type="password" autocomplete="new-password"></div>
-<p class="err" id="errC"></p>
-<button type="button" class="ok" id="cGuardar">Guardar contraseña</button>
-</div></div>
-<div id="calF" class="hide"><div class="caja">
-<div class="cfh"><button type="button" id="cfPrev" aria-label="Mes anterior">‹</button><b id="cfMes"></b><button type="button" id="cfNext" aria-label="Mes siguiente">›</button></div>
-<div class="cfw"><span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
-<div class="cfg" id="cfGrid"></div>
-<p class="cfpaso" id="cfPaso"></p>
-<button type="button" class="ok hide" id="cfSoloIda" style="margin:6px 0 0">✈ Solo ida (sin vuelta)</button>
-<div class="two" style="margin-top:8px"><button type="button" class="ed" id="cfBorrar">Borrar fechas</button><button type="button" class="ok" id="cfCerrar" style="margin:0">Cerrar</button></div>
-</div></div>
-<div id="edLogo" class="hide"><div class="caja">
-<h3>Ajusta el logo</h3><p class="sub2">Arrastra para moverlo y pellizca o usa + / − para acercar. Lo que está dentro del recuadro es lo que se verá.</p>
-<div class="zona" id="edZona"><canvas id="edCanvas"></canvas><div class="marco" id="edMarco"></div></div>
-<div class="fila"><button type="button" class="zb" id="edMenos" aria-label="Alejar">−</button><input type="range" id="edZoom" min="0" max="100" value="50" aria-label="Zoom"><button type="button" class="zb" id="edMas" aria-label="Acercar">+</button></div>
-<div class="fila"><span class="lbl">Forma</span><div class="segm" id="edForma"><button type="button" data-v="h">Horizontal</button><button type="button" data-v="c">Cuadrado</button></div></div>
-<div class="fila"><span class="lbl">Fondo</span><div class="segm" id="edFondo"><button type="button" data-v="blanco">Blanco</button><button type="button" data-v="transp">Sin fondo</button></div></div>
-<div class="fila"><button type="button" class="ed" id="edCentrar" style="flex:1">Centrar de nuevo</button></div>
-<div class="two" style="margin-top:12px"><button type="button" class="ed" id="edCancelar">Cancelar</button><button type="button" class="ok" id="edUsar" style="margin:0">Usar este logo</button></div>
-</div></div>
 <script>
 const $=id=>document.getElementById(id);
 const pad=n=>String(n).padStart(2,'0');
-const ymd=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-const HOY=ymd(new Date());
 
+// Diccionario para traducir códigos IATA de aeropuertos a nombres de ciudad
+const AEROPUERTOS = {
+  'MAD':'Madrid','UIO':'Quito','GYE':'Guayaquil','BCN':'Barcelona','JFK':'Nueva York','EZE':'Buenos Aires',
+  'MEX':'Ciudad de México','BOG':'Bogotá','LIM':'Lima','CDG':'París','FCO':'Roma','LIS':'Lisboa','LHR':'Londres',
+  'AMS':'Ámsterdam','FRA':'Fráncfort','MUC':'Múnich','DUB':'Dublín','OPO':'Oporto','MIA':'Miami','CUN':'Cancún',
+  'PUJ':'Punta Cana','HAV':'La Habana','VCE':'Venecia','VIE':'Viena','PRG':'Praga','BUD':'Budapest','ATH':'Atenas'
+};
 
-/* ---------- Calendario: ida y vuelta en un solo calendario (1er toque = ida, 2º = vuelta) ---------- */
-const MESES=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
-const CAL={mes:null,ini:'',fin:''};
-function textoFechas(){const a=$('ida').value,b=$('vuelta').value,t=$('fechasTxt');
-  const f=d=>d.split('-').reverse().join('/');
-  if(a&&b){t.textContent=f(a)+' — '+f(b);t.classList.remove('vacio');}
-  else if(a){t.textContent=f(a)+' · solo ida';t.classList.remove('vacio');}
-  else{t.textContent='Elige ida y vuelta';t.classList.add('vacio');}}
-function abrirCal(){CAL.ini=$('ida').value;CAL.fin=$('vuelta').value;const b=CAL.ini||HOY;CAL.mes=new Date(+b.slice(0,4),+b.slice(5,7)-1,1);
-  $('calF').classList.remove('hide');document.body.style.overflow='hidden';pintarCal();}
-function cerrarCal(){$('calF').classList.add('hide');document.body.style.overflow='';}
-function pintarCal(){
-  const y=CAL.mes.getFullYear(),m=CAL.mes.getMonth();$('cfMes').textContent=MESES[m]+' '+y;
-  const hoy=new Date();$('cfPrev').disabled=y<hoy.getFullYear()||(y===hoy.getFullYear()&&m<=hoy.getMonth());
-  const pri=(new Date(y,m,1).getDay()+6)%7,dias=new Date(y,m+1,0).getDate(),g=$('cfGrid');g.innerHTML='';
-  for(let i=0;i<pri;i++)g.appendChild(document.createElement('span'));
-  for(let d=1;d<=dias;d++){const k=`${y}-${pad(m+1)}-${pad(d)}`,b=document.createElement('button');b.type='button';b.textContent=d;
-    if(k<HOY)b.disabled=true;if(k===HOY)b.classList.add('hoy');
-    if(k===CAL.ini)b.classList.add('ini');if(k===CAL.fin)b.classList.add('fin');if(CAL.ini&&CAL.fin&&k>CAL.ini&&k<CAL.fin)b.classList.add('en');
-    b.onclick=()=>{ if(!CAL.ini||CAL.fin||k<CAL.ini){CAL.ini=k;CAL.fin='';$('ida').value=k;$('vuelta').value='';textoFechas();$('vuelta').dispatchEvent(new Event('change'));pintarCal();}
-      else{CAL.fin=k;pintarCal();$('ida').value=CAL.ini;$('vuelta').value=CAL.fin;textoFechas();$('vuelta').dispatchEvent(new Event('change'));setTimeout(cerrarCal,250);} };
-    g.appendChild(b);}
-  $('cfPaso').textContent=!CAL.ini||CAL.fin?'Toca el día de ida':'Ahora toca el día de vuelta, o pulsa «Solo ida»';
-  $('cfSoloIda').classList.toggle('hide',!(CAL.ini&&!CAL.fin));
+function traducirAeropuertos(texto) {
+  if (!texto) return '';
+  let str = String(texto).trim();
+  const codigos = str.match(/\b[A-Z]{3}\b/g);
+  if (codigos && codigos.some(c => AEROPUERTOS[c])) {
+    const ciudades = codigos.map(c => AEROPUERTOS[c] || c);
+    return ciudades.length > 1 ? ciudades[1] : ciudades[0];
+  }
+  return str;
 }
-$('fechasBtn').onclick=abrirCal;
-$('cfPrev').onclick=()=>{CAL.mes.setMonth(CAL.mes.getMonth()-1);pintarCal();};
-$('cfNext').onclick=()=>{CAL.mes.setMonth(CAL.mes.getMonth()+1);pintarCal();};
-$('cfCerrar').onclick=cerrarCal;
-$('cfSoloIda').onclick=()=>{$('ida').value=CAL.ini;$('vuelta').value='';textoFechas();$('vuelta').dispatchEvent(new Event('change'));cerrarCal();};
-$('cfBorrar').onclick=()=>{CAL.ini=CAL.fin='';$('ida').value=$('vuelta').value='';textoFechas();$('vuelta').dispatchEvent(new Event('change'));pintarCal();};
-$('calF').addEventListener('click',e=>{if(e.target.id==='calF')cerrarCal();});
-let nombres={};
+
+function limpiarTelefono(tel) {
+  if (!tel) return '';
+  let limpio = String(tel).replace(/\D/g, '');
+  if (limpio.length === 9) limpio = '34' + limpio;
+  return limpio;
+}
+
 function toast(t){$('toast').textContent=t||'¡Copiado!';$('toast').classList.add('on');setTimeout(()=>$('toast').classList.remove('on'),1500)}
-function copiar(t){(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(()=>toast()).catch(()=>{const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();document.execCommand('copy');a.remove();toast()})}
+function copiar(t){navigator.clipboard.writeText(t).then(()=>toast());}
 
-let AG={};
-async function cargarAgencias(){
-  let r=await fetch('/.netlify/functions/agencias',{cache:'no-cache'}).catch(()=>null);
-  if(!r||!r.ok) r=await fetch('/agencias/agencias.json',{cache:'no-cache'}).catch(()=>null);
-  AG=r&&r.ok?await r.json():{}; nombres={};
-  const sel=$('agencia'), prev=sel.value;
-  sel.innerHTML='<option value="">Sin agencia (solo Maleta Fácil)</option>';
-  Object.entries(AG).forEach(([slug,d])=>{nombres[slug]=d.nombre||slug;const o=document.createElement('option');o.value=slug;o.textContent=d.nombre||slug;sel.appendChild(o)});
-  let g=prev; try{g=prev||localStorage.getItem('mf_enlace_agencia')}catch(e){}
-  if(g&&nombres[g]) sel.value=g;
-  generar(); pintarLista(); pintarAgencias();
-  // Selector de la pestaña Hoy
-  const sh=$('agHoy'),ph=sh.value||new URLSearchParams(location.search).get('ag')||(()=>{try{return localStorage.getItem('mf_hoy_ag')}catch(e){return ''}})()||'';
-  sh.innerHTML='<option value="">Todas las agencias</option>';
-  [...Object.entries(AG).map(([k,d])=>[k,d.nombre||k]),['maletafacil','Maleta Fácil (sin agencia)']].forEach(([k,n])=>{const o=document.createElement('option');o.value=k;o.textContent=n;sh.appendChild(o);});
-  if(ph&&[...sh.options].some(o=>o.value===ph)) sh.value=ph;
-  if(ROL==='agencia'){ if(!nombres[MISLUG]){nombres[MISLUG]=MISLUG;const o=document.createElement('option');o.value=MISLUG;o.textContent=MISLUG;sel.appendChild(o);const o2=o.cloneNode(true);sh.appendChild(o2);}
-    sel.value=MISLUG; sh.value=MISLUG; generar();
-    // Logo de la agencia arriba a la derecha (si no tiene logo, su nombre)
-    const ba=$('brandAg'),src=logoUrl((AG[MISLUG]||{}).logo);ba.innerHTML='';
-    if(src){const im=document.createElement('img');im.alt=nombres[MISLUG]||'';im.src=src;im.onerror=()=>{ba.innerHTML='';const sp=document.createElement('span');sp.textContent=nombres[MISLUG]||'';ba.appendChild(sp);};ba.appendChild(im);}
-    else{const sp=document.createElement('span');sp.textContent=nombres[MISLUG]||'';ba.appendChild(sp);}
-    ba.classList.remove('hide'); }
-  if(!$('cardHoy').classList.contains('hide')) cargarHoy();
-}
-const logoUrl=l=>!l?'':(/^(\/|https:\/\/)/.test(l)?l:'/agencias/'+encodeURIComponent(l));
+// Pestañas
+$('tUno').onclick=()=>{$('tUno').classList.add('on'); $('tVarios').classList.remove('on');$('pUno').classList.remove('hide'); $('pVarios').classList.add('hide'); };$('tVarios').onclick=()=>{ $('tVarios').classList.add('on');$('tUno').classList.remove('on'); $('pVarios').classList.remove('hide');$('pUno').classList.add('hide'); };
 
-/* ---------- ACCESO: administrador (tú) o cada agencia con su email y contraseña ---------- */
-let TOKEN='', ROL='', MISLUG='', MIEMAIL='', ACCESOS={};
-const CLAVE=undefined;
-async function api(body){
-  const r=await fetch('/.netlify/functions/agencias',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({...body,token:TOKEN})});
-  let d={}; try{d=await r.json()}catch(e){} return {ok:r.ok,status:r.status,...d};
-}
-function guardarToken(t){TOKEN=t;try{localStorage.setItem('mf_token',t);localStorage.removeItem('mf_clave')}catch(e){}}
-async function entrar(email,pass,silencioso){
-  $('entrar').disabled=true; $('errL').style.display='none';
-  const r=await fetch('/.netlify/functions/agencias',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({accion:'login',email,pass})}).then(async x=>({ok:x.ok,status:x.status,...(await x.json().catch(()=>({})))})).catch(()=>({ok:false,status:0}));
-  $('entrar').disabled=false;
-  if(r.ok){guardarToken(r.token);return entrarCon(r);}
-  if(!silencioso){$('errL').textContent=r.status===401?'Email o contraseña incorrectos.':r.status===403?'Este acceso está desactivado. Habla con Maleta Fácil.':'No se ha podido comprobar. Revisa tu conexión.';$('errL').style.display='block';}
-}
-function entrarCon(r){
-  ROL=r.rol; MISLUG=r.slug||''; MIEMAIL=r.email||'';
-  document.body.classList.toggle('rol-agencia',ROL==='agencia');
-  $('tAg').textContent=ROL==='agencia'?'Mi agencia':'Agencias';
-  $('login').classList.add('hide'); $('app').classList.remove('hide');
-  cargarAgencias(); if(ROL==='admin'){cargarAccesos();cargarGeneral();}
-  if(r.cambiar){$('claveF').classList.remove('hide');}
-  if(location.hash==='#miagencia'&&ROL==='agencia') setTimeout(()=>tab(3),600);
-}
-$('entrar').onclick=()=>entrar($('usuario').value.trim(),$('clave').value);
-$('clave').addEventListener('keydown',e=>{if(e.key==='Enter')entrar($('usuario').value.trim(),$('clave').value)});
-$('salir').onclick=()=>{try{localStorage.removeItem('mf_token');localStorage.removeItem('mf_clave')}catch(e){} location.reload();};
-(async()=>{let t='',c='';try{t=localStorage.getItem('mf_token')||'';c=localStorage.getItem('mf_clave')||'';}catch(e){}
-  if(t){TOKEN=t;const r=await api({accion:'sesion'}).catch(()=>({ok:false}));if(r.ok)return entrarCon(r);try{localStorage.removeItem('mf_token')}catch(e){}TOKEN='';}
-  if(c) entrar('',c,true);})();
-// Cambiar la contraseña (obligatorio la primera vez para las agencias)
-$('cGuardar').onclick=async()=>{
-  const e=$('errC'); e.style.display='none'; const nueva=$('cNueva').value;
-  if(nueva.length<8){e.textContent='La contraseña nueva debe tener al menos 8 caracteres.';e.style.display='block';return;}
-  const r=await api({accion:'cambiarClave',actual:$('cActual').value,nueva}).catch(()=>({ok:false}));
-  if(!r.ok){e.textContent=r.error==='actual'?'La contraseña actual no es correcta.':'No se ha podido cambiar. Inténtalo de nuevo.';e.style.display='block';return;}
-  guardarToken(r.token); $('claveF').classList.add('hide'); toast('✅ Contraseña guardada');
-};
-// Solo administrador: accesos de las agencias
-async function cargarAccesos(){const r=await api({accion:'accesos'}).catch(()=>({}));ACCESOS=r.accesos||{};pintarAgencias();}
-function pintarAcceso(slug){
-  const a=ACCESOS[slug]; $('accEmail').value=a?a.email:''; $('accTel').value=a?a.tel:'';
-  $('accesoEstado').textContent=!slug?'Guarda primero la agencia para crearle un acceso.':!a?'Todavía no tiene acceso.':a.bloqueada?'⛔ Acceso desactivado.':a.cambiar?'✉️ Acceso creado: aún no ha entrado a poner su contraseña.':'✅ La agencia ya usa su acceso.';
-  $('accCrear').textContent=a?'Crear una contraseña nueva':'Crear acceso y contraseña'; $('accCrear').classList.toggle('off',!slug);
-  $('accBloq').textContent=a?(a.bloqueada?'Volver a activar el acceso':'Desactivar el acceso (por ejemplo, si no paga)'):''; $('accBloq').style.display=a?'block':'none';
-}
-$('accCrear').onclick=async()=>{
-  if(!editando) return; const email=$('accEmail').value.trim(), tel=$('accTel').value;
-  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return alert('Escribe el email de la agencia: será su usuario.');
-  if(ACCESOS[editando]&&!confirm('Se creará una contraseña nueva y la anterior dejará de funcionar. ¿Seguir?')) return;
-  const r=await api({accion:'crearAcceso',slug:editando,email,tel}).catch(()=>({ok:false}));
-  if(!r.ok) return alert(r.error==='email-usado'?'Ese email ya es el acceso de otra agencia.':'No se ha podido crear el acceso.');
-  $('credEmail').textContent=r.email; $('credPass').textContent=r.pass;
-  const txt=`Hola 👋 Ya tienes acceso a Maleta Fácil para enviar a tus clientes su maleta por WhatsApp.\n\n🔗 maletafacil.com/enlace.html\n👤 Usuario: ${r.email}\n🔑 Contraseña: ${r.pass}\n\nLa primera vez te pediremos que pongas una contraseña tuya. Consejo: añade la herramienta a la pantalla de inicio del móvil para recibir cada mañana el aviso de a quién toca enviar.`;
-  $('credWa').href='https://wa.me/'+telWa(tel)+'?text='+encodeURIComponent(txt); $('credCopiar').onclick=()=>copiar(txt);
-  $('credF').classList.remove('hide'); await cargarAccesos(); pintarAcceso(editando);
-};
-$('credCerrar').onclick=()=>$('credF').classList.add('hide');
-$('accBloq').onclick=async()=>{const a=ACCESOS[editando];if(!a)return;
-  const r=await api({accion:'bloquear',email:a.email,bloqueada:!a.bloqueada}).catch(()=>({ok:false}));
-  if(!r.ok) return alert('No se ha podido cambiar.'); toast(a.bloqueada?'Acceso activado':'Acceso desactivado'); await cargarAccesos(); pintarAcceso(editando);};
-// Lo que no ve una agencia
-['aNombre','aLogo','aModo','aTag','aSeguro','aCiv','agencia','agHoy'].forEach(id=>$(id).closest('.f').classList.add('solo-admin'));
-$('aEmail').classList.add('solo-admin');
-$('aTamF').classList.add('solo-admin');
-['accesoF','agLista','probarResumen'].forEach(id=>$(id).classList.add('solo-admin'));
+$('entrar').onclick=()=>{$('login').classList.add('hide'); $('app').classList.remove('hide'); };$('salir').onclick=()=>{ $('login').classList.remove('hide');$('app').classList.add('hide'); };
 
-function fechaBonita(s){if(!s)return'';const d=new Date(s+'T12:00');return d.toLocaleDateString('es-ES',{day:'numeric',month:'long'});}
-function capital(s){return s.replace(/(^|\s)\S/g,l=>l.toUpperCase());}
-/* ---------- Destino: como en la web (sugerencias con mayúsculas y, si hay varios con el mismo nombre, el más conocido primero) ---------- */
-let DESTGEO=null; // destino elegido de la lista: {name,country,top}
-const slugTxt=t=>t.trim().normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9ñ]+/g,'-').replace(/^-+|-+$/g,'');
-const ciudadDe=d=>capital(String(d||'').split(',')[0].trim());
-// En el enlace va solo la ciudad; si se eligió una que no es la más conocida con ese nombre (Mérida de México), se añade el país: merida,mexico
-function lugarSlug(d){const p=String(d||'').split(',').map(slugTxt).filter(Boolean);if(!p.length)return '';
-  if(DESTGEO&&ciudadDe(d)===DESTGEO.name)return DESTGEO.top?p[0]:p[0]+(DESTGEO.country?','+slugTxt(DESTGEO.country):'');
-  return p.slice(0,2).join(',');}
-const GEO='https://geocoding-api.open-meteo.com/v1';
-const normT=s=>(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
-async function buscarLugares(texto,max,signal){
-  const partes=texto.split(',').map(t=>t.trim()).filter(Boolean),nombre=partes[0]||texto.trim(),pista=normT(partes.slice(1).join(' ')),q=normT(nombre);
-  if(!q)return[];
-  const pedir=lang=>fetch(`${GEO}/search?name=${encodeURIComponent(nombre)}&count=10&language=${lang}&format=json`,{signal}).then(r=>r.ok?r.json():{}).then(d=>d.results||[]).catch(e=>{if(e.name==='AbortError')throw e;return[];});
-  const [es,en]=await Promise.all([pedir('es'),pedir('en')]);const m=new Map();
-  es.forEach(r=>m.set(r.id,{...r,nEs:r.name,pEs:r.country,aEs:r.admin1,nEn:null}));
-  en.forEach(r=>{const x=m.get(r.id);if(x)x.nEn=r.name;else m.set(r.id,{...r,nEs:null,pEs:null,aEs:null,nEn:r.name});});
-  const punt=r=>{const ns=[r.nEs,r.nEn].filter(Boolean).map(normT);let p=0;if(ns.includes(q))p+=100;else if(ns.some(n=>n.startsWith(q)))p+=30;
-    if(r.population)p+=Math.log10(r.population)*10;if(r.feature_code==='PPLC')p+=25;else if(/^PPLA/.test(r.feature_code||''))p+=10;
-    if(pista&&normT([r.pEs,r.country,r.aEs,r.admin1].join(' ')).includes(pista))p+=200;return p;};
-  const top=[...m.values()].map(r=>({r,p:punt(r)})).sort((a,b)=>b.p-a.p).slice(0,max).map(x=>x.r);
-  await Promise.all(top.filter(r=>!r.nEs).map(async r=>{try{const d=await fetch(`${GEO}/get?id=${r.id}&language=es`,{signal}).then(x=>x.json());if(d&&d.name){r.nEs=d.name;r.pEs=d.country;r.aEs=d.admin1;}}catch(e){if(e.name==='AbortError')throw e;}}));
-  let pais=cc=>{try{return cc?new Intl.DisplayNames(['es'],{type:'region'}).of(cc):''}catch(e){return ''}};
-  return top.map(r=>({name:r.nEs||r.name,country:r.pEs||pais(r.country_code)||r.country||'',admin1:r.aEs||r.admin1||''}));
-}
-let sugT=null,sugAb=null;
-function ocultarSug(){$('destSug').classList.remove('on');$('destSug').innerHTML='';}
-async function sugerir(texto){
-  try{if(sugAb)sugAb.abort();sugAb=new AbortController();
-    const L=await buscarLugares(texto,6,sugAb.signal),vistos=new Set();
-    const res=L.filter(r=>{const k=r.name+'|'+r.admin1+'|'+r.country;if(vistos.has(k))return false;vistos.add(k);return true;}).slice(0,5);
-    if(!res.length)return ocultarSug();
-    // ¿Es el más conocido con ese nombre? (el primero de la búsqueda solo por el nombre)
-    const primero=normT(res[0].name);
-    $('destSug').innerHTML='';res.forEach((r,i)=>{const d=document.createElement('div');const sub=[r.admin1!==r.name?r.admin1:'',r.country].filter(Boolean).join(', ');
-      d.textContent=r.name;if(sub){const s2=document.createElement('small');s2.textContent=sub;d.appendChild(s2);}
-      d.onclick=()=>{const top=!texto.includes(',')&&(i===0||!res.slice(0,i).some(x=>normT(x.name)===normT(r.name)));
-        DESTGEO={name:r.name,country:r.country,top};$('destino').value=r.country?r.name+', '+r.country:r.name;ocultarSug();
-        $('destino').dispatchEvent(new Event('change'));};
-      $('destSug').appendChild(d);});
-    $('destSug').classList.add('on');
-  }catch(e){}
-}
-$('destino').addEventListener('input',()=>{DESTGEO=null;const t=$('destino').value.trim();clearTimeout(sugT);if(t.length<3)return ocultarSug();sugT=setTimeout(()=>sugerir(t),300);});
-$('destino').addEventListener('blur',()=>{setTimeout(()=>{const v=$('destino').value;if(v&&!DESTGEO)$('destino').value=capital(v.trim());},250);});
-document.addEventListener('click',e=>{if(!e.target.closest('.dwrap'))ocultarSug();});
-// Construye enlace y mensaje. Sin nombre: no se menciona nada del nombre.
-function crear({cli,des,ida,vu,tipo}){
-  const ag=$('agencia').value;
-  const lugar=lugarSlug(des);
-  const corta=d=>{const [a,m,dd]=d.split('-');return `${dd}-${m}-${a.slice(2)}`;};
-  let url;
-  if(ag){
-    // Enlace corto: maletafacil.com/coraltour/lisboa/27-09-26/28-09-26
-    // Solo ida: maletafacil.com/coraltour/lisboa/27-09-26  (con tipo: /27-09-26/ida/playa)
-    url='https://maletafacil.com/'+ag+'/'+lugar+(ida&&vu?'/'+corta(ida)+'/'+corta(vu)+(tipo?'/'+tipo:''):ida?'/'+corta(ida)+(tipo?'/ida/'+tipo:''):'');
-  }else{
-    const p=new URLSearchParams(); p.set('destino',lugar);
-    if(ida){p.set('ida',ida);if(vu)p.set('vuelta',vu);} if(tipo)p.set('tipo',tipo);
-    url='https://maletafacil.com/?'+p.toString();
-  }
-  const ciudad=ciudadDe(des);
-  const fechas=(ida&&vu)?` (${rango(ida,vu)})`:'';
-  const inicio=cli?`¡Hola, ${cli}! 🧳 Para`:`🧳 Para`;
-  const firma=ag&&nombres[ag]?`\n\n¡Buen viaje! ${nombres[ag]}`:'\n\n¡Buen viaje!';
-  const varios=/ y |, /.test(cli||''); // varios pasajeros de la misma reserva: «os», «tenéis vuestra»
-  const msg=`${inicio} que no se ${varios?'os':'te'} olvide nada en *${ciudad}*, aquí ${varios?'tenéis vuestra':'tienes tu'} maleta según el tiempo que hará:\n${url}${firma}`;
-  return {url,msg,ciudad};
-}
-// "27–28 sep" · "30 sep – 3 oct"
-function rango(a,b){const M=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
-  const [,m1,d1]=a.split('-').map(Number),[,m2,d2]=b.split('-').map(Number);
-  return m1===m2?(d1===d2?`${d1} ${M[m1-1]}`:`${d1}–${d2} ${M[m1-1]}`):`${d1} ${M[m1-1]} – ${d2} ${M[m2-1]}`;}
-
-/* ---------- UN CLIENTE ---------- */
-function generar(){
-  try{localStorage.setItem('mf_enlace_agencia',$('agencia').value)}catch(e){}
-  const cli=$('cliente').value.trim(), des=$('destino').value.trim(), ida=$('ida').value, vu=$('vuelta').value, tipo=$('tipo').value;
-  $('err').style.display='none';
-  if(ida&&vu&&vu<ida){$('err').textContent='La vuelta no puede ser antes que la ida.';$('err').style.display='block';$('out').classList.remove('show');return;}
-  if(!des){$('out').classList.remove('show');return;}
-  const {url,msg}=crear({cli,des,ida,vu,tipo});
-  $('msg').textContent=msg.replace('\n'+url,'').replace(/\*/g,'');
-  $('link').textContent=url;
-  $('wa').href='https://wa.me/'+telWa($('telCli').value)+'?text='+encodeURIComponent(msg);
-  $('probar').href=url;
-  $('copiar').onclick=()=>copiar(msg);
-  $('out').classList.add('show');
-}
-['cliente','telCli','destino','ida','vuelta','tipo'].forEach(id=>{$(id).addEventListener('input',generar);$(id).addEventListener('change',generar);});
-$('agencia').addEventListener('change',()=>{generar();pintarLista();});
-
-
-/* ---------- ENVIAR MÁS TARDE: aviso en el calendario del móvil ---------- */
-const DIAS=['domingo','lunes','martes','miércoles','jueves','viernes','sábado'],MES2=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
-function momentoAviso(ida,dias,hora){const d=new Date(+ida.slice(0,4),+ida.slice(5,7)-1,+ida.slice(8,10));d.setDate(d.getDate()-dias);const [h,m]=(hora||'10:00').split(':').map(Number);d.setHours(h,m,0,0);return d;}
-const isoLocal=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-const bonitoAviso=d=>`${DIAS[d.getDay()]} ${d.getDate()} de ${MES2[d.getMonth()]} a las ${pad(d.getHours())}:${pad(d.getMinutes())}`;
-const b64url=s=>btoa(unescape(encodeURIComponent(s))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
-document.querySelectorAll('.step button').forEach(b=>b.onclick=()=>{const i=b.parentNode.querySelector('input');i.value=Math.max(0,Math.min(60,(+i.value||0)+(+b.dataset.d)));i.dispatchEvent(new Event('input'));});
-function avisoUno(){
-  const ida=$('ida').value,des=$('destino').value.trim(),btn=$('recordar'),c=$('cuando');
-  if(!ida||!des){c.textContent='Elige primero las fechas del viaje.';c.className='cuando mal';btn.classList.add('off');$('programar').classList.add('off');return;}
-  const d=momentoAviso(ida,+$('diasAntes').value||0,$('horaAviso').value);
-  if(d<=new Date()){c.textContent='Ese día ya ha pasado: envíalo ahora con el botón de WhatsApp (o prográmalo y saldrá hoy en «Hoy»).';c.className='cuando mal';btn.classList.add('off');$('programar').classList.remove('off');return;}
-  c.textContent='Toca enviarlo el '+bonitoAviso(d).replace(' a las ',' · aviso a las ')+'.';c.className='cuando';btn.classList.remove('off');$('programar').classList.remove('off');
-  const cli=$('cliente').value.trim(),ciudad=ciudadDe(des);
-  btn.href='/.netlify/functions/recordatorio?d='+b64url(JSON.stringify([{t:`🧳 Enviar maleta${cli?' a '+cli:''} · ${ciudad}`,u:$('wa').href,w:isoLocal(d)}]));
-}
-['diasAntes','horaAviso','cliente','destino','telCli','ida','vuelta','tipo','agencia'].forEach(id=>{$(id).addEventListener('input',()=>setTimeout(avisoUno));$(id).addEventListener('change',()=>setTimeout(avisoUno));});
-function avisosVarios(){
-  const c=$('cuandoV'),btn=$('recordarV'),dias=+$('diasAntesV').value||0,hora=$('horaAvisoV').value;
-  if(!visibles.length){c.textContent='';btn.classList.add('off');$('programarV').classList.add('off');return [];}
-  const ahora=new Date(),ok=[],tarde=[];
-  visibles.forEach(r=>{const d=momentoAviso(r.ida,dias,hora);(d>ahora?ok:tarde).push({r,d});});
-  c.textContent=`${visibles.length} viaje${visibles.length>1?'s':''} en la lista.`+(tarde.length?` ${tarde.length} ya ${tarde.length>1?'están':'está'} dentro de ese plazo: saldrá${tarde.length>1?'n':''} hoy mismo en «Hoy».`:'');
-  c.className='cuando';btn.classList.toggle('off',!ok.length);$('programarV').classList.toggle('off',!visibles.length);
-  $('programarV').textContent=visibles.length>1?`Programar los ${visibles.length} envíos`:'Programar el envío';
-  return ok;
-}
-['diasAntesV','horaAvisoV','rango'].forEach(id=>{$(id).addEventListener('input',()=>setTimeout(avisosVarios));$(id).addEventListener('change',()=>setTimeout(avisosVarios));});
-$('recordarV').onclick=(ev)=>{ev.preventDefault();
-  const ok=avisosVarios(); if(!ok.length) return;
-  const datos=ok.map(({r,d})=>{const ciudad=capital(r.destino),tel=telWa(r.tel);
-    return {t:`🧳 Enviar maleta a ${(r.nombre||'cliente').split(/\s+/)[0]} · ${ciudad}`,u:`https://wa.me/${tel}?text=${encodeURIComponent(r.msg)}`,w:isoLocal(d)};});
-  const f=document.createElement('form');f.method='POST';f.action='/.netlify/functions/recordatorio';
-  const i=document.createElement('input');i.type='hidden';i.name='datos';i.value=JSON.stringify(datos);f.appendChild(i);document.body.appendChild(f);f.submit();f.remove();
+/* Lector CSV / XLSX */
+let cab=[], filas=[], mapa={};
+const CAMPOS=['nombre','destino','ida','vuelta','tel'];
+const ADIV={
+  nombre:/expediente|titular|nombre|cliente|pax/i,
+  destino:/descripci[oó]n|destino|ciudad|itinerario/i,
+  ida:/salida|ida|inicio|fecha ini/i,
+  vuelta:/regreso|vuelta|fin|fecha fin/i,
+  tel:/tel[eé]f|contacto|m[oó]vil|whats/i
 };
 
-/* ---------- HOY: recuento diario de envíos (servidor) ---------- */
-async function apiV(body){
-  const r=await fetch('/.netlify/functions/viajes',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({...body,token:TOKEN})});
-  let d={}; try{d=await r.json()}catch(e){} return {ok:r.ok,status:r.status,...d};
-}
-let CFGS={}, HOYDATA={};
-const slugActual=()=>$('agencia').value||'maletafacil';
-const nomAg=s=>nombres[s]||(s==='maletafacil'?'Maleta Fácil (sin agencia)':s);
-const cortoF=f=>{const M=['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];const [,m,d]=f.split('-').map(Number);return `${d} ${M[m-1]}`;};
-const rangoV=v=>v.vu?`${cortoF(v.ida)} – ${cortoF(v.vu)}`:`sale el ${cortoF(v.ida)}`;
-function diaRel(f,hoy){const dd=Math.round((new Date(f+'T12:00')-new Date(hoy+'T12:00'))/864e5);if(dd===1)return 'Mañana';const d=new Date(f+'T12:00');return DIAS[d.getDay()].replace(/^./,c=>c.toUpperCase())+' '+d.getDate();}
-async function cargarHoy(){
-  const s=$('agHoy').value, cont=$('hoyCont');
-  const r=await apiV({accion:'hoy',slug:s}).catch(()=>({ok:false}));
-  if(!r.ok){cont.innerHTML='<p class="err" style="display:block">No se ha podido cargar la lista. Revisa la conexión.</p>';return;}
-  HOYDATA=r.agencias||{}; Object.entries(HOYDATA).forEach(([k,v])=>CFGS[k]=v.cfg);
-  aplicarCfg();
-  cont.innerHTML='';
-  if(!s){ pintarPanel(cont); $('hoyAjustes').classList.add('hide'); return; }
-  const a=HOYDATA[s]||{pend:[],hechos:[],prox:[],cfg:{},avisos:0};
-  const h=document.createElement('div');
-  h.innerHTML='<div class="hsec">Hoy toca enviar <small></small></div>';
-  h.querySelector('small').textContent=a.hoy?new Date(a.hoy+'T12:00').toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'short'}):'';
-  cont.appendChild(h);
-  if(!a.pend.length&&!a.hechos.length){const p=document.createElement('p');p.className='vacio2';p.textContent='🎉 Hoy no hay envíos pendientes.';cont.appendChild(p);}
-  a.pend.forEach(v=>cont.appendChild(itemHoy(s,v,false)));
-  a.hechos.forEach(v=>cont.appendChild(itemHoy(s,v,true)));
-  if(a.prox.length){
-    const g={}; a.prox.forEach(v=>(g[v.envio]=g[v.envio]||[]).push(v));
-    const t=document.createElement('div');t.className='hsec';t.innerHTML=`Próximos envíos <small>${a.prox.length} viaje${a.prox.length>1?'s':''}</small>`;cont.appendChild(t);
-    const diasP=Object.keys(g).sort();let ocultos=0;
-    diasP.forEach((f,di)=>{const tapa=di>=2;if(tapa)ocultos+=g[f].length;const h2=document.createElement('p');h2.className='pdia'+(tapa?' pmas hide':'');
-      h2.textContent=`${diaRel(f,a.hoy)} · ${g[f].length} cliente${g[f].length>1?'s':''}`;cont.appendChild(h2);
-      g[f].forEach(v=>{const d=document.createElement('div');d.className='hitem prox';
-        d.innerHTML='<div><b></b><span></span></div><div class="acc"></div>';
-        d.querySelector('b').textContent=(v.cli||'Cliente')+' · '+v.des;d.querySelector('span').textContent=rangoV(v)+(v.tel?' · +'+v.tel:' · sin teléfono');
-        const x=document.createElement('button');x.type='button';x.className='x';x.title='Quitar de la lista';x.textContent='×';
-        x.onclick=async()=>{if(!confirm('¿Quitar a '+(v.cli||'este cliente')+' ('+v.des+') de los próximos envíos?'))return;
-          const r=await apiV({accion:'borrar',slug:s,id:v.id}).catch(()=>({ok:false}));if(!r.ok)return toast('No se ha podido quitar');
-          d.remove();toast('Quitado');cargarHoy();};
-        d.querySelector('.acc').appendChild(x);if(tapa)d.classList.add('pmas','hide');cont.appendChild(d);});});
-    if(ocultos){const m=document.createElement('button');m.type='button';m.className='vermas';m.textContent=`Ver los ${ocultos} envíos programados más adelante`;
-      m.onclick=()=>{cont.querySelectorAll('.pmas.hide').forEach(x=>x.classList.remove('hide'));m.remove();};cont.appendChild(m);}
-    if(a.ultExcel){const u=document.createElement('p');u.className='hint';u.style.marginTop='8px';u.textContent='📄 Último Excel subido: '+fechaHora(a.ultExcel)+(a.ultExcelN?` (${a.ultExcelN} viajes)`:'');cont.appendChild(u);}
-  }
-  if(ROL==='admin'){const sb=document.createElement('div');sb.style.marginTop='18px';sb.innerHTML='<p class="hint">Cargando estadísticas…</p>';cont.appendChild(sb);if(rangoPer(AG_PER||''))pintarAgRango(s,sb);else pintarMiMes(AG_PER?AG_PER.slice(2):undefined,s,sb);}
-  const c=a.cfg||{}; $('hoyAjustes').classList.remove('hide');
-  $('avisoTxt').textContent=`Resumen cada día a las ${c.hora||'09:30'} · envío ${c.dias??7} días antes${c.email?' · email a '+c.email:''}. ${a.avisos?`Avisos activados en ${a.avisos} móvil${a.avisos>1?'es':''}.`:'Aún no hay ningún móvil con avisos.'} ${ROL==='agencia'?'':'Puedes cambiarlo en Agencias.'}`;
-}
-function itemHoy(s,v,hecho){
-  const d=document.createElement('div');d.className='hitem'+(hecho?' hecho':'');
-  d.innerHTML='<div><b></b><span></span></div><div class="acc"></div>';
-  d.querySelector('b').textContent=(v.cli||'Cliente')+' · '+v.des;
-  d.querySelector('span').textContent=rangoV(v)+(v.tel?' · +'+v.tel:' · sin teléfono')+(hecho?' · ✓ enviado':'');
-  const acc=d.querySelector('.acc');
-  if(v.tel){const a=document.createElement('a');a.className='btn wa2';a.target='_blank';a.rel='noopener';a.href=v.ir;a.textContent=hecho?'Reenviar':'WhatsApp';
-    a.onclick=()=>{d.classList.add('hecho');d.querySelector('span').textContent=rangoV(v)+' · ✓ enviado';a.textContent='Reenviar';};acc.appendChild(a);}
-  else{const b=document.createElement('button');b.type='button';b.className='cp2';b.textContent='Copiar';b.onclick=async()=>{copiar(v.msg||'');await apiV({accion:'marcar',slug:s,id:v.id,enviado:true});d.classList.add('hecho');};acc.appendChild(b);}
-  const x=document.createElement('button');x.type='button';x.className='x';x.title='Quitar de la lista';x.textContent='×';
-  x.onclick=async()=>{if(!confirm('¿Quitar a '+(v.cli||'este cliente')+' de la lista de envíos?'))return;await apiV({accion:'borrar',slug:s,id:v.id});d.remove();};acc.appendChild(x);
-  return d;
-}
-function pintarPanel(cont){
-  // Solo cuentan las agencias con algo que enviar hoy o más adelante (los viajes ya enviados esperan a borrarse solos al terminar)
-  const ags=Object.entries(HOYDATA).filter(([,a])=>a.pend.length+a.hechos.length+a.prox.length>0);let pend=0,hechos=0,prox=0;ags.forEach(([,a])=>{pend+=a.pend.length;hechos+=a.hechos.length;prox+=a.prox.length;});
-  cont.innerHTML=`<div class="kpis"><div class="kpi"><b>${pend+hechos}</b><span>envíos para hoy</span></div><div class="kpi"><b>${hechos}</b><span>ya enviados hoy</span></div><div class="kpi"><b>${prox}</b><span>programados próximos días</span></div><div class="kpi"><b>${ags.length}</b><span>agencias con viajes</span></div></div>`;
-  if(!ags.length){cont.insertAdjacentHTML('beforeend','<p class="vacio2">Aún no hay envíos programados. Crea un enlace en «Un cliente» o sube un Excel en «Varios» y pulsa Programar.</p>');if(ROL==='admin')pintarStats(cont);return;}
-  ags.sort((x,y)=>(y[1].pend.length+y[1].hechos.length)-(x[1].pend.length+x[1].hechos.length)).forEach(([k,a])=>{
-    const d=document.createElement('div');d.className='hag';const lg=logoUrl((AG[k]||{}).logo);
-    d.innerHTML=(lg?'<img alt="">':'')+'<b></b><span></span>';if(lg)d.querySelector('img').src=lg;
-    d.querySelector('b').textContent=nomAg(k);const tot=a.pend.length+a.hechos.length;
-    d.querySelector('span').textContent=tot?`${tot} hoy · ${a.hechos.length} enviado${a.hechos.length===1?'':'s'}`:`${a.prox.length} programado${a.prox.length===1?'':'s'}`;
-    d.onclick=()=>{$('agHoy').value=k;cargarHoy();};cont.appendChild(d);});
-  if(ROL==='admin'){pintarStats(cont);pintarAlertas(cont);}
-}
-async function pintarAlertas(cont){
-  const r=await apiV({accion:'alertas'}).catch(()=>({ok:false}));if(!r.ok)return;
-  const box=document.createElement('div');const msgs=[];
-  if(r.latido&&Date.now()-r.latido>2*3600e3)msgs.push('El recuento automático no se ejecuta desde '+fechaHora(r.latido)+'. Hay que revisarlo en Netlify (pídemelo y lo miro).');
-  const rec=(r.alertas||[]).filter(a=>Date.now()-a.t<4*864e5);rec.forEach(a=>msgs.push(a.texto));
-  if(!msgs.length)return;
-  box.className='alerta';box.innerHTML='<b>⚠️ Atención</b><ul></ul><button type="button">Entendido</button>';
-  msgs.forEach(m=>{const li=document.createElement('li');li.textContent=m;box.querySelector('ul').appendChild(li);});
-  box.querySelector('button').onclick=async()=>{await apiV({accion:'alertas',limpiar:true}).catch(()=>{});box.remove();};
-  cont.prepend(box);
-}
-$('agHoy').addEventListener('change',()=>{try{localStorage.setItem('mf_hoy_ag',$('agHoy').value)}catch(e){};cargarHoy();});
-// Días por defecto y hora del aviso según la agencia elegida
-function aplicarCfg(){const c=CFGS[slugActual()];if(!c)return;
-  ['diasAntes','diasAntesV'].forEach(i=>{$(i).value=c.dias??7;}); // siempre el ajuste de la agencia
-  $('horaAviso').value=$('horaAvisoV').value=c.hora||'09:30'; avisoUno(); avisosVarios();}
-['diasAntes','diasAntesV'].forEach(i=>$(i).addEventListener('input',()=>$(i).dataset.tocado='1'));
-$('agencia').addEventListener('change',async()=>{if(!CFGS[slugActual()]){const r=await apiV({accion:'hoy',slug:slugActual()}).catch(()=>({}));if(r.agencias)Object.entries(r.agencias).forEach(([k,v])=>CFGS[k]=v.cfg);}aplicarCfg();});
-// Programar (un cliente)
-$('programar').onclick=async()=>{
-  const ida=$('ida').value,des=$('destino').value.trim(); if(!ida||!des) return;
-  const cli=$('cliente').value.trim(),vu=$('vuelta').value,tipo=$('tipo').value,{url,msg}=crear({cli,des,ida,vu,tipo});
-  $('programar').classList.add('off');
-  const r=await apiV({accion:'guardar',slug:slugActual(),viajes:[{cli,tel:telWa($('telCli').value),des:ciudadDe(des),ida,vu,tipo,dias:+$('diasAntes').value||0,msg,url}]}).catch(()=>({ok:false}));
-  $('programar').classList.remove('off');
-  if(!r.ok) return toast(r.status===401?'Vuelve a entrar':'No se ha podido programar');
-  toast('✅ Envío programado'); $('cuando').textContent='✅ Programado. '+$('cuando').textContent;
-};
-// Programar todos (Excel)
-$('mapaVer').onclick=e=>{e.preventDefault();$('mapaCols').classList.remove('hide');$('mapaOk').classList.add('hide');};
-$('programarV').onclick=async()=>{
-  if(!visibles.length) return; guardarMapa(); const dias=+$('diasAntesV').value||0;
-  const viajes=visibles.map(r=>({cli:r.cli||'',tel:telWa(r.tel),des:capital(r.destino),ida:r.ida,vu:r.vuelta&&r.vuelta>=r.ida?r.vuelta:'',tipo:'',dias,msg:r.msg,url:r.url}));
-  $('programarV').classList.add('off');
-  const r=await apiV({accion:'guardar',slug:slugActual(),origen:'excel',viajes}).catch(()=>({ok:false}));
-  $('programarV').classList.remove('off');
-  if(!r.ok) return toast(r.status===401?'Vuelve a entrar':'No se ha podido programar');
-  toast(`✅ ${r.nuevos} nuevo${r.nuevos===1?'':'s'} · ${r.cambiados} ya estaba${r.cambiados===1?'':'n'}`);
-  const pl=(n,a,b)=>n+' '+(n===1?a:b);
-  $('cuandoV').textContent=`✅ Programados: ${pl(r.nuevos,'nuevo','nuevos')}, ${r.cambiados} ya estaba${r.cambiados===1?'':'n'}${r.fechaCambiada?` y ${pl(r.fechaCambiada,'con la fecha cambiada (se ha sustituido la anterior)','con la fecha cambiada (se han sustituido las anteriores)')}`:''}. Los verás en «Hoy» el día que toque.`;
-  if(r.faltan&&r.faltan.length){
-    const lis=r.faltan.slice(0,8).map(x=>`· ${x.cli||'Cliente'} · ${x.des} (${cortoF(x.ida)})`).join('\n')+(r.faltan.length>8?`\n… y ${r.faltan.length-8} más`:'');
-    if(confirm(`${r.faltan.length===1?'Este viaje estaba en un Excel anterior y ya no está':'Estos '+r.faltan.length+' viajes estaban en un Excel anterior y ya no están'} en este (${r.faltan.length===1?'¿cancelado?':'¿cancelados?'}):\n\n${lis}\n\n¿Los quito de los envíos?`)){
-      const q=await apiV({accion:'borrarVarios',slug:slugActual(),ids:r.faltan.map(x=>x.id)}).catch(()=>({ok:false}));
-      if(q.ok){toast(`🗑 ${q.quitados} quitado${q.quitados===1?'':'s'}`);$('cuandoV').textContent+=q.quitados===1?' Se ha quitado 1 viaje que ya no estaba.':` Se han quitado ${q.quitados} viajes que ya no estaban.`;}
-    }
-  }
-  mostrarUltExcel();
-};
-// Avisos en el móvil (Web Push)
-const esIOS=/iPhone|iPad|iPod/.test(navigator.userAgent), instalada=window.matchMedia('(display-mode: standalone)').matches||navigator.standalone;
-if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});
-const aBytes=b=>{const p='='.repeat((4-b.length%4)%4),r=atob((b+p).replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from([...r].map(c=>c.charCodeAt(0)));};
-$('activarAvisos').onclick=async()=>{
-  const s=$('agHoy').value; if(!s) return toast('Elige primero una agencia');
-  if(esIOS&&!instalada) return alert('En iPhone, primero añade esta herramienta a la pantalla de inicio:\n\n1. Toca el botón Compartir de Safari.\n2. Elige «Añadir a pantalla de inicio».\n3. Ábrela desde el icono nuevo y pulsa otra vez «Activar avisos».');
-  if(!('serviceWorker' in navigator)||!('PushManager' in window)) return alert('Este móvil o navegador no permite avisos. Prueba con Safari (iPhone) o Chrome (Android).');
-  const perm=await Notification.requestPermission(); if(perm!=='granted') return alert('Sin permiso no podemos avisarte. Puedes activarlo en Ajustes → Notificaciones.');
-  try{
-    const {clave}=await (await fetch('/.netlify/functions/viajes?vapid=1')).json(); if(!clave) throw new Error('vapid');
-    const reg=await navigator.serviceWorker.ready;
-    let sub=await reg.pushManager.getSubscription(); if(!sub) sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:aBytes(clave)});
-    const r=await apiV({accion:'push',slug:s,sub:sub.toJSON(),quien:esIOS?'iPhone':'Android'}); if(!r.ok) throw new Error('guardar');
-    await apiV({accion:'pushPrueba',slug:s}); toast('🔔 Avisos activados'); cargarHoy();
-  }catch(e){alert('No se han podido activar los avisos. Inténtalo de nuevo en unos minutos.');}
-};
-$('probarResumen').onclick=async()=>{const s=$('agHoy').value;if(!s)return;const r=await apiV({accion:'resumenAhora',slug:s}).catch(()=>({ok:false}));
-  const i=(r.informe||[])[0]; toast(!r.ok?'No se ha podido enviar':!i||!i.pend?'Hoy no hay envíos pendientes':`Enviado: ${i.avisos} aviso${i.avisos===1?'':'s'}${i.email?' + email':''}`);};
-
-/* ---------- Ajuste general de envíos (solo administrador) ---------- */
-async function cargarGeneral(){const r=await apiV({accion:'global'}).catch(()=>({}));if(r.general){$('gDias').value=r.general.dias;$('gHora').value=r.general.hora;}}
-$('gGuardar').onclick=async()=>{const r=await apiV({accion:'global',guardar:true,dias:+$('gDias').value,hora:$('gHora').value}).catch(()=>({ok:false}));
-  if(!r.ok) return toast('No se ha podido guardar'); CFGS={}; toast(`✅ ${r.general.dias} días antes · ${r.general.hora}`);};
-/* ---------- Excel de un toque: recordar las columnas de cada agencia ---------- */
-const CAMPOS=['nombre','destino','ida','vuelta','tel','email'];
-function mapaGuardado(){const s=slugActual();let m=(CFGS[s]||{}).mapa;if(!m){try{m=JSON.parse(localStorage.getItem('mf_mapa_'+s)||'null')}catch(e){}}return m;}
-function aplicarMapaGuardado(){
-  const m=mapaGuardado(); if(!m||!m.destino||!m.ida) return false;
-  const idx=k=>m[k]?cab.findIndex(h=>h===m[k]):-1;
-  if(idx('destino')<0||idx('ida')<0) return false;
-  CAMPOS.forEach(k=>mapa[k]=idx(k)); return true;
-}
-function guardarMapa(){const cols={};CAMPOS.forEach(k=>cols[k]=mapa[k]>=0?cab[mapa[k]]:'');const s=slugActual();
-  try{localStorage.setItem('mf_mapa_'+s,JSON.stringify(cols))}catch(e){}
-  CFGS[s]={...(CFGS[s]||{}),mapa:cols}; apiV({accion:'mapa',slug:s,cols}).catch(()=>{});}
-/* ---------- Estadísticas ---------- */
-function evento(ev,ag,des){try{const u='/.netlify/functions/evento?ev='+ev+'&ag='+encodeURIComponent(ag||'maletafacil')+'&des='+encodeURIComponent(des||'');navigator.sendBeacon?navigator.sendBeacon(u):fetch(u,{method:'POST',keepalive:true});}catch(e){}}
-$('wa').addEventListener('click',()=>evento('envio',slugActual(),ciudadDe($('destino').value)));
-let STATS_PER='mes';
-const diaMad=(n=0)=>{const d=new Date(Date.now()-n*864e5);return new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Madrid',year:'numeric',month:'2-digit',day:'2-digit'}).format(d);};
-const fCorta=f=>{const [a,m,d]=f.split('-');return (+d)+'/'+(+m);};
-async function pintarStats(cont,mes){
-  if(mes) STATS_PER='m:'+mes;
-  const per=STATS_PER; let q={accion:'stats'},etiq='';
-  if(per==='hoy'){q.desde=q.hasta=diaMad();etiq='hoy';}
-  else if(per==='ayer'){q.desde=q.hasta=diaMad(1);etiq='ayer';}
-  else if(per==='7'){q.desde=diaMad(6);q.hasta=diaMad();etiq='los últimos 7 días';}
-  else if(per==='30'){q.desde=diaMad(29);q.hasta=diaMad();etiq='los últimos 30 días';}
-  else if(per.startsWith('f:')){[q.desde,q.hasta]=per.slice(2).split('_');etiq='del '+fCorta(q.desde)+' al '+fCorta(q.hasta);}
-  else if(per.startsWith('m:')) q.mes=per.slice(2);
-  const box=document.createElement('div');box.id='statsBox';box.innerHTML='<div class="hsec">📊 Estadísticas <small></small></div><div class="sfechas" hidden></div><p class="hint">Cargando…</p>';
-  const viejo=document.getElementById('statsBox'); if(viejo) viejo.replaceWith(box); else cont.appendChild(box);
-  const r=await apiV(q).catch(()=>({ok:false})); if(!r.ok){box.querySelector('p').textContent='No se han podido cargar.';return;}
-  const M=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
-  const nomMes=m=>{const [a,b]=m.split('-');return M[+b-1]+' '+a;};
-  const esteMes=diaMad().slice(0,7);
-  const meses=[esteMes,...(r.meses||[]).filter(m=>m!==esteMes)];
-  const sel=document.createElement('select');sel.style.cssText='width:auto;min-height:36px;padding:4px 8px;font-size:13px';
-  const op=(v,t)=>{const o=document.createElement('option');o.value=v;o.textContent=t;sel.appendChild(o);};
-  op('hoy','Hoy');op('ayer','Ayer');op('7','Últimos 7 días');op('30','Últimos 30 días');
-  meses.forEach(m=>op('m:'+m,m===esteMes?'Este mes ('+M[+m.slice(5)-1]+')':nomMes(m)));
-  op('fechas','Elegir fechas…'); if(per.startsWith('f:')) op(per,'Del '+fCorta(q.desde)+' al '+fCorta(q.hasta));
-  sel.value=per==='mes'?'m:'+esteMes:per; if(per==='mes') STATS_PER='m:'+esteMes;
-  const fx=box.querySelector('.sfechas');
-  const abrirFechas=()=>{fx.hidden=false;fx.innerHTML='<label>Desde <input type="date" id="sfDe"></label><label>Hasta <input type="date" id="sfHa"></label><button type="button" class="wa2 mini2" id="sfOk">Ver</button>';
-    $('sfDe').value=q.desde||diaMad(6);$('sfHa').value=q.hasta||diaMad();$('sfDe').max=$('sfHa').max=diaMad();
-    $('sfOk').onclick=()=>{const d=$('sfDe').value,h=$('sfHa').value;if(!d||!h)return toast('Elige las dos fechas');STATS_PER='f:'+(d<=h?d+'_'+h:h+'_'+d);pintarStats(cont);};};
-  sel.onchange=()=>{if(sel.value==='fechas'){abrirFechas();return;}fx.hidden=true;STATS_PER=sel.value;pintarStats(cont);};
-  box.querySelector('small').appendChild(sel);
-  if(r.rango) r.mes=diaMad().slice(0,7);
-  // Todas las agencias aparecen siempre (aunque estén a cero), para tener a mano sus botones de informe
-  Object.keys(AG||{}).forEach(k=>{if(!r.agencias[k])r.agencias[k]={envios:0,aperturas:0,amazon:0,civitatis:0,destinos:{}};});
-  if(!r.agencias.maletafacil)r.agencias.maletafacil={envios:0,aperturas:0,amazon:0,civitatis:0,destinos:{}};
-  const ags=Object.entries(r.agencias);const p=box.querySelector('p');
-  const vacio=!ags.some(([,d])=>(d.envios||0)+(d.aperturas||0)+(d.amazon||0)+(d.civitatis||0));
-  if(vacio)p.textContent=r.rango?'Sin datos '+etiq+'. Los datos por días se guardan desde el 28/9/2026; para fechas anteriores mira el mes completo.':'Aún no hay datos este mes. Se irán sumando cuando se envíen y abran maletas.';
-  else p.remove();
-  const tot={envios:0,aperturas:0,amazon:0,civitatis:0};ags.forEach(([,d])=>Object.keys(tot).forEach(k=>tot[k]+=d[k]||0));
-  const pct=(a,b)=>b?Math.min(100,Math.round(a/b*100))+' %':'—';
-  box.insertAdjacentHTML('beforeend',`<div class="kpis"><div class="kpi"><b>${tot.envios}</b><span>maletas enviadas</span></div><div class="kpi"><b>${tot.aperturas}</b><span>maletas abiertas (${pct(tot.aperturas,tot.envios)})</span></div><div class="kpi"><b>${tot.amazon}</b><span>clics a Amazon</span></div><div class="kpi"><b>${tot.civitatis}</b><span>clics a Civitatis</span></div></div>`);
-  if(r.rango&&q.desde!==q.hasta){const dias=[];let d=new Date(q.desde+'T12:00:00Z');const fin=new Date(q.hasta+'T12:00:00Z');
-    while(d<=fin&&dias.length<62){dias.push(d.toISOString().slice(0,10));d=new Date(d.getTime()+864e5);}
-    const mx=Math.max(1,...dias.map(x=>(r.dias[x]||{}).envios||0),...dias.map(x=>(r.dias[x]||{}).aperturas||0));
-    const g=document.createElement('div');g.className='sevo';
-    g.innerHTML='<div class="sevot">Evolución día a día <span><i class="le"></i>enviadas <i class="la"></i>abiertas</span></div><div class="sbars"></div>';
-    const bars=g.querySelector('.sbars');const cada=Math.ceil(dias.length/8);
-    dias.forEach((x,i)=>{const v=r.dias[x]||{};const c=document.createElement('div');c.className='scol';c.title=fCorta(x)+': '+(v.envios||0)+' enviadas, '+(v.aperturas||0)+' abiertas';
-      c.innerHTML=`<div class="spar"><i class="be" style="height:${(v.envios||0)/mx*100}%"></i><i class="ba" style="height:${(v.aperturas||0)/mx*100}%"></i></div><small>${i%cada===0||i===dias.length-1?fCorta(x):''}</small>`;bars.appendChild(c);});
-    box.appendChild(g);}
-  const t=document.createElement('div');t.className='stab';
-  t.innerHTML='<div class="sfila scab"><span>Agencia</span><span>Enviadas</span><span>Abiertas</span><span>Amazon</span><span>Civit.</span></div>';
-  ags.sort((a,b)=>(b[1].envios+b[1].aperturas)-(a[1].envios+a[1].aperturas)).forEach(([k,d])=>{const f=document.createElement('div');f.className='sfila';
-    f.innerHTML='<b></b><span></span><span></span><span></span><span></span>';const c=f.children;c[0].textContent=nomAg(k);c[1].textContent=d.envios||0;c[2].textContent=`${d.aperturas||0} · ${pct(d.aperturas||0,d.envios||0)}`;c[3].textContent=d.amazon||0;c[4].textContent=d.civitatis||0;t.appendChild(f);
-    const top=Object.entries(d.destinos||{}).slice(0,4).map(([x,n])=>`${x} (${n})`).join(', ');
-    const q=document.createElement('div');q.className='sdes';q.innerHTML='<span></span><span class="sacc"></span>';q.firstChild.textContent=top?'Destinos: '+top:'';
-    if(k!=='maletafacil'&&!r.rango){const acc=q.lastChild;
-      const w=document.createElement('button');w.type='button';w.className='wa2 mini2';w.textContent='Enviar informe';
-      w.onclick=async()=>{const ri=await apiV({accion:'informe',slug:k,mes:r.mes}).catch(()=>({ok:false}));if(!ri.ok)return toast('No se ha podido preparar');
-        const tel=(ACCESOS[k]||{}).tel||'';window.open('https://wa.me/'+telWa(tel)+'?text='+encodeURIComponent(ri.texto),'_blank');};
-      const e=document.createElement('button');e.type='button';e.className='cp2 mini2';e.textContent='Mandar email ahora';
-      e.onclick=async()=>{if(!confirm('¿Mandar ya a '+nomAg(k)+' el informe de '+nomMes(r.mes)+' por email y aviso al móvil?'))return;
-        const ri=await apiV({accion:'informeAhora',slug:k,mes:r.mes}).catch(()=>({ok:false}));toast(!ri.ok?'No se ha podido enviar':ri.email?'✅ Informe enviado':'Sin email configurado'+(ri.avisos?' · aviso enviado':''));};
-      acc.append(w,e);}
-    t.appendChild(q);});
-  box.appendChild(t);
-  const n=document.createElement('p');n.className='hint';n.style.marginTop='8px';n.textContent='Cada agencia recibe sola su informe con la periodicidad, la forma y el contenido que elijas en su ficha (Agencias → Editar). Por defecto: mensual, por email y aviso, básico. Te llega copia de cada email.';box.appendChild(n);
-}
-/* ---------- Periodos para el administrador en la ficha de una agencia (Hoy → agencia) ---------- */
-let AG_PER='';
-function rangoPer(per){
-  if(per==='hoy')return{desde:diaMad(),hasta:diaMad(),etiq:'hoy'};
-  if(per==='ayer')return{desde:diaMad(1),hasta:diaMad(1),etiq:'ayer'};
-  if(per==='7')return{desde:diaMad(6),hasta:diaMad(),etiq:'los últimos 7 días'};
-  if(per==='30')return{desde:diaMad(29),hasta:diaMad(),etiq:'los últimos 30 días'};
-  if(per.startsWith('f:')){const [d,h]=per.slice(2).split('_');return{desde:d,hasta:h,etiq:'del '+fCorta(d)+' al '+fCorta(h)};}
-  return null;
-}
-function graficaEvo(desde,hasta,diasD){
-  if(desde===hasta)return null;const dias=[];let d=new Date(desde+'T12:00:00Z');const fin=new Date(hasta+'T12:00:00Z');
-  while(d<=fin&&dias.length<62){dias.push(d.toISOString().slice(0,10));d=new Date(d.getTime()+864e5);}
-  const mx=Math.max(1,...dias.map(x=>(diasD[x]||{}).envios||0),...dias.map(x=>(diasD[x]||{}).aperturas||0));
-  const g=document.createElement('div');g.className='sevo';
-  g.innerHTML='<div class="sevot">Evolución día a día <span><i class="le"></i>enviadas <i class="la"></i>abiertas</span></div><div class="sbars"></div>';
-  const bars=g.querySelector('.sbars');const cada=Math.ceil(dias.length/8);
-  dias.forEach((x,i)=>{const v=diasD[x]||{};const c=document.createElement('div');c.className='scol';c.title=fCorta(x)+': '+(v.envios||0)+' enviadas, '+(v.aperturas||0)+' abiertas';
-    c.innerHTML=`<div class="spar"><i class="be" style="height:${(v.envios||0)/mx*100}%"></i><i class="ba" style="height:${(v.aperturas||0)/mx*100}%"></i></div><small>${i%cada===0||i===dias.length-1?fCorta(x):''}</small>`;bars.appendChild(c);});
-  return g;
-}
-function selPeriodoAg(meses,slug,box){
-  const M=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
-  const esteMes=diaMad().slice(0,7);const lista=[esteMes,...meses.filter(m=>m!==esteMes)];
-  const sel=document.createElement('select');sel.style.cssText='width:auto;min-height:36px;padding:4px 8px;font-size:13px';
-  const op=(v,t)=>{const o=document.createElement('option');o.value=v;o.textContent=t;sel.appendChild(o);};
-  op('hoy','Hoy');op('ayer','Ayer');op('7','Últimos 7 días');op('30','Últimos 30 días');
-  lista.forEach(m=>op('m:'+m,(m===esteMes?'Este mes (':'')+M[+m.slice(5)-1]+(m===esteMes?')':' '+m.slice(0,4))));
-  op('fechas','Elegir fechas…');const rg=rangoPer(AG_PER||'');if(rg&&AG_PER.startsWith('f:'))op(AG_PER,'Del '+fCorta(rg.desde)+' al '+fCorta(rg.hasta));
-  sel.value=AG_PER||'m:'+esteMes;
-  const ir=per=>{AG_PER=per;if(per.startsWith('m:'))pintarMiMes(per.slice(2),slug,box);else pintarAgRango(slug,box);};
-  sel.onchange=()=>{if(sel.value!=='fechas'){ir(sel.value);return;}
-    let fx=box.querySelector('.sfechas');if(!fx){fx=document.createElement('div');fx.className='sfechas';box.querySelector('.hsec').after(fx);}
-    fx.innerHTML='<label>Desde <input type="date" class="fDe"></label><label>Hasta <input type="date" class="fHa"></label><button type="button" class="wa2 mini2">Ver</button>';
-    const de=fx.querySelector('.fDe'),ha=fx.querySelector('.fHa');de.value=diaMad(6);ha.value=diaMad();de.max=ha.max=diaMad();
-    fx.querySelector('button').onclick=()=>{if(!de.value||!ha.value)return toast('Elige las dos fechas');ir('f:'+(de.value<=ha.value?de.value+'_'+ha.value:ha.value+'_'+de.value));};};
-  return sel;
-}
-async function pintarAgRango(slug,box){
-  const rg=rangoPer(AG_PER);box.innerHTML='<p class="hint">Cargando estadísticas…</p>';
-  const r=await apiV({accion:'stats',desde:rg.desde,hasta:rg.hasta,slug}).catch(()=>({ok:false}));if(!r.ok){box.innerHTML='<p class="hint">No se han podido cargar.</p>';return;}
-  const a=r.agencias[slug]||{envios:0,aperturas:0,amazon:0,civitatis:0,sinTelefono:0,destinos:{}};
-  const pct=a.envios?Math.min(100,Math.round(a.aperturas/a.envios*100)):0;
-  box.innerHTML=`<div class="hsec" style="margin-top:0">📊 Estadísticas de ${String(nomAg(slug)).replace(/[<>&"]/g,'')} <small></small></div>
-   <div class="kpis"><div class="kpi"><b>${a.envios}</b><span>maletas enviadas</span></div>
-   <div class="kpi"><b>${pct} %</b><span>abiertas (${a.aperturas})</span></div>
-   <div class="kpi"><b>${a.civitatis}</b><span>clics a Civitatis</span></div>
-   <div class="kpi"><b>${a.sinTelefono}</b><span>sin teléfono</span>${a.sinTelefono?'<span class="dn">añádelo en tu Excel</span>':''}</div>
-   <div class="kpi"><b>${a.amazon||0}</b><span>clics a Amazon (tuyos)</span></div></div><div class="desch"></div>`;
-  box.querySelector('small').appendChild(selPeriodoAg(r.meses||[],slug,box));
-  const dc=box.querySelector('.desch');Object.entries(a.destinos||{}).forEach(([d,n])=>{const sp=document.createElement('span');sp.textContent=`${d} · ${n}`;dc.appendChild(sp);});
-  const g=graficaEvo(rg.desde,rg.hasta,r.dias||{});if(g)box.appendChild(g);
-  const n=document.createElement('p');n.className='hint';n.style.marginTop='8px';
-  n.textContent=(!a.envios&&!a.aperturas?'Sin datos '+rg.etiq+'. Los datos por días se guardan desde el 28/9/2026. ':'')+(slug==='maletafacil'?'':'El informe por WhatsApp va por meses: elige un mes en el desplegable para enviarlo.');box.appendChild(n);botonCero(slug,box);
-}
-function botonCero(slug,box){const b=document.createElement('button');b.type='button';b.className='reset0';b.textContent='Poner a cero las estadísticas de '+nomAg(slug);
-  b.onclick=async()=>{if(!confirm('¿Borrar TODAS las estadísticas de '+nomAg(slug)+'? (maletas enviadas, abiertas, clics y destinos de todos los meses)'))return;
-    if(!confirm('Esto no se puede deshacer. Sus viajes programados, logo y acceso NO se tocan. ¿Seguro?'))return;
-    const r=await apiV({accion:'borrarStats',slug}).catch(()=>({ok:false}));if(!r.ok)return toast('No se ha podido borrar');
-    toast('✅ Estadísticas a cero');AG_PER='';pintarMiMes(undefined,slug,box);};
-  box.appendChild(b);}
-/* ---------- Informe «Tu mes» para la agencia ---------- */
-async function pintarMiMes(mes,slugAdm,boxAdm){
-  const box=boxAdm||$('miMes'); if(!box) return;
-  const r=await apiV({accion:'informe',mes,slug:slugAdm}).catch(()=>({ok:false})); if(!r.ok){box.innerHTML='<p class="hint">No se ha podido cargar.</p>';return;}
-  const M=['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
-  const nm=m=>{const [a,b]=m.split('-');return M[+b-1]+' '+a;};
-  const hayAnt=r.ant.envios||r.ant.aperturas||r.ant.civitatis;const fl=(a,b,suf='')=>{if(!hayAnt)return '';const d=a-b;return d>0?`<span class="up">▲ ${d}${suf}</span>`:d<0?`<span class="dn">▼ ${-d}${suf}</span>`:'';};
-  const meses=r.meses.includes(r.mes)?r.meses:[r.mes,...r.meses];
-  const gratis=!slugAdm&&r.plan==='gratis';
-  if(gratis&&r.pocos){box.innerHTML=`<div class="hsec" style="margin-top:0">📊 Tu mes <small></small></div><p class="fijo">🧳 Programa los viajes de tus clientes (uno a uno o subiendo tu Excel): a cada uno le llegará su maleta por WhatsApp antes de salir. En cuanto envíes la primera te contaremos aquí cómo les va a tus clientes.</p>`;}
-  else if(gratis){box.innerHTML=`<div class="hsec" style="margin-top:0">📊 Tu mes <small></small></div>
-   <div class="kpis"><div class="kpi"><b>${r.act.envios}</b><span>maletas enviadas</span>${fl(r.act.envios,r.ant.envios)}</div>
-   <div class="kpi"><b>${r.act.aperturas}</b><span>clientes la abrieron (${r.pctAct} %)</span></div></div>
-   <div class="desch"></div>`;}
-  else box.innerHTML=`<div class="hsec" style="margin-top:0">📊 ${slugAdm?'Estadísticas de '+nomAg(slugAdm):'Tu mes'} <small></small></div>
-   <div class="kpis"><div class="kpi"><b>${r.act.envios}</b><span>maletas enviadas</span>${fl(r.act.envios,r.ant.envios)}</div>
-   <div class="kpi"><b>${r.pctAct} %</b><span>abiertas (${r.act.aperturas})</span>${r.ant.envios?fl(r.pctAct,r.pctAnt,' puntos'):''}</div>
-   <div class="kpi"><b>${r.act.civitatis}</b><span>clics a Civitatis</span>${fl(r.act.civitatis,r.ant.civitatis)}</div>
-   <div class="kpi"><b>${r.act.sinTelefono}</b><span>sin teléfono</span>${r.act.sinTelefono?'<span class="dn">añádelo en tu Excel</span>':''}</div>
-   ${slugAdm?`<div class="kpi"><b>${r.act.amazon||0}</b><span>clics a Amazon (tuyos)</span>${fl(r.act.amazon||0,r.ant.amazon||0)}</div>`:''}</div>
-   <div class="desch"></div>`;
-  if(slugAdm){AG_PER='m:'+r.mes;box.querySelector('small').appendChild(selPeriodoAg(meses,slugAdm,box));}
-  else{const sel=document.createElement('select');sel.style.cssText='width:auto;min-height:36px;padding:4px 8px;font-size:13px';
-  meses.forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=nm(m);sel.appendChild(o);});sel.value=r.mes;sel.onchange=()=>pintarMiMes(sel.value,slugAdm,boxAdm);
-  box.querySelector('small').appendChild(sel);}
-  const dc=box.querySelector('.desch');if(dc)r.top.forEach(([d,n])=>{const sp=document.createElement('span');sp.textContent=`${d} · ${n}`;dc.appendChild(sp);});
-  if(slugAdm&&slugAdm!=='maletafacil'&&r.texto){const w=document.createElement('button');w.type='button';w.className='btn wa';w.style.marginTop='12px';w.textContent='Enviar informe '+(r.contenido||'')+' por WhatsApp';
-    w.onclick=()=>window.open('https://wa.me/'+telWa((ACCESOS[slugAdm]||{}).tel||'')+'?text='+encodeURIComponent(r.texto),'_blank');box.appendChild(w);
-    const e=document.createElement('button');e.type='button';e.className='btn recor';e.style.marginTop='10px';e.textContent='Mandar informe '+(r.contenido||'')+' por email';
-    e.onclick=async()=>{if(!confirm('¿Mandar ya a '+nomAg(slugAdm)+' el informe de '+nm(r.mes)+' por email (y aviso al móvil)? Te llega copia.'))return;
-      e.classList.add('off');const ri=await apiV({accion:'informeAhora',slug:slugAdm,mes:r.mes}).catch(()=>({ok:false}));e.classList.remove('off');
-      toast(!ri.ok?'No se ha podido enviar':ri.email?'✅ Informe enviado por email':'⚠️ Esta agencia no tiene email puesto (Agencias → Editar)'+(ri.avisos?' · aviso al móvil enviado':''));};
-    box.appendChild(e);}
-  if(slugAdm) botonCero(slugAdm,box);
-}
-/* ---------- PESTAÑAS ---------- */
-function tab(n){['tHoy','tUno','tVarios','tAg'].forEach((t,i)=>$(t).classList.toggle('on',i===n));
-  $('cardHoy').classList.toggle('hide',n!==0);
-  $('pUno').classList.toggle('hide',n!==1);$('pVarios').classList.toggle('hide',n!==2);
-  $('cardEnlaces').classList.toggle('hide',n!==1&&n!==2);$('cardAg').classList.toggle('hide',n!==3);
-  if(n===0) cargarHoy();
-  if(n===2) mostrarUltExcel();
-  if(n===3&&ROL==='agencia'){abrirForm(MISLUG);pintarMiMes();}}
-// Fecha del último Excel subido (pestaña Varios)
-const fechaHora=ms=>{const d=new Date(ms);return d.toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'short'})+' a las '+d.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});};
-async function mostrarUltExcel(){const s=slugActual(),el=$('ultExcel');if(!s){el.classList.add('hide');return;}
-  const r=await apiV({accion:'hoy',slug:s}).catch(()=>({}));const a=r.agencias&&r.agencias[s];
-  if(a&&a.ultExcel){el.textContent='📄 Último Excel subido: '+fechaHora(a.ultExcel)+(a.ultExcelN?` · ${a.ultExcelN} viajes`:'');el.classList.remove('hide');}
-  else{el.textContent='📄 Aún no se ha subido ningún Excel.';el.classList.remove('hide');}}
-$('agencia').addEventListener('change',()=>{if(!$('pVarios').classList.contains('hide'))mostrarUltExcel();});
-$('tHoy').onclick=()=>tab(0); $('tUno').onclick=()=>tab(1); $('tVarios').onclick=()=>tab(2); $('tAg').onclick=()=>tab(3);
-
-/* ---------- LECTOR DE EXCEL (.xlsx) SIN LIBRERÍAS ---------- */
-async function inflar(bytes){
-  const ds=new DecompressionStream('deflate-raw');
-  return new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(ds)).arrayBuffer());
-}
-async function leerZip(buf){
-  const dv=new DataView(buf), u8=new Uint8Array(buf); let e=-1;
-  for(let i=buf.byteLength-22;i>=Math.max(0,buf.byteLength-66000);i--){if(dv.getUint32(i,true)===0x06054b50){e=i;break;}}
-  if(e<0) throw new Error('zip');
-  const n=dv.getUint16(e+10,true); let off=dv.getUint32(e+16,true); const files={};
-  const dec=new TextDecoder();
-  for(let k=0;k<n;k++){
-    const met=dv.getUint16(off+10,true), csz=dv.getUint32(off+20,true), nl=dv.getUint16(off+28,true), xl=dv.getUint16(off+30,true), cl=dv.getUint16(off+32,true), lho=dv.getUint32(off+42,true);
-    const name=dec.decode(u8.subarray(off+46,off+46+nl));
-    files[name]={met,csz,lho}; off+=46+nl+xl+cl;
-  }
-  return async name=>{const f=files[name]; if(!f) return null;
-    const ln=dv.getUint16(f.lho+26,true), lx=dv.getUint16(f.lho+28,true); const st=f.lho+30+ln+lx;
-    const raw=u8.subarray(st,st+f.csz); const out=f.met===0?raw:await inflar(raw); return dec.decode(out);};
-}
-const colIdx=r=>{const m=r.match(/^[A-Z]+/)[0];let n=0;for(const c of m)n=n*26+(c.charCodeAt(0)-64);return n-1;};
-async function leerXlsx(buf){
-  const get=await leerZip(buf); const P=new DOMParser();
-  const ss=[]; const sx=await get('xl/sharedStrings.xml');
-  if(sx){P.parseFromString(sx,'application/xml').querySelectorAll('si').forEach(si=>ss.push([...si.getElementsByTagName('t')].map(t=>t.textContent).join('')));}
-  let sheet=await get('xl/worksheets/sheet1.xml');
-  if(!sheet) throw new Error('sheet');
-  const doc=P.parseFromString(sheet,'application/xml'); const rows=[];
-  doc.querySelectorAll('sheetData row').forEach(r=>{const arr=[];r.querySelectorAll('c').forEach(c=>{const t=c.getAttribute('t'),v=c.getElementsByTagName('v')[0];let val='';
-    if(t==='s'&&v)val=ss[+v.textContent]||'';else if(t==='inlineStr'){val=[...c.getElementsByTagName('t')].map(x=>x.textContent).join('');}else if(v)val=v.textContent;
-    arr[colIdx(c.getAttribute('r'))]=val;});rows.push(Array.from(arr,x=>x==null?'':x));});
-  return rows;
-}
-function leerCsv(txt){
-  const primera=txt.split(/\r?\n/)[0]; const sep=(primera.split(';').length>primera.split(',').length)?';':',';
-  const rows=[];let row=[],cur='',q=false;
-  for(let i=0;i<txt.length;i++){const ch=txt[i];
-    if(q){if(ch==='"'){if(txt[i+1]==='"'){cur+='"';i++;}else q=false;}else cur+=ch;}
-    else if(ch==='"')q=true; else if(ch===sep){row.push(cur);cur='';}
-    else if(ch==='\n'){row.push(cur.replace(/\r$/,''));rows.push(row);row=[];cur='';} else cur+=ch;}
-  if(cur||row.length){row.push(cur);rows.push(row);}
-  return rows;
-}
-// Fechas: número de Excel, dd/mm/aaaa, dd-mm-aa, aaaa-mm-dd
 function aFecha(v){
   v=String(v||'').trim(); if(!v) return '';
-  if(/^\d{4,5}(\.\d+)?$/.test(v)){const n=parseFloat(v); if(n>20000&&n<80000){const d=new Date(Date.UTC(1899,11,30)+Math.floor(n)*86400000);return `${d.getUTCFullYear()}-${pad(d.getUTCMonth()+1)}-${pad(d.getUTCDate())}`;}}
-  let m=v.match(/^(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})/); if(m) return `${m[1]}-${pad(m[2])}-${pad(m[3])}`;
-  m=v.match(/^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{2,4})/); if(m){let y=+m[3]; if(y<100)y+=2000; return `${y}-${pad(m[2])}-${pad(m[1])}`;}
+  if(/^\d{4,5}(\.\d+)?$/.test(v)){
+    const d=new Date(Date.UTC(1899,11,30)+Math.floor(parseFloat(v))*86400000);
+    return `${d.getUTCFullYear()}-${pad(d.getUTCMonth()+1)}-${pad(d.getUTCDate())}`;
+  }
+  let m=v.match(/^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{2,4})/);
+  if(m){let y=+m[3]; if(y<100)y+=2000; return `${y}-${pad(m[2])}-${pad(m[1])}`;}
   return '';
 }
-let cab=[], filas=[], mapa={};
-const ADIV={nombre:/nombre|cliente|pasajero|titular|\bpax\b|viajero/i, destino:/destino|ciudad|lugar|pa[ií]s/i, vuelta:/regreso|vuelta|fin\b|fecha fin|hasta|llegada/i, ida:/salida|ida\b|inicio|desde|fecha ini|fecha viaje/i, tel:/tel[eé]f|m[oó]vil|movil|whats|celular/i, email:/e-?mail|correo/i};
-$('fichero').addEventListener('change',async e=>{
-  const f=e.target.files[0]; if(!f) return; $('errX').style.display='none';
-  try{
-    let rows;
-    if(/\.csv$/i.test(f.name)) rows=leerCsv(await f.text());
-    else if(/\.xlsx$/i.test(f.name)) rows=await leerXlsx(await f.arrayBuffer());
-    else throw new Error('tipo');
-    rows=rows.filter(r=>r.some(c=>String(c).trim()!==''));
-    if(rows.length<2) throw new Error('vacio');
-    cab=rows[0].map(c=>String(c).trim()); filas=rows.slice(1);
-    const usados=new Set();
-    const reconocido=aplicarMapaGuardado();
-    if(!reconocido) ['vuelta','ida','nombre','destino','tel','email'].forEach(k=>{const i=cab.findIndex((h,j)=>!usados.has(j)&&ADIV[k].test(h)); mapa[k]=i; if(i>=0)usados.add(i);});
-    $('mapaOk').classList.toggle('hide',!reconocido); $('mapaCols').classList.toggle('hide',reconocido);
-    document.querySelectorAll('.map select').forEach(sel=>{const k=sel.dataset.k;
-      sel.innerHTML='<option value="-1">— No está —</option>'+cab.map((h,i)=>`<option value="${i}">${h||('Columna '+(i+1))}</option>`).join('');
-      sel.value=String(mapa[k]); sel.onchange=()=>{mapa[k]=+sel.value;guardarMapa();pintarLista();};});
-    $('mapWrap').classList.remove('hide'); pintarLista();
-  }catch(err){
-    $('errX').textContent=err.message==='tipo'?'Sube un archivo .xlsx o .csv. Si tienes un .xls antiguo, ábrelo y guárdalo como .xlsx.':'No he podido leer el archivo. Prueba a guardarlo de nuevo como .xlsx o .csv.';
-    $('errX').style.display='block';
-  }
+
+$('fichero').addEventListener('change', async e => {
+  const f = e.target.files[0]; if(!f) return;
+  const txt = await f.text();
+  const rows = txt.split('\n').map(r=>r.split(/;|,/));
+  cab = rows[0].map(c=>c.trim().replace(/^"|"$/g,''));
+  filas = rows.slice(1).filter(r=>r.length>1);
+
+  CAMPOS.forEach(k=>{ mapa[k] = cab.findIndex(h=>ADIV[k].test(h)); });
+
+  document.querySelectorAll('.map select').forEach(sel=>{
+    const k=sel.dataset.k;
+    sel.innerHTML='<option value="-1">— No está —</option>'+cab.map((h,i)=>`<option value="${i}">${h}</option>`).join('');
+    sel.value=String(mapa[k]);
+    sel.onchange=()=>{ mapa[k]=+sel.value; pintarLista(); };
+  });
+
+  $('mapWrap').classList.remove('hide');
+  pintarLista();
 });
-$('rango').addEventListener('change',()=>pintarLista());
-// Número sin prefijo (9 cifras): se pone el del país de la agencia (Portugal +351, si no +34)
-function telWa(t,slug){let d=String(t||'').replace(/\D/g,''); if(!d) return ''; if(d.startsWith('00'))d=d.slice(2); if(d.length===9){const tz=((CFGS[slug||slugActual()]||{}).tz)||'';d=(tz==='Europe/Lisbon'?'351':'34')+d;} return d;}
-function claveEnviado(r){return 'mf_env_'+[r.nombre,r.destino,r.ida].join('|');}
+
 let visibles=[];
-let LISTA_TODA=false;
 function pintarLista(){
-  if(!filas.length) return;
-  const val=(r,k)=>mapa[k]>=0?String(r[mapa[k]]||'').trim():'';
-  const lim=new Date(); lim.setDate(lim.getDate()+(+$('rango').value)); const LIM=ymd(lim);
-  visibles=filas.map(r=>({nombre:val(r,'nombre'),destino:val(r,'destino'),ida:aFecha(val(r,'ida')),vuelta:aFecha(val(r,'vuelta')),tel:val(r,'tel'),email:val(r,'email')}))
-    .filter(r=>r.destino&&r.ida&&r.ida>=HOY&&r.ida<=LIM).sort((a,b)=>a.ida.localeCompare(b.ida));
-  // Una fila por pasajero → un solo WhatsApp por reserva (mismo teléfono, destino y fecha de ida)
-  const grupos=new Map(),solos=[];
-  visibles.forEach(r=>{const t=telWa(r.tel);if(!t){solos.push({...r,pax:[r.nombre]});return;}
-    const k=t+'|'+normT(r.destino)+'|'+r.ida;const g=grupos.get(k);
-    if(g){if(r.nombre&&!g.pax.includes(r.nombre))g.pax.push(r.nombre);if(!g.vuelta&&r.vuelta)g.vuelta=r.vuelta;if(!g.email&&r.email)g.email=r.email;}
-    else grupos.set(k,{...r,pax:[r.nombre].filter(Boolean)});});
-  const nomPila=n=>capital(String(n||'').trim().split(/\s+/)[0].toLowerCase());
-  visibles=[...grupos.values(),...solos].sort((a,b)=>a.ida.localeCompare(b.ida)).map(r=>{const p=(r.pax||[]).filter(Boolean).map(nomPila);
-    const cli=!p.length?'':p.length===1?p[0]:p.length===2?p[0]+' y '+p[1]:p.length===3?p[0]+', '+p[1]+' y '+p[2]:p[0]+' y compañía';
-    return {...r,cli,nombre:(r.pax||[]).filter(Boolean).join(', ')||r.nombre,npax:(r.pax||[]).filter(Boolean).length};});
-  const npas=visibles.reduce((n,r)=>n+Math.max(1,r.npax||1),0);
-  $('cuenta').textContent=visibles.length?`${visibles.length} viaje${visibles.length>1?'s':''}${npas>visibles.length?` (${npas} pasajeros)`:''}`:'Ningún viaje en esas fechas';
-  $('lista').innerHTML='';
-  const MAXV=20;
-  visibles.forEach((r,i)=>{
-    const vu=r.vuelta&&r.vuelta>=r.ida?r.vuelta:'';
-    const {url,msg,ciudad}=crear({cli:r.cli,des:r.destino,ida:r.ida,vu,tipo:''});
-    r.url=url; r.msg=msg;
-    const tel=telWa(r.tel); let env=false; try{env=localStorage.getItem(claveEnviado(r))==='1'}catch(e){}
-    const d=document.createElement('div'); d.className='item'+(env?' sent':'');
-    d.innerHTML=`<h3></h3><p></p><div class="ib"><a class="btn wa" target="_blank" rel="noopener">WhatsApp</a>${r.email?'<a class="btn mail">Email</a>':''}<button type="button" class="copy">Copiar</button></div><label class="chk"><input type="checkbox"> Enviado</label>`;
-    d.querySelector('h3').textContent=(r.npax>1?r.cli+' ('+r.npax+' pasajeros)':(r.nombre||'Sin nombre'))+' · '+ciudad;
-    d.querySelector('p').textContent=vu?`Del ${fechaBonita(r.ida)} al ${fechaBonita(vu)}`:`Sale el ${fechaBonita(r.ida)}`;
-    d.querySelector('.wa').href=`https://wa.me/${tel}?text=${encodeURIComponent(msg)}`;
-    if(r.email) d.querySelector('.mail').href=`mailto:${encodeURIComponent(r.email)}?subject=${encodeURIComponent('Tu maleta para '+ciudad)}&body=${encodeURIComponent(msg.replace(/\*/g,''))}`;
+  const val=(r,k)=>mapa[k]>=0?String(r[mapa[k]]||'').replace(/^"|"$/g,'').trim():'';
+  visibles = filas.map(r=>({
+    nombre: val(r,'nombre'),
+    destino: traducirAeropuertos(val(r,'destino')),
+    ida: aFecha(val(r,'ida')),
+    vuelta: aFecha(val(r,'vuelta')),
+    tel: limpiarTelefono(val(r,'tel'))
+  })).filter(r=>r.destino && r.ida);
+
+  $('cuenta').textContent = `${visibles.length} reservas encontradas`;
+  $('lista').innerHTML = '';
+
+  visibles.forEach(r=>{
+    const url = `https://maletafacil.com/?destino=${encodeURIComponent(r.destino)}&ida=${r.ida}&vuelta=${r.vuelta}`;
+    const msg = `¡Hola ${r.nombre}! 🧳 Aquí tienes tu maleta preparada para tu viaje a *${r.destino}*:\n${url}\n\n¡Buen viaje!`;
+
+    const d = document.createElement('div'); d.className='item';
+    d.innerHTML = `<h3>${r.nombre} · ${r.destino}</h3><p>Salida: ${r.ida} ${r.vuelta?'| Regreso: '+r.vuelta:''}</p>
+    <div class="ib"><a class="btn wa" href="https://wa.me/${r.tel}?text=${encodeURIComponent(msg)}" target="_blank">WhatsApp</a><button type="button" class="copy">Copiar</button></div>`;
     d.querySelector('.copy').onclick=()=>copiar(msg);
-    const cb=d.querySelector('input'); cb.checked=env;
-    const marcar=()=>{cb.checked=true;d.classList.add('sent');try{localStorage.setItem(claveEnviado(r),'1')}catch(e){}};
-    d.querySelector('.wa').addEventListener('click',()=>{marcar();evento('envio',slugActual(),capital(r.destino));}); if(r.email) d.querySelector('.mail').addEventListener('click',marcar);
-    cb.onchange=()=>{d.classList.toggle('sent',cb.checked);try{cb.checked?localStorage.setItem(claveEnviado(r),'1'):localStorage.removeItem(claveEnviado(r))}catch(e){}};
-    if(i>=MAXV&&!LISTA_TODA)d.classList.add('hide');
     $('lista').appendChild(d);
   });
-  if(visibles.length>MAXV&&!LISTA_TODA){const m=document.createElement('button');m.type='button';m.className='vermas';m.textContent=`Ver los ${visibles.length-MAXV} viajes restantes`;
-    m.onclick=()=>{LISTA_TODA=true;$('lista').querySelectorAll('.item.hide').forEach(x=>x.classList.remove('hide'));m.remove();};$('lista').appendChild(m);}
-  avisosVarios();
 }
-$('descargar').onclick=()=>{
-  if(!visibles.length) return;
-  const esc=v=>'"'+String(v||'').replace(/"/g,'""')+'"';
-  const lineas=[['Nombre','Destino','Ida','Vuelta','Teléfono','Email','Enlace'].map(esc).join(';')].concat(visibles.map(r=>[r.nombre,r.destino,r.ida,r.vuelta,r.tel,r.email,r.url].map(esc).join(';')));
-  const blob=new Blob(['﻿'+lineas.join('\n')],{type:'text/csv;charset=utf-8'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='maletas-'+HOY+'.csv'; a.click();
-};
-
-/* ---------- AGENCIAS ---------- */
-const slugify=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0,40);
-let editando=null, logoData='', tamLogo='m';
-function pintarAgencias(){
-  const cont=$('agItems'); cont.innerHTML='';
-  const lista=Object.entries(AG);
-  if(!lista.length){cont.innerHTML='<p class="hint">Todavía no hay agencias.</p>';return;}
-  lista.forEach(([slug,d])=>{
-    const el=document.createElement('div'); el.className='ag';
-    el.innerHTML='<div class="lg"></div><div class="tx"><b></b><small></small><div class="bd"></div></div><div class="ac"><button type="button" class="ed">Editar</button><button type="button" class="del">Quitar</button></div>';
-    const src=logoUrl(d.logo); if(src){const im=document.createElement('img');im.src=src;im.alt='';el.querySelector('.lg').appendChild(im);}
-    el.querySelector('b').textContent=d.nombre||slug;
-    el.querySelector('small').textContent='maletafacil.com/?agencia='+slug;
-    const bd=el.querySelector('.bd'); [[d.modo==='completo','Marca blanca'],[d.tag,'Amazon'],[d.seguro,'Seguro'],[d.civitatis,'Civitatis']].forEach(([v,t])=>{if(v){const s=document.createElement('span');s.textContent=t;bd.appendChild(s);}});
-    const ac=ACCESOS[slug],sp=document.createElement('span');sp.className=ac&&!ac.bloqueada?'acc':'noacc';sp.textContent=!ac?'Sin acceso':ac.bloqueada?'Acceso desactivado':'Acceso: '+ac.email;bd.appendChild(sp);
-    el.querySelector('.ed').onclick=()=>abrirForm(slug);
-    el.querySelector('.del').onclick=async()=>{ if(!confirm('¿Quitar '+(d.nombre||slug)+'? Sus enlaces dejarán de mostrar su logo.'))return;
-      const r=await api({accion:'borrar',slug}); if(r.ok){toast('Agencia quitada');cargarAgencias();} else alert('No se ha podido quitar.');};
-    cont.appendChild(el);
-  });
-}
-function abrirForm(slug){
-  editando=slug||null; logoData=''; const d=slug?AG[slug]||{}:{};
-  $('agTit').textContent=slug?'Editar agencia':'Nueva agencia';
-  $('aNombre').value=d.nombre||''; $('aModo').value=d.modo==='completo'?'completo':''; $('aTag').value=d.tag||''; $('aSeguro').value=d.seguro||''; $('aCiv').value=d.civitatis||''; $('aLogo').value=''; tamLogo=['s','l'].includes(d.tam)?d.tam:'m'; $('aTamF').style.display=d.modo==='completo'?'none':'';
-  const src=logoUrl(d.logo); $('aPrev').innerHTML=src?'<img alt="">':'<span class="hint">Sin logo</span>'; if(src)$('aPrev').querySelector('img').src=src;
-  const cf={hora:'09:30',dias:7,tz:'Europe/Madrid',email:'',...(CFGS[slug]||{})};
-  $('aEmail').value=cf.email||(ROL==='agencia'?MIEMAIL:'');
-  const IC={mensual:'cada mes',quincenal:'cada quince días',semanal:'cada lunes',trimestral:'cada trimestre'},ICN={ambos:'por email y en tu móvil',email:'por email',movil:'en tu móvil'};
-  $('aFijo').textContent=`🧳 Tus clientes reciben la maleta ${cf.dias} días antes del viaje. Tú recibes el aviso cada día a las ${cf.hora}${cf.email?' en tu móvil y en '+cf.email:' en tu móvil'}.`+((cf.informeCada||'mensual')!=='nunca'?` Tu informe te llega ${IC[cf.informeCada||'mensual']} ${ICN[cf.informeCanal||'ambos']}.`:''); $('aHora').value=cf.hora; $('aDias').value=cf.dias; $('aTz').value=cf.tz;
-  $('aInfCada').value=cf.informeCada||'mensual'; $('aInfCanal').value=cf.informeCanal||'ambos'; $('aInfCont').value=cf.informeContenido||'basico';
-  if(slug&&!CFGS[slug]) apiV({accion:'hoy',slug}).then(r=>{const c=r.agencias&&r.agencias[slug]&&r.agencias[slug].cfg;if(c&&editando===slug){CFGS[slug]=c;$('aEmail').value=c.email||'';$('aHora').value=c.hora;$('aDias').value=c.dias;$('aTz').value=c.tz;$('aInfCada').value=c.informeCada||'mensual';$('aInfCanal').value=c.informeCanal||'ambos';$('aInfCont').value=c.informeContenido||'basico';}}).catch(()=>{});
-  pintarAcceso(slug);
-  if(ROL==='agencia') setTimeout(()=>{$('miCab').innerHTML=$('aCab').innerHTML;},400);
-  $('agTit').textContent=ROL==='agencia'?'Mi agencia':$('agTit').textContent; $('aCancelar').style.display=ROL==='agencia'?'none':'';
-  $('errA').style.display='none'; actSlug();
-  $('agLista').classList.add('hide'); $('agForm').classList.remove('hide'); window.scrollTo(0,0);
-}
-
-// Tamaño del logo en la cabecera (misma regla que la web: los logos redondos/cuadrados van más altos)
-function pintarCab(){
-  document.querySelectorAll('#aTam button').forEach(b=>b.classList.toggle('on',b.dataset.v===tamLogo));
-  const im=$('aPrev').querySelector('img'),h=$('aCabLogo');
-  if(!im){h.innerHTML='<span></span>';h.firstChild.textContent=$('aNombre').value.trim()||'Su logo';return;}
-  h.innerHTML='<img alt="">';const i=h.querySelector('img');
-  i.onload=()=>{const cu=i.naturalWidth/i.naturalHeight<1.6,alto=cu?{s:44,m:58,l:72}[tamLogo]:{s:30,m:38,l:48}[tamLogo],an=cu?alto:{s:120,m:145,l:170}[tamLogo];
-    i.style.height=Math.round(alto*.85)+'px';i.style.maxWidth=Math.round(an*.85)+'px';};
-  i.src=im.src;
-}
-document.querySelectorAll('#aTam button').forEach(b=>b.onclick=()=>{tamLogo=b.dataset.v;pintarCab();});
-$('aModo').addEventListener('change',()=>{$('aTamF').style.display=$('aModo').value==='completo'?'none':'';});
-new MutationObserver(pintarCab).observe($('aPrev'),{childList:true});
-function actSlug(){const sl=editando||slugify($('aNombre').value); $('aSlug').textContent=sl?'Su enlace: maletafacil.com/?agencia='+sl:'';}
-$('aNombre').addEventListener('input',actSlug);
-$('agNueva').onclick=()=>abrirForm(null);
-$('aCancelar').onclick=()=>{$('agForm').classList.add('hide');$('agLista').classList.remove('hide');};
-// Reduce el logo en el propio móvil antes de subirlo
-$('aLogo').addEventListener('change',e=>{
-  const f=e.target.files[0]; if(!f) return;
-  const img=new Image(); img.onload=()=>{ URL.revokeObjectURL(img.src); abrirEditor(img); }; img.src=URL.createObjectURL(f);
-});
-/* ---------- Editor del logo: recorte automático de bordes, mover, acercar/alejar, formato y fondo ---------- */
-const ED={src:null,forma:'h',fondo:'blanco',s:1,x:0,y:0,min:.2,max:6};
-function recortarBordes(img){
-  // Quita márgenes vacíos (blancos, de color liso o transparentes) alrededor del logo
-  const m=1200,k=Math.min(1,m/Math.max(img.width,img.height)),w=Math.round(img.width*k),h=Math.round(img.height*k);
-  const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');x.drawImage(img,0,0,w,h);
-  const d=x.getImageData(0,0,w,h).data, px=(i,j)=>(j*w+i)*4;
-  const esq=[px(0,0),px(w-1,0),px(0,h-1),px(w-1,h-1)].map(p=>[d[p],d[p+1],d[p+2],d[p+3]]);
-  const bg=esq[0], vacio=p=>d[p+3]<16||(Math.abs(d[p]-bg[0])+Math.abs(d[p+1]-bg[1])+Math.abs(d[p+2]-bg[2])<60&&bg[3]>200);
-  let x0=w,y0=h,x1=-1,y1=-1;
-  for(let j=0;j<h;j+=2)for(let i=0;i<w;i+=2){if(!vacio(px(i,j))){if(i<x0)x0=i;if(i>x1)x1=i;if(j<y0)y0=j;if(j>y1)y1=j;}}
-  if(x1<0) return c;
-  const pad=Math.round(Math.max(x1-x0,y1-y0)*.03);x0=Math.max(0,x0-pad);y0=Math.max(0,y0-pad);x1=Math.min(w-1,x1+pad);y1=Math.min(h-1,y1+pad);
-  const o=document.createElement('canvas');o.width=x1-x0+1;o.height=y1-y0+1;o.getContext('2d').drawImage(c,x0,y0,o.width,o.height,0,0,o.width,o.height);
-  return o;
-}
-function quitarFondo(src){
-  // "Sin fondo": vuelve transparente el color de fondo que toca los bordes (relleno desde fuera, respeta el interior del logo)
-  const w=src.width,h=src.height,c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');x.drawImage(src,0,0);
-  const im=x.getImageData(0,0,w,h),d=im.data,bg=[d[0],d[1],d[2]],vis=new Uint8Array(w*h),pila=[];
-  const igual=i=>{const p=i*4;return d[p+3]<16||Math.abs(d[p]-bg[0])+Math.abs(d[p+1]-bg[1])+Math.abs(d[p+2]-bg[2])<70;};
-  for(let i=0;i<w;i++){pila.push(i,(h-1)*w+i);}for(let j=0;j<h;j++){pila.push(j*w,j*w+w-1);}
-  while(pila.length){const i=pila.pop();if(vis[i])continue;vis[i]=1;if(!igual(i))continue;d[i*4+3]=0;
-    const cx=i%w,cy=(i-cx)/w;if(cx>0)pila.push(i-1);if(cx<w-1)pila.push(i+1);if(cy>0)pila.push(i-w);if(cy<h-1)pila.push(i+w);}
-  x.putImageData(im,0,0);return c;
-}
-function imgActual(){if(ED.fondo!=='transp')return ED.src;if(!ED.sinFondo)ED.sinFondo=quitarFondo(ED.src);return ED.sinFondo;}
-function abrirEditor(img){
-  ED.src=recortarBordes(img); ED.sinFondo=null; ED.fondo=/png|webp|gif/i.test($('aLogo').files[0]?.type||'')?'transp':'blanco';
-  ED.forma=ED.src.width/ED.src.height>1.4?'h':'c';
-  $('edLogo').classList.remove('hide'); document.body.style.overflow='hidden';
-  marcarBotones(); ajustar(); pintar();
-}
-function marco(){const z=$('edZona'),W=z.clientWidth,H=Math.round(W*.55);z.style.height=H+'px';
-  let FW,FH;if(ED.forma==='h'){FW=Math.round(W*.9);FH=Math.round(FW/3);}else{FH=Math.round(H*.88);FW=FH;}
-  return{W,H,FW,FH,fx:(W-FW)/2,fy:(H-FH)/2};}
-function ajustar(){ // encaja el logo dentro del recuadro, con un pequeño margen
-  const {FW,FH}=marco(); ED.s=Math.min(FW*.92/ED.src.width,FH*.86/ED.src.height); ED.min=ED.s*.3; ED.max=ED.s*6; ED.x=0; ED.y=0;
-  $('edZoom').value=Math.round(100*Math.log(ED.s/ED.min)/Math.log(ED.max/ED.min)); }
-function pintar(){
-  const {W,H,FW,FH,fx,fy}=marco(),cv=$('edCanvas'),r=window.devicePixelRatio||2;cv.width=W*r;cv.height=H*r;cv.style.height=H+'px';
-  const x=cv.getContext('2d');x.scale(r,r);x.clearRect(0,0,W,H);
-  const w=ED.src.width*ED.s,h=ED.src.height*ED.s,ix=W/2-w/2+ED.x,iy=H/2-h/2+ED.y;
-  const im=imgActual();x.globalAlpha=.3;x.drawImage(im,ix,iy,w,h);x.globalAlpha=1;   // lo que queda fuera del recuadro, apagado
-  x.save();x.beginPath();x.rect(fx,fy,FW,FH);x.clip();
-  if(ED.fondo==='blanco'){x.fillStyle='#fff';}else{x.fillStyle='rgba(255,255,255,0)';}
-  x.clearRect(fx,fy,FW,FH);if(ED.fondo==='blanco')x.fillRect(fx,fy,FW,FH);
-  x.drawImage(im,ix,iy,w,h);x.restore();
-  const m=$('edMarco');m.style.inset='auto';m.style.left=fx+'px';m.style.top=fy+'px';m.style.width=FW+'px';m.style.height=FH+'px';m.style.borderRadius='8px';
-}
-function zoomA(v){const t=v/100;ED.s=ED.min*Math.pow(ED.max/ED.min,t);pintar();}
-function zoomRel(f){ED.s=Math.max(ED.min,Math.min(ED.max,ED.s*f));$('edZoom').value=Math.round(100*Math.log(ED.s/ED.min)/Math.log(ED.max/ED.min));pintar();}
-function marcarBotones(){document.querySelectorAll('#edForma button').forEach(b=>b.classList.toggle('on',b.dataset.v===ED.forma));document.querySelectorAll('#edFondo button').forEach(b=>b.classList.toggle('on',b.dataset.v===ED.fondo));}
-(function(){
-  const z=$('edZona'),pts=new Map();let d0=0,s0=1;
-  z.addEventListener('pointerdown',e=>{z.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});if(pts.size===2){const [a,b]=[...pts.values()];d0=Math.hypot(a.x-b.x,a.y-b.y);s0=ED.s;}});
-  z.addEventListener('pointermove',e=>{if(!pts.has(e.pointerId))return;const p=pts.get(e.pointerId);
-    if(pts.size===1){ED.x+=e.clientX-p.x;ED.y+=e.clientY-p.y;}
-    pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
-    if(pts.size===2){const [a,b]=[...pts.values()];const d=Math.hypot(a.x-b.x,a.y-b.y);if(d0){ED.s=Math.max(ED.min,Math.min(ED.max,s0*d/d0));$('edZoom').value=Math.round(100*Math.log(ED.s/ED.min)/Math.log(ED.max/ED.min));}}
-    pintar();});
-  const fin=e=>{pts.delete(e.pointerId);if(pts.size<2)d0=0;};z.addEventListener('pointerup',fin);z.addEventListener('pointercancel',fin);
-  z.addEventListener('wheel',e=>{e.preventDefault();zoomRel(e.deltaY<0?1.08:1/1.08);},{passive:false});
-  $('edZoom').addEventListener('input',e=>zoomA(+e.target.value));
-  $('edMas').onclick=()=>zoomRel(1.15);$('edMenos').onclick=()=>zoomRel(1/1.15);
-  document.querySelectorAll('#edForma button').forEach(b=>b.onclick=()=>{ED.forma=b.dataset.v;marcarBotones();ajustar();pintar();});
-  document.querySelectorAll('#edFondo button').forEach(b=>b.onclick=()=>{ED.fondo=b.dataset.v;marcarBotones();pintar();});
-  $('edCentrar').onclick=()=>{ajustar();pintar();};
-  window.addEventListener('resize',()=>{if(!$('edLogo').classList.contains('hide'))pintar();});
-  const cerrar=()=>{$('edLogo').classList.add('hide');document.body.style.overflow='';$('aLogo').value='';};
-  $('edCancelar').onclick=cerrar;
-  $('edUsar').onclick=()=>{
-    // Resultado final: 600x200 (horizontal) o 400x400 (cuadrado)
-    const {FW,FH}=marco(),OW=ED.forma==='h'?600:400,OH=ED.forma==='h'?200:400,k=OW/FW;
-    const c=document.createElement('canvas');c.width=OW;c.height=OH;const x=c.getContext('2d');
-    if(ED.fondo==='blanco'){x.fillStyle='#fff';x.fillRect(0,0,OW,OH);}
-    const w=ED.src.width*ED.s*k,h=ED.src.height*ED.s*k;x.imageSmoothingQuality='high';
-    x.drawImage(imgActual(),OW/2-w/2+ED.x*k,OH/2-h/2+ED.y*k,w,h);
-    logoData=ED.fondo==='blanco'?c.toDataURL('image/jpeg',.92):c.toDataURL('image/png');
-    $('aPrev').innerHTML='<img alt="">';$('aPrev').querySelector('img').src=logoData;
-    $('edLogo').classList.add('hide');document.body.style.overflow='';
-  };
-})();
-// Tarjeta de WhatsApp (1200x630): logo de Maleta Fácil | logo de la agencia + "Prepara tu maleta en un minuto" (con la etiqueta "Equipaje sin estrés")
-function cargarImg(src){return new Promise(ok=>{if(!src)return ok(null);const i=new Image();i.onload=()=>ok(i);i.onerror=()=>ok(null);i.src=src;});}
-async function hacerTarjeta(logoSrc,nombre){
-  try{await Promise.all(['700 56px Fraunces','600 44px Fraunces','700 28px "Work Sans"','700 44px "Work Sans"'].map(f=>document.fonts.load(f)));}catch(e){}
-  const W=1200,H=630,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
-  const rr=(a,b,w,h,r)=>{x.beginPath();x.moveTo(a+r,b);x.arcTo(a+w,b,a+w,b+h,r);x.arcTo(a+w,b+h,a,b+h,r);x.arcTo(a,b+h,a,b,r);x.arcTo(a,b,a+w,b,r);x.closePath();};
-  x.fillStyle='#13302E';x.fillRect(0,0,W,H);
-  const img=await cargarImg(logoSrc);
-  // Bloque Maleta Fácil como en la cabecera: icono + nombre + etiqueta "Equipaje sin estrés" con avión
-  x.font='700 56px Fraunces, Georgia, serif';const nw=x.measureText('Maleta Fácil').width;
-  x.font='700 28px "Work Sans", sans-serif';const et='Equipaje sin estrés',ew=x.measureText(et).width,pw=22+30+10+ew+24;
-  const tw=Math.max(nw,pw);
-  let lw,lh;
-  if(img){const k=Math.min(330/img.width,140/img.height);lw=img.width*k;lh=img.height*k;}
-  else{x.font='700 40px "Work Sans", sans-serif';lw=Math.min(330,x.measureText(nombre).width);lh=60;}
-  const IC=160,total=IC+30+tw+46+3+46+lw, x0=(W-total)/2, top=190, cy=top+IC/2;
-  rr(x0,top,IC,IC,38);x.fillStyle='#F6F1E4';x.fill();
-  x.fillStyle='#13302E';x.font='700 110px Fraunces, Georgia, serif';x.textAlign='center';x.textBaseline='middle';x.fillText('M',x0+IC/2,cy+6);
-  x.beginPath();x.arc(x0+IC-10,top+10,22,0,Math.PI*2);x.fillStyle='#B65B3F';x.fill();
-  const tx=x0+IC+30;
-  x.textAlign='left';x.fillStyle='#F6F1E4';x.font='700 56px Fraunces, Georgia, serif';x.fillText('Maleta Fácil',tx,cy-34);
-  const py=cy+14,ph=54;rr(tx,py,pw,ph,27);x.fillStyle='#8B5A2B';x.fill();
-  x.save();x.translate(tx+22+15,py+ph/2);x.rotate(Math.PI/4);x.scale(30/24,30/24);x.translate(-12,-12);
-  x.fillStyle='#F6F1E4';x.fill(new Path2D('M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2.5 1.8V22l3.5-1 3.5 1v-1.2L13 19v-5.5l8 2.5z'));x.restore();
-  x.fillStyle='#F6F1E4';x.font='700 28px "Work Sans", sans-serif';x.fillText(et,tx+22+30+10,py+ph/2+1);
-  const sx=tx+tw+46;x.fillStyle='rgba(246,241,228,.3)';x.fillRect(sx,top,3,IC);
-  const lx=sx+49;
-  if(img){x.save();rr(lx,cy-lh/2,lw,lh,14);x.clip();x.drawImage(img,lx,cy-lh/2,lw,lh);x.restore();}
-  else{x.fillStyle='#F6F1E4';x.font='700 40px "Work Sans", sans-serif';x.fillText(nombre,lx,cy,330);}
-  x.textAlign='center';x.fillStyle='#F6F1E4';x.font='600 44px Fraunces, Georgia, serif';x.fillText('Prepara tu maleta en un minuto',W/2,top+IC+80);
-  return c.toDataURL('image/jpeg',0.88);
-}
-$('aGuardar').onclick=async()=>{
-  if(ROL==='agencia'){ const em=$('aEmail').value.trim(); if(em&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)){$('errA').textContent='Revisa el email del resumen.';$('errA').style.display='block';return;}
-    const cfg={email:em}; const r=await apiV({accion:'config',...cfg}).catch(()=>({ok:false}));
-    if(!r.ok) return toast('No se ha podido guardar'); CFGS[MISLUG]={...(CFGS[MISLUG]||{}),...cfg}; aplicarCfg(); return toast('✅ Guardado'); }
-  const nombre=$('aNombre').value.trim(), err=$('errA'); err.style.display='none';
-  const fallo=t=>{err.textContent=t;err.style.display='block';};
-  if(!nombre) return fallo('Escribe el nombre de la agencia.');
-  const slug=editando||slugify(nombre);
-  if(!editando&&AG[slug]) return fallo('Ya existe una agencia con ese nombre.');
-  const tag=$('aTag').value.trim(), seguro=$('aSeguro').value.trim(), civ=$('aCiv').value.trim();
-  if(tag&&!/^[a-z0-9-]+-21$/i.test(tag)) return fallo('El código de Amazon debe acabar en -21 (ej. viajessol-21).');
-  if(seguro&&!/^https:\/\//i.test(seguro)) return fallo('El enlace del seguro debe empezar por https://');
-  if(civ&&!/^\d+$/.test(civ)) return fallo('El código de Civitatis son solo números.');
-  const emailR=$('aEmail').value.trim(); if(emailR&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(emailR)) return fallo('Revisa el email del resumen.');
-  $('aGuardar').disabled=true;
-  let og; try{og=await hacerTarjeta(logoData||logoUrl((AG[slug]||{}).logo),nombre);}catch(e){}
-  const r=await api({accion:'guardar',slug,nombre,modo:$('aModo').value,tam:tamLogo,tag,seguro,civitatis:civ,logo:logoData||undefined,og}).catch(()=>({ok:false}));
-  $('aGuardar').disabled=false;
-  if(!r.ok) return fallo(r.status===401?'La sesión ha caducado: vuelve a entrar.':'No se ha podido guardar. Inténtalo de nuevo.');
-  const cfg={email:emailR,hora:$('aHora').value||'09:30',dias:+$('aDias').value||0,tz:$('aTz').value,informeCada:$('aInfCada').value,informeCanal:$('aInfCanal').value,informeContenido:$('aInfCont').value};
-  await apiV({accion:'config',slug,...cfg}).catch(()=>{}); CFGS[slug]={...(CFGS[slug]||{}),...cfg};
-  toast('Agencia guardada'); if(ROL!=='agencia'){$('agForm').classList.add('hide'); $('agLista').classList.remove('hide');} cargarAgencias();
-};
 </script>
 </body>
 </html>

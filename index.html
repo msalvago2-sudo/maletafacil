@@ -3293,6 +3293,14 @@ document.getElementById('emailListaInput').addEventListener('keydown', e=>{ if(e
 document.getElementById('emailListaClose').addEventListener('click', ()=> document.getElementById('emailListaOverlay').classList.remove('show'));
 document.getElementById('emailListaOverlay').addEventListener('click', e=>{ if(e.target.id==='emailListaOverlay') e.currentTarget.classList.remove('show'); });
 
+// En el móvil, los enlaces de Amazon y Civitatis se abren en la misma pestaña: si el cliente tiene la app, salta a la app
+// y la web se queda tal cual (antes quedaba una pestaña en blanco); si no la tiene, con «atrás» vuelve a su lista.
+const ES_MOVIL = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+document.addEventListener('click', e => {
+  const a = e.target.closest && e.target.closest('a[target="_blank"]');
+  if(a && ES_MOVIL && /^https?:/.test(a.href) && new URL(a.href).origin !== location.origin) a.removeAttribute('target');
+}, true);
+
 function imprimirLista(){
   gtag('event', 'imprimir_lista');
   window.print();
@@ -3302,6 +3310,8 @@ function shareReferral(){
   gtag('event', 'compartir_whatsapp');
   const msg = `🧳 Acabo de terminar mi maleta con https://maletafacil.com`;
   const url = `https://wa.me/?text=${encodeURIComponent(msg)}`;
+  // En el móvil se abre la app de WhatsApp directamente: sin pestañas en blanco y la lista se queda donde estaba
+  if(ES_MOVIL){ window.location.href = 'whatsapp://send?text=' + encodeURIComponent(msg); return; }
   const win = window.open(url, '_blank');
   if(!win){
     window.location.href = url;

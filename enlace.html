@@ -430,6 +430,12 @@ body.rol-agencia #agForm .two{display:none}
 </div></div>
 <script>
 const $=id=>document.getElementById(id);
+// WhatsApp sin páginas en blanco: en el móvil se abre la app directamente (whatsapp://) y la herramienta se queda donde estaba.
+// En el ordenador, WhatsApp Web en otra pestaña.
+const MOVIL=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+function waEsquema(u){try{const x=new URL(u,location.href),tel=x.pathname.replace(/\D/g,''),t=x.searchParams.get('text')||'';return 'whatsapp://send?'+(tel?'phone='+tel+'&':'')+'text='+encodeURIComponent(t);}catch(e){return u;}}
+function abrirWa(u){if(MOVIL)location.href=waEsquema(u);else window.open(u,'_blank');}
+document.addEventListener('click',e=>{const a=e.target.closest&&e.target.closest('a[href^="https://wa.me/"]');if(!a||!MOVIL)return;e.preventDefault();location.href=waEsquema(a.href);},true);
 const pad=n=>String(n).padStart(2,'0');
 const ymd=d=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
 const HOY=ymd(new Date());
@@ -772,7 +778,9 @@ function itemHoy(s,v,hecho){
   d.querySelector('span').textContent=rangoV(v)+(v.tel?' · +'+v.tel:' · sin teléfono')+(hecho?' · ✓ enviado':'');
   const acc=d.querySelector('.acc');
   if(v.tel){const a=document.createElement('a');a.className='btn wa2';a.target='_blank';a.rel='noopener';a.href=v.ir;a.textContent=hecho?'Reenviar':'WhatsApp';
-    a.onclick=()=>{d.classList.add('hecho');d.querySelector('span').textContent=rangoV(v)+' · ✓ enviado';a.textContent='Reenviar';};acc.appendChild(a);}
+    a.onclick=e=>{ // en el móvil: se marca como enviado por detrás y se abre WhatsApp directamente (sin pestaña en blanco)
+      if(MOVIL){e.preventDefault();fetch(v.ir,{keepalive:true,redirect:'manual'}).catch(()=>{});location.href='whatsapp://send?phone='+v.tel+'&text='+encodeURIComponent(v.msg||'');}
+      d.classList.add('hecho');d.querySelector('span').textContent=rangoV(v)+' · ✓ enviado';a.textContent='Reenviar';};acc.appendChild(a);}
   else{const b=document.createElement('button');b.type='button';b.className='cp2';b.textContent='Copiar';b.onclick=async()=>{copiar(v.msg||'');await apiV({accion:'marcar',slug:s,id:v.id,enviado:true});d.classList.add('hecho');};acc.appendChild(b);}
   const x=document.createElement('button');x.type='button';x.className='x';x.title='Quitar de la lista';x.textContent='×';
   x.onclick=async()=>{if(!confirm('¿Quitar a '+(v.cli||'este cliente')+' de la lista de envíos?'))return;await apiV({accion:'borrar',slug:s,id:v.id});d.remove();};acc.appendChild(x);
@@ -939,7 +947,7 @@ async function pintarStats(cont,mes){
     if(k!=='maletafacil'&&!r.rango){const acc=q.lastChild;
       const w=document.createElement('button');w.type='button';w.className='wa2 mini2';w.textContent='Enviar informe';
       w.onclick=async()=>{const ri=await apiV({accion:'informe',slug:k,mes:r.mes}).catch(()=>({ok:false}));if(!ri.ok)return toast('No se ha podido preparar');
-        const tel=(ACCESOS[k]||{}).tel||'';window.open('https://wa.me/'+telWa(tel)+'?text='+encodeURIComponent(ri.texto),'_blank');};
+        const tel=(ACCESOS[k]||{}).tel||'';abrirWa('https://wa.me/'+telWa(tel)+'?text='+encodeURIComponent(ri.texto));};
       const e=document.createElement('button');e.type='button';e.className='cp2 mini2';e.textContent='Mandar email ahora';
       e.onclick=async()=>{if(!confirm('¿Mandar ya a '+nomAg(k)+' el informe de '+nomMes(r.mes)+' por email y aviso al móvil?'))return;
         const ri=await apiV({accion:'informeAhora',slug:k,mes:r.mes}).catch(()=>({ok:false}));toast(!ri.ok?'No se ha podido enviar':ri.email?'✅ Informe enviado':'Sin email configurado'+(ri.avisos?' · aviso enviado':''));};
@@ -1038,7 +1046,7 @@ async function pintarMiMes(mes,slugAdm,boxAdm){
   box.querySelector('small').appendChild(sel);}
   const dc=box.querySelector('.desch');if(dc)r.top.forEach(([d,n])=>{const sp=document.createElement('span');sp.textContent=`${d} · ${n}`;dc.appendChild(sp);});
   if(slugAdm&&slugAdm!=='maletafacil'&&r.texto){const w=document.createElement('button');w.type='button';w.className='btn wa';w.style.marginTop='12px';w.textContent='Enviar informe '+(r.contenido||'')+' por WhatsApp';
-    w.onclick=()=>window.open('https://wa.me/'+telWa((ACCESOS[slugAdm]||{}).tel||'')+'?text='+encodeURIComponent(r.texto),'_blank');box.appendChild(w);
+    w.onclick=()=>abrirWa('https://wa.me/'+telWa((ACCESOS[slugAdm]||{}).tel||'')+'?text='+encodeURIComponent(r.texto));box.appendChild(w);
     const e=document.createElement('button');e.type='button';e.className='btn recor';e.style.marginTop='10px';e.textContent='Mandar informe '+(r.contenido||'')+' por email';
     e.onclick=async()=>{if(!confirm('¿Mandar ya a '+nomAg(slugAdm)+' el informe de '+nm(r.mes)+' por email (y aviso al móvil)? Te llega copia.'))return;
       e.classList.add('off');const ri=await apiV({accion:'informeAhora',slug:slugAdm,mes:r.mes}).catch(()=>({ok:false}));e.classList.remove('off');

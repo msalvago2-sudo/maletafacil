@@ -904,6 +904,14 @@
     .cat-chevron{display:none;}
     .cat-header{cursor:default;}
   }
+.dest-pop{margin:6px 0 22px;text-align:center}
+.dest-pop .dp-tit{color:#CBDAD6;font-size:13.5px;margin:0 0 9px}
+.dp-chips{display:flex;flex-wrap:wrap;justify-content:center;gap:7px}
+.dp-chips a{background:rgba(246,241,228,.1);border:1px solid rgba(246,241,228,.22);color:var(--paper);text-decoration:none;font-size:13.5px;font-weight:600;padding:7px 12px;border-radius:999px}
+.dp-chips a.dp-mas{background:transparent;border-color:transparent;text-decoration:underline;font-weight:500;color:#CBDAD6}
+body.con-lista .dest-pop,html.ag-cargando .dest-pop,html.dest-cargando .dest-pop,body.desde-agencia .dest-pop{display:none}
+.guia-dest{display:flex;align-items:center;gap:10px;margin-top:12px;padding:11px 12px;border-radius:12px;background:var(--paper-dark);color:var(--teal-900);text-decoration:none;font-size:14px;line-height:1.35}
+.guia-dest b{font-weight:700}.guia-dest span.gd-fl{margin-left:auto;font-weight:700;color:var(--rust);white-space:nowrap}
 #destino.falta-destino{border-color:#C0392B!important;box-shadow:0 0 0 3px rgba(192,57,43,.22)!important;animation:faltaDestino .45s}
 @keyframes faltaDestino{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
 </style>
@@ -1091,6 +1099,13 @@
 
     <button class="generate-btn" id="generateBtn">Preparar mi maleta</button>
   </div>
+
+  <nav id="destPopulares" class="dest-pop" aria-label="Qué llevar según destino">
+    <p class="dp-tit">¿No sabes qué meter? Mira qué llevar a…</p>
+    <div class="dp-chips">
+      <a href="/que-llevar/londres/">Londres</a><a href="/que-llevar/paris/">París</a><a href="/que-llevar/disneyland-paris/">Disneyland</a><a href="/que-llevar/roma/">Roma</a><a href="/que-llevar/nueva-york/">Nueva York</a><a href="/que-llevar/cancun/">Cancún</a><a href="/que-llevar/amsterdam/">Ámsterdam</a><a href="/que-llevar/lisboa/">Lisboa</a><a class="dp-mas" href="/que-llevar/">Ver todos →</a>
+    </div>
+  </nav>
 
   <div id="weather" class="card"></div>
 
@@ -2002,8 +2017,17 @@ function renderWeather(destinoLabel, w, dias){
       <div class="stat-card"><div class="sicon">${rainIcon(w.rainProb)}</div><div class="sval">${Math.round(w.rainProb)}%</div><div class="slabel">Prob. de lluvia</div></div>
     </div>`;
   }
+  const gd = guiaDestino(destinoLabel);
+  if(gd) html += `<a class="guia-dest" href="/que-llevar/${gd.slug}/"><span>📘</span><span><b>Qué llevar a ${escapeHtml(gd.nombre)} según el mes</b></span><span class="gd-fl">→</span></a>`;
   el.innerHTML = html;
   el.style.display = 'block';
+}
+// Páginas «Qué llevar a…» que existen: si el destino es uno de ellos, se enlaza desde el clima
+const GUIAS_DESTINO = {londres:'londres',london:'londres',paris:'paris','disneyland paris':'disneyland-paris',disneyland:'disneyland-paris',roma:'roma',rome:'roma',amsterdam:'amsterdam',berlin:'berlin',lisboa:'lisboa',praga:'praga',viena:'viena',budapest:'budapest',bruselas:'bruselas',dublin:'dublin',edimburgo:'edimburgo',copenhague:'copenhague',estocolmo:'estocolmo',oslo:'oslo',atenas:'atenas',varsovia:'varsovia',estambul:'estambul',reikiavik:'reikiavik',reykjavik:'reikiavik',rovaniemi:'rovaniemi',laponia:'rovaniemi',tenerife:'tenerife','santa cruz de tenerife':'tenerife','nueva york':'nueva-york','new york':'nueva-york',orlando:'orlando','disney world':'orlando','walt disney world':'orlando',cancun:'cancun','riviera maya':'cancun','playa del carmen':'cancun','punta cana':'punta-cana',tokio:'tokio',tokyo:'tokio',marrakech:'marrakech'};
+function guiaDestino(label){
+  const k = normTxt((label||'').split(',')[0].trim());
+  const slug = GUIAS_DESTINO[k]; if(!slug) return null;
+  return {slug, nombre: (label||'').split(',')[0].trim()};
 }
 
 function renderWeatherError(){
@@ -2918,6 +2942,7 @@ async function aplicarAgenciaDesdeURL(){
   const agencia = lista[slug];
   if(!agencia) return;
   agenciaActiva = {slug, ...agencia};
+  document.body.classList.add('desde-agencia'); // los clientes de una agencia no ven «Destinos populares»
   // Plan Pro: la web se pinta con el color de la agencia (los botones de Amazon se quedan amarillos)
   if(agencia.plan === 'pro' && /^#[0-9a-f]{6}$/i.test(agencia.color || '')) aplicarColorAgencia(agencia.color, agencia.fondo);
 

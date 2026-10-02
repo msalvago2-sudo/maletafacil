@@ -2854,7 +2854,7 @@ function leerRutaCorta(){
 }
 const rutaCorta = leerRutaCorta();
 
-function aplicarColorAgencia(hex){
+function aplicarColorAgencia(hex, fondo){
   const r = parseInt(hex.slice(1,3),16)/255, g = parseInt(hex.slice(3,5),16)/255, b = parseInt(hex.slice(5,7),16)/255;
   const mx = Math.max(r,g,b), mn = Math.min(r,g,b), l = (mx+mn)/2; let h = 0, sat = 0;
   if(mx !== mn){ const d = mx-mn; sat = l > .5 ? d/(2-mx-mn) : d/(mx+mn); h = mx===r ? (g-b)/d+(g<b?6:0) : mx===g ? (b-r)/d+2 : (r-g)/d+4; h *= 60; }
@@ -2863,9 +2863,10 @@ function aplicarColorAgencia(hex){
   st.setProperty('--teal-900', `hsl(${H},${SF}%,15%)`);   // fondo de la página
   st.setProperty('--teal-700', `hsl(${H},${SB}%,30%)`);   // títulos y detalles
   st.setProperty('--teal-500', `hsl(${H},${SB}%,40%)`);
-  st.setProperty('--rust', `hsl(${H},${SB}%,42%)`);       // botón «Preparar mi maleta» y enlaces
+  st.setProperty('--rust', hex);                         // botón «Preparar mi maleta» y enlaces: el color elegido tal cual
+  if(/^#[0-9a-f]{6}$/i.test(fondo || '')) st.setProperty('--teal-900', fondo); // fondo elegido a mano
   st.setProperty('--mustard', `hsl(${H},${SB}%,36%)`);
-  const meta = document.querySelector('meta[name=theme-color]'); if(meta) meta.setAttribute('content', `hsl(${H},${SF}%,15%)`);
+  const meta = document.querySelector('meta[name=theme-color]'); if(meta) meta.setAttribute('content', /^#[0-9a-f]{6}$/i.test(fondo || '') ? fondo : `hsl(${H},${SF}%,15%)`);
 }
 async function aplicarAgenciaDesdeURL(){
   const params = new URLSearchParams(window.location.search);
@@ -2893,7 +2894,7 @@ async function aplicarAgenciaDesdeURL(){
   if(!agencia) return;
   agenciaActiva = {slug, ...agencia};
   // Plan Pro: la web se pinta con el color de la agencia (los botones de Amazon se quedan amarillos)
-  if(agencia.plan === 'pro' && /^#[0-9a-f]{6}$/i.test(agencia.color || '')) aplicarColorAgencia(agencia.color);
+  if(agencia.plan === 'pro' && /^#[0-9a-f]{6}$/i.test(agencia.color || '')) aplicarColorAgencia(agencia.color, agencia.fondo);
 
   // Su propio tracking ID de Amazon (opcional) para saber qué ventas vienen de cada agencia
   if(agencia.tag && /^[a-z0-9-]+-21$/i.test(agencia.tag)) AMAZON_TAG = agencia.tag;

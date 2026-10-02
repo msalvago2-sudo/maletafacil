@@ -16,6 +16,13 @@ export async function sumar(slug, ev, des = "", clave = "") {
   const store = getStore({ name: "estadisticas", consistency: "strong" });
   const key = `st:${slug}:${mesEn()}`;
   const d = (await store.get(key, { type: "json" })) || { envios: 0, aperturas: 0, amazon: 0, civitatis: 0, destinos: {}, vistos: [] };
+  if (!Array.isArray(d.vistos)) d.vistos = [];
+  if (campo === "envios" && clave) {
+    // Una maleta enviada cuenta una vez: si se reenvía (por un error, o desde otro botón) no suma otra vez
+    const h = "e" + createHash("sha1").update(String(clave)).digest("hex").slice(0, 12);
+    if (d.vistos.includes(h)) return false;
+    d.vistos.push(h); if (d.vistos.length > 5000) d.vistos = d.vistos.slice(-5000);
+  }
   if (campo === "aperturas") {
     // Una maleta abierta cuenta una vez (aunque el cliente la abra varias veces): se recuerda solo una huella del enlace
     const h = createHash("sha1").update(String(clave || "")).digest("hex").slice(0, 12);

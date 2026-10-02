@@ -95,7 +95,7 @@ function htmlEmail(nombreAg, hoy, pend) {
     const btn = v.tel
       ? `<a href="${ir}" style="background:#25D366;color:#0B3B21;text-decoration:none;font-weight:700;font-size:14px;padding:10px 16px;border-radius:100px;display:inline-block">WhatsApp</a>`
       : `<span style="background:#F3E1D8;color:#8F4430;font-weight:700;font-size:12px;padding:6px 10px;border-radius:100px;display:inline-block">Sin teléfono</span>`;
-    return `<tr><td style="padding:12px 0;border-bottom:1px solid #EEE7D8"><b style="font-size:15px;color:#12302E">${esc(v.cli || "Cliente")} · ${esc(v.des)}</b><br><span style="font-size:13px;color:#6B665B">${rango(v)}${v.tel ? " · +" + esc(v.tel) : ""}</span></td><td align="right" style="padding:12px 0;border-bottom:1px solid #EEE7D8">${btn}</td></tr>`;
+    return `<tr><td style="padding:12px 0;border-bottom:1px solid #EEE7D8"><b style="font-size:15px;color:#12302E">${esc(v.cli || "Cliente")} · ${esc(v.des || "maleta genérica")}</b><br><span style="font-size:13px;color:#6B665B">${rango(v)}${v.tel ? " · +" + esc(v.tel) : ""}</span></td><td align="right" style="padding:12px 0;border-bottom:1px solid #EEE7D8">${btn}</td></tr>`;
   }).join("");
   return `<!doctype html><html><body style="margin:0;background:#EFEBE3;font-family:Arial,Helvetica,sans-serif">
 <table width="100%" cellpadding="0" cellspacing="0"><tr><td align="center" style="padding:20px 10px">
@@ -265,7 +265,7 @@ export async function ejecutarResumen(forzarSlug = "") {
     const vivas = []; let avisos = 0;
     for (const s of subs) {
       try {
-        const r = await enviarPush(s, { title: titulo, body: pend.slice(0, 4).map(v => `${v.cli || "Cliente"} · ${v.des}`).join(", ") + (pend.length > 4 ? "…" : ""), url: `/enlace.html?ag=${slug}#hoy` });
+        const r = await enviarPush(s, { title: titulo, body: pend.slice(0, 4).map(v => `${v.cli || "Cliente"} · ${v.des || "viaje"}`).join(", ") + (pend.length > 4 ? "…" : ""), url: `/enlace.html?ag=${slug}#hoy` });
         if (r.ok) avisos++;
         if (r.status !== 404 && r.status !== 410) vivas.push(s);
       } catch (e) { vivas.push(s); }
@@ -316,7 +316,7 @@ export default async (req) => {
       const cfg = await efectiva(store, slug);
       v.enviado = Date.now(); v.enviadoDia = hoyEn(cfg.tz);
       await store.setJSON("ag:" + slug, lista);
-      try { await sumar(slug, "envio", v.des); } catch (e) {}
+      try { await sumar(slug, "envio", v.des, v.url || v.id); } catch (e) {} // con clave: un reenvío no cuenta dos veces
     }
     return Response.redirect(`https://wa.me/${v.tel || ""}?text=${encodeURIComponent(v.msg || "")}`, 302);
   }
@@ -337,14 +337,15 @@ export default async (req) => {
     const diasFijos = yo.rol === "agencia" ? (await efectiva(store, slug)).dias : null;
     for (const e of (Array.isArray(b.viajes) ? b.viajes : []).slice(0, 500)) {
       const v = { cli: limpio(e.cli, 60), tel: String(e.tel || "").replace(/\D/g, "").slice(0, 15), des: limpio(e.des, 60), ida: e.ida, vu: esFecha(e.vu) ? e.vu : "",
-        tipo: limpio(e.tipo, 20), dias: diasFijos != null ? diasFijos : Math.max(0, Math.min(60, parseInt(e.dias, 10) || 0)), msg: limpio(e.msg, 1500), url: limpio(e.url, 400) };
-      if (!v.des || !esFecha(v.ida)) continue;
-      v.id = createHash("sha1").update([slug, v.cli.toLowerCase(), v.tel, v.des.toLowerCase(), v.ida].join("|")).digest("hex").slice(0, 16);
+        tipo: limpio(e.tipo, 20), exp: limpio(e.exp, 40), dias: diasFijos != null ? diasFijos : Math.max(0, Math.min(60, parseInt(e.dias, 10) || 0)), msg: limpio(e.msg, 1500), url: limpio(e.url, 400) };
+      if (!esFecha(v.ida) || (!v.des && !v.exp && !v.cli && !v.tel)) continue; // sin destino vale (maleta genérica), sin fecha no
+      // Con nº de expediente, el viaje se reconoce por él (aunque cambien fechas, destino o teléfono)
+      v.id = createHash("sha1").update(v.exp ? [slug, "exp", v.exp].join("|") : [slug, v.cli.toLowerCase(), v.tel, v.des.toLowerCase(), v.ida].join("|")).digest("hex").slice(0, 16);
       subidos.add(v.id); if (v.ida < minIda) minIda = v.ida; if (v.ida > maxIda) maxIda = v.ida;
       const i = lista.findIndex(x => x.id === v.id);
-      if (i >= 0) { lista[i] = { ...lista[i], ...v }; cambiados++; continue; }
+      if (i >= 0) { if (v.exp && lista[i].ida !== v.ida && !lista[i].enviado) fechaCambiada++; else cambiados++; lista[i] = { ...lista[i], ...v }; continue; }
       // ¿Es el mismo cliente con otra fecha de ida? (cambio de fecha): se sustituye el viaje anterior si aún no se había enviado
-      const mismo = (v.cli || v.tel) ? lista.findIndex(x => !x.enviado && x.ida >= hoyAg && x.ida !== v.ida && (x.cli || "").toLowerCase() === v.cli.toLowerCase() && (x.tel || "") === v.tel && (x.des || "").toLowerCase() === v.des.toLowerCase()) : -1;
+      const mismo = (!v.exp && (v.cli || v.tel)) ? lista.findIndex(x => !x.enviado && x.ida >= hoyAg && x.ida !== v.ida && (x.cli || "").toLowerCase() === v.cli.toLowerCase() && (x.tel || "") === v.tel && (x.des || "").toLowerCase() === v.des.toLowerCase()) : -1;
       if (mismo >= 0) { lista[mismo] = { ...v, origen: excel ? "excel" : lista[mismo].origen || "", creado: lista[mismo].creado, enviado: null }; fechaCambiada++; continue; }
       lista.push({ ...v, origen: excel ? "excel" : "uno", creado: Date.now(), enviado: null }); nuevos++; if (!v.tel) { try { await sumar(slug, "sintel"); } catch (e) {} }
     }
@@ -363,6 +364,17 @@ export default async (req) => {
     if (b.limpiar) await store.setJSON("alertas", []);
     const lat = (await store.get("latido", { type: "json" })) || {};
     return json({ ok: true, alertas: b.limpiar ? [] : ((await store.get("alertas", { type: "json" })) || []), latido: lat.t || 0 });
+  }
+
+  if (b.accion === "borrarExcel") {
+    // Deja en blanco lo subido por Excel (lo metido a mano en «Un cliente» se queda)
+    if (!esSlug(slug)) return json({ error: "agencia" }, 400);
+    const lista = (await store.get("ag:" + slug, { type: "json" })) || [];
+    const quedan = lista.filter(x => x.origen !== "excel");
+    await store.setJSON("ag:" + slug, quedan);
+    const meta = (await store.get("meta:" + slug, { type: "json" })) || {};
+    delete meta.ultExcel; delete meta.ultExcelN; await store.setJSON("meta:" + slug, meta);
+    return json({ ok: true, quitados: lista.length - quedan.length });
   }
 
   if (b.accion === "borrarVarios") {
@@ -397,7 +409,7 @@ export default async (req) => {
     else {
       const cfg = await efectiva(store, slug), antes = !!lista[i].enviado;
       lista[i].enviado = b.enviado ? Date.now() : null; lista[i].enviadoDia = b.enviado ? hoyEn(cfg.tz) : "";
-      if (b.enviado && !antes) { try { await sumar(slug, "envio", lista[i].des); } catch (e) {} }
+      if (b.enviado && !antes) { try { await sumar(slug, "envio", lista[i].des, lista[i].url || lista[i].id); } catch (e) {} }
     }
     await store.setJSON("ag:" + slug, lista);
     return json({ ok: true });
@@ -432,6 +444,15 @@ export default async (req) => {
     return json({ ok: true, borrados: await borrarStats(b.slug) });
   }
 
+  if (b.accion === "stats" && yo.rol === "agencia") {
+    // Plan Pro: la agencia ve sus estadísticas por días (sin los clics a Amazon, que son del administrador)
+    if (!esPro(await efectiva(store, yo.slug)) || !esFecha(b.desde) || !esFecha(b.hasta)) return json({ error: "rol" }, 403);
+    const r = await leerRango(b.desde <= b.hasta ? b.desde : b.hasta, b.desde <= b.hasta ? b.hasta : b.desde, yo.slug);
+    for (const a of Object.values(r.agencias)) delete a.amazon;
+    const { blobs } = await getStore({ name: "estadisticas", consistency: "strong" }).list({ prefix: `st:${yo.slug}:` });
+    return json({ ok: true, rango: true, ...r, meses: blobs.map(x => x.key.split(":")[2]).sort().reverse() });
+  }
+
   if (b.accion === "stats") {
     if (yo.rol !== "admin") return json({ error: "rol" }, 403);
     if (esFecha(b.desde) && esFecha(b.hasta)) return json({ ok: true, rango: true, ...(await leerRango(b.desde <= b.hasta ? b.desde : b.hasta, b.desde <= b.hasta ? b.hasta : b.desde, esSlug(b.slug) ? b.slug : "")) });
@@ -459,6 +480,7 @@ export default async (req) => {
       if (["mensual", "quincenal", "semanal", "trimestral", "nunca"].includes(b.informeCada)) nueva.informeCada = b.informeCada;
       if (["ambos", "email", "movil"].includes(b.informeCanal)) nueva.informeCanal = b.informeCanal;
       if (["basico", "completo"].includes(b.informeContenido)) nueva.informeContenido = b.informeContenido;
+      if (b.plan === "pro" || b.plan === "gratis") nueva.plan = b.plan === "pro" ? "pro" : "";
     }
     await store.setJSON("cfg:" + slug, nueva);
     return json({ ok: true });
@@ -479,7 +501,7 @@ export default async (req) => {
     if (!esSlug(slug)) return json({ error: "agencia" }, 400);
     const previa = (await store.get("cfg:" + slug, { type: "json" })) || {};
     const cols = {};
-    for (const k of ["nombre", "destino", "ida", "vuelta", "tel", "email"]) cols[k] = limpio((b.cols || {})[k], 80);
+    for (const k of ["nombre", "destino", "ida", "vuelta", "tel", "email", "exp"]) cols[k] = limpio((b.cols || {})[k], 80);
     await store.setJSON("cfg:" + slug, { ...previa, mapa: cols });
     return json({ ok: true });
   }

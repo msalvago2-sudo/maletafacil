@@ -1398,6 +1398,9 @@ function pintarAgencias(){
     cont.appendChild(el);
   });
 }
+// Si no se pone email para el resumen y el informe, se usa el email con el que la agencia entra
+function ponerPhEmail(c){const ac=(ACCESOS[editando]||{}).email||(c&&c.emailAuto?c.email:'')||(ROL==='agencia'?MIEMAIL:'');
+  $('aEmail').placeholder=ac?'Vacío = se usa el de acceso: '+ac:'Email para el resumen (ej. reservas@agencia.es)';}
 function abrirForm(slug){
   editando=slug||null; logoData=''; const d=slug?AG[slug]||{}:{};
   $('agTit').textContent=slug?'Editar agencia':'Nueva agencia';
@@ -1407,11 +1410,11 @@ function abrirForm(slug){
   $('aNombre').value=d.nombre||''; $('aModo').value=d.modo==='completo'?'completo':''; $('aTag').value=d.tag||''; $('aSeguro').value=d.seguro||''; $('aCiv').value=d.civitatis||''; $('aLogo').value=''; tamLogo=['s','l'].includes(d.tam)?d.tam:'m'; $('aTamF').style.display=d.modo==='completo'?'none':'';
   const src=logoUrl(d.logo); $('aPrev').innerHTML=src?'<img alt="">':'<span class="hint">Sin logo</span>'; if(src)$('aPrev').querySelector('img').src=src;
   const cf={hora:'09:30',dias:7,tz:'Europe/Madrid',email:'',...(CFGS[slug]||{})};
-  $('aEmail').value=cf.email||(ROL==='agencia'?MIEMAIL:'');
+  $('aEmail').value=cf.emailAuto?'':(cf.email||''); ponerPhEmail(cf);
   const IC={mensual:'cada mes',quincenal:'cada quince días',semanal:'cada lunes',trimestral:'cada trimestre'},ICN={ambos:'por email y en tu móvil',email:'por email',movil:'en tu móvil'};
   $('aFijo').textContent=`🧳 Tus clientes reciben la maleta ${cf.dias} días antes del viaje. Tú recibes el aviso cada día a las ${cf.hora}${cf.email?' en tu móvil y en '+cf.email:' en tu móvil'}.`+((cf.informeCada||'mensual')!=='nunca'?` Tu informe te llega ${IC[cf.informeCada||'mensual']} ${ICN[cf.informeCanal||'ambos']}.`:''); $('aHora').value=cf.hora; $('aDias').value=cf.dias; $('aTz').value=cf.tz;
   $('aInfCada').value=cf.informeCada||'mensual'; $('aInfCanal').value=cf.informeCanal||'ambos'; $('aInfCont').value=cf.informeContenido||'basico';
-  if(slug&&!CFGS[slug]) apiV({accion:'hoy',slug}).then(r=>{const c=r.agencias&&r.agencias[slug]&&r.agencias[slug].cfg;if(c&&editando===slug){CFGS[slug]=c;$('aEmail').value=c.email||'';$('aHora').value=c.hora;$('aDias').value=c.dias;$('aTz').value=c.tz;$('aInfCada').value=c.informeCada||'mensual';$('aInfCanal').value=c.informeCanal||'ambos';$('aInfCont').value=c.informeContenido||'basico';}}).catch(()=>{});
+  if(slug&&!CFGS[slug]) apiV({accion:'hoy',slug}).then(r=>{const c=r.agencias&&r.agencias[slug]&&r.agencias[slug].cfg;if(c&&editando===slug){CFGS[slug]=c;$('aEmail').value=c.emailAuto?'':(c.email||'');ponerPhEmail(c);$('aHora').value=c.hora;$('aDias').value=c.dias;$('aTz').value=c.tz;$('aInfCada').value=c.informeCada||'mensual';$('aInfCanal').value=c.informeCanal||'ambos';$('aInfCont').value=c.informeContenido||'basico';}}).catch(()=>{});
   pintarAcceso(slug);
   setTimeout(pintarCab,400);
   $('agTit').textContent=ROL==='agencia'?'Mi agencia':$('agTit').textContent; $('aCancelar').style.display=ROL==='agencia'?'none':'';

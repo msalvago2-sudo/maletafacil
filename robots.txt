@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /enlace.html
+
+Sitemap: https://maletafacil.com/sitemap.xml

@@ -67,5 +67,5 @@ export default async (req, context) => {
 
 export const config = {
   path: "/*",
-  excludedPath: ["/.netlify/*", "/agencias/*", "/enlace.html", "/*.html", "/sw.js", "/manifest.json", "/*.png", "/*.jpg", "/*.jpeg", "/*.svg", "/*.ico", "/*.js", "/*.css", "/*.json", "/*.txt", "/*.xml"],
+  excludedPath: ["/.netlify/*", "/agencias/*", "/que-llevar/*", "/enlace.html", "/*.html", "/sw.js", "/manifest.json", "/*.png", "/*.jpg", "/*.jpeg", "/*.svg", "/*.ico", "/*.js", "/*.css", "/*.json", "/*.txt", "/*.xml"],
 };

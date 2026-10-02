@@ -55,10 +55,21 @@ export const sumaDias = (f, n) => { const d = new Date(f + "T12:00:00Z"); d.setU
 export const fechaEnvio = (v, dias) => sumaDias(v.ida, -(dias != null ? +dias : (+v.dias || 0)));
 export const CFG_DEF = { hora: "09:30", dias: 7, tz: "Europe/Madrid", email: "" };
 // Días de antelación y hora del resumen: los decide el administrador (general y, si quiere, por agencia)
+// Email con el que la agencia entra en la herramienta (se usa si no se ha puesto otro para el resumen y el informe)
+async function emailAcceso(slug) {
+  try {
+    const c = getStore({ name: "cuentas", consistency: "strong" });
+    const { blobs } = await c.list({ prefix: "u:" });
+    for (const b of blobs) { const u = await c.get(b.key, { type: "json" }); if (u && u.slug === slug && !u.bloqueada) return b.key.slice(2); }
+  } catch (e) {}
+  return "";
+}
 export async function efectiva(store, slug) {
   const g = (await store.get("cfg:_global", { type: "json" })) || {};
   const a = (await store.get("cfg:" + slug, { type: "json" })) || {};
-  return { ...CFG_DEF, ...(g.hora ? { hora: g.hora } : {}), ...(g.dias != null ? { dias: g.dias } : {}), ...a, general: { hora: g.hora || CFG_DEF.hora, dias: g.dias ?? CFG_DEF.dias } };
+  const cfg = { ...CFG_DEF, ...(g.hora ? { hora: g.hora } : {}), ...(g.dias != null ? { dias: g.dias } : {}), ...a, general: { hora: g.hora || CFG_DEF.hora, dias: g.dias ?? CFG_DEF.dias } };
+  if (!cfg.email && slug) { const e = await emailAcceso(slug); if (e) { cfg.email = e; cfg.emailAuto = true; } } // vacío = el email de acceso de la agencia
+  return cfg;
 }
 const minutosEn = tz => { const [h, m] = new Intl.DateTimeFormat("en-GB", { timeZone: tz, hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date()).split(":").map(Number); return (h % 24) * 60 + m; };
 

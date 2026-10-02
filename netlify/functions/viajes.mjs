@@ -318,7 +318,19 @@ export default async (req) => {
       await store.setJSON("ag:" + slug, lista);
       try { await sumar(slug, "envio", v.des, v.url || v.id); } catch (e) {} // con clave: un reenvío no cuenta dos veces
     }
-    return Response.redirect(`https://wa.me/${v.tel || ""}?text=${encodeURIComponent(v.msg || "")}`, 302);
+    const wa = `https://wa.me/${v.tel || ""}?text=${encodeURIComponent(v.msg || "")}`;
+    if (!/iPhone|iPad|iPod|Android/i.test(req.headers.get("user-agent") || "")) return Response.redirect(wa, 302);
+    // En el móvil: página con la marca (nunca en blanco) que abre la app de WhatsApp directamente
+    const app = `whatsapp://send?${v.tel ? "phone=" + v.tel + "&" : ""}text=${encodeURIComponent(v.msg || "")}`;
+    const h = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+    return new Response(`<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#12302E"><title>Abriendo WhatsApp…</title>
+<style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#12302E;font-family:-apple-system,system-ui,sans-serif;color:#F6F1E4;text-align:center;padding:24px;box-sizing:border-box}
+.c{max-width:340px}.m{width:56px;height:56px;border-radius:14px;background:#F6F1E4;color:#12302E;font:700 34px Georgia,serif;display:inline-flex;align-items:center;justify-content:center;margin-bottom:18px}
+h1{font:600 22px Georgia,serif;margin:0 0 8px}p{color:#B9CCC8;font-size:15px;line-height:1.45;margin:0 0 22px}
+a{display:block;background:#25D366;color:#073B1C;font-weight:700;font-size:16px;text-decoration:none;padding:15px;border-radius:12px;margin-bottom:10px}a.s{background:transparent;color:#B9CCC8;font-weight:500;font-size:14px}</style></head>
+<body><div class="c"><div class="m">M</div><h1>✓ Maleta de ${h(v.cli || "tu cliente")} lista</h1><p>Se abre WhatsApp con el mensaje ya escrito. Cuando lo envíes, puedes cerrar esta página.</p>
+<a href="${h(app)}">Abrir WhatsApp</a><a class="s" href="/enlace.html#hoy">Volver a la herramienta</a></div>
+<script>setTimeout(function(){location.href=${JSON.stringify(app).replace(/</g, "\\u003c")}},150)</script></body></html>`, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" } });
   }
 
   if (req.method !== "POST") return json({ error: "metodo" }, 405);

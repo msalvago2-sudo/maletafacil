@@ -172,7 +172,7 @@ body.rol-agencia #agForm .two{display:none}
 .cabtag{display:inline-block;background:#8B5A2B;color:var(--paper);font-size:9.5px;font-weight:600;padding:3px 8px;border-radius:100px;white-space:nowrap}
 .cabsep{width:1px;height:40px;background:rgba(246,241,228,.25);flex-shrink:0}
 .cablogo{display:flex;align-items:center;min-width:0}
-.cablogo img{object-fit:contain;border-radius:4px;display:block}
+.cablogo img{object-fit:contain;border-radius:4px;display:block;max-height:62px;max-width:150px}
 .cab.blanca{flex-direction:column;gap:8px;padding:18px 12px}
 .cab.blanca .cablogo img{max-height:64px;max-width:220px}
 .cabpw{display:flex;align-items:center;gap:5px;font-size:10px;color:rgba(246,241,228,.7)}.cabpw b{color:var(--paper)}
@@ -1434,10 +1434,14 @@ function pintarCab(){
   const h=cab.querySelector('.cablogo');
   if(!im){h.innerHTML='<span></span>';h.firstChild.textContent=nombre;}
   else{h.innerHTML='<img alt="">';const i=h.querySelector('img');
-    if(!blanca) i.onload=()=>{const cu=i.naturalWidth/i.naturalHeight<1.6,alto=cu?{s:44,m:58,l:72}[tamLogo]:{s:30,m:38,l:48}[tamLogo],an=cu?alto:{s:120,m:145,l:170}[tamLogo];
-      i.style.height=Math.round(alto*.85)+'px';i.style.maxWidth=Math.round(an*.85)+'px';};
+    i.onload=()=>{if(!blanca){const cu=i.naturalWidth/i.naturalHeight<1.6,alto=cu?{s:44,m:58,l:72}[tamLogo]:{s:30,m:38,l:48}[tamLogo],an=cu?alto:{s:120,m:145,l:170}[tamLogo];
+      i.style.height=Math.round(alto*.85)+'px';i.style.maxWidth=Math.round(an*.85)+'px';} copiarMiCab();};
     i.src=im.src;}
-  // La agencia ve exactamente lo mismo que ven sus clientes
+  copiarMiCab();
+}
+// La agencia ve exactamente lo mismo que ven sus clientes
+function copiarMiCab(){
+  const cab=$('aCab'),blanca=cab.classList.contains('blanca');
   if(ROL==='agencia'){const m=$('miCab');m.className=cab.className;m.style.background=cab.style.background;m.innerHTML=cab.innerHTML;
     $('miCabTit').textContent=blanca?'Así ven tus clientes tu web':'Así ven tus clientes tu cabecera';
     $('miCabHint').textContent=blanca?'¿Quieres cambiar el logo o los colores? Habla con Maleta Fácil y te lo dejamos perfecto.':'¿Quieres cambiar el nombre o el logo? Habla con Maleta Fácil y te lo dejamos perfecto.';}

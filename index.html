@@ -907,6 +907,24 @@
 #destino.falta-destino{border-color:#C0392B!important;box-shadow:0 0 0 3px rgba(192,57,43,.22)!important;animation:faltaDestino .45s}
 @keyframes faltaDestino{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
 </style>
+<!-- Enlaces de agencia: no enseñar la cabecera ni el formulario de Maleta Fácil mientras se carga su marca y su maleta -->
+<style>
+.ag-cargando #logoHeaderRow,.ag-cargando #poweredByWrap{visibility:hidden}
+.carga-lista{display:none}
+.dest-cargando #formCard{display:none}
+.dest-cargando .carga-lista{display:flex;align-items:center;justify-content:center;gap:10px;background:var(--paper);color:var(--teal-700);border-radius:16px;padding:18px;font:600 15px 'Work Sans',sans-serif;margin-bottom:16px}
+.carga-lista i{width:16px;height:16px;border:2.5px solid currentColor;border-right-color:transparent;border-radius:50%;animation:girar .8s linear infinite}
+@keyframes girar{to{transform:rotate(360deg)}}
+</style>
+<script>
+(function(){try{
+  var s=location.pathname.split('/').filter(Boolean),q=new URLSearchParams(location.search),c=document.documentElement.classList;
+  var ag=(q.get('agencia')||q.get('utm_source')||(s.length>=2?s[0]:'')).toLowerCase();
+  var dest=q.get('destino')||(s.length>=2?s[1]:(s.length===1&&s[0].indexOf('.')<0?s[0]:''));
+  if(ag)c.add('ag-cargando'); if(dest)c.add('dest-cargando');
+  setTimeout(function(){c.remove('ag-cargando')},3000); setTimeout(function(){c.remove('dest-cargando')},8000);
+}catch(e){}})();
+</script>
 </head>
 <body>
 
@@ -930,8 +948,9 @@
     <p id="poweredByWrap" style="display:none;font-size:11px;letter-spacing:.03em;color:#8FA9A4;margin:-10px 0 18px;"><span style="display:inline-flex;align-items:center;gap:6px;"><span aria-hidden="true" style="width:16px;height:16px;border-radius:4px;background:#F6F1E4;color:#12302E;font:700 11px Fraunces,Georgia,serif;display:inline-flex;align-items:center;justify-content:center;">M</span>Powered by <b style="color:#CFE0DC;font-weight:700;">Maleta Fácil</b></span></p>
     <h1 class="h1-una">Tu maleta en un minuto</h1>
   </div>
+  <div class="carga-lista" aria-live="polite"><i></i>Preparando tu maleta…</div>
 
-  <div class="card">
+  <div class="card" id="formCard">
     <div class="eyelet"></div>
 
     <div class="field">
@@ -2679,6 +2698,7 @@ async function generarMaleta(){
     console.error('Error inesperado al generar la maleta:', e);
     showToast('Ha ocurrido un error. Abre la consola (F12) para más detalles.');
   }finally{
+    document.documentElement.classList.remove('dest-cargando');
     generateBtn.disabled = false;
     generateBtn.textContent = 'Preparar mi maleta';
   }
@@ -2885,10 +2905,14 @@ async function aplicarAgenciaDesdeURL(){
 
   let lista = {};
   try {
+    // Si el servidor ya metió los datos de la agencia en la página, no hace falta pedirlos
+    if(window.__MF_AG && window.__MF_AG.slug === slug){ lista = {[slug]: window.__MF_AG}; }
+    else {
     // Primero la lista del servidor (incluye las agencias dadas de alta desde la herramienta); si falla, el archivo
     let r = await fetch('/.netlify/functions/agencias', {cache: 'no-cache'}).catch(()=>null);
     if(!r || !r.ok) r = await fetch('/agencias/agencias.json', {cache: 'no-cache'});
     if(r.ok) lista = await r.json();
+    }
   } catch(e){ return; }
   const agencia = lista[slug];
   if(!agencia) return;
@@ -2952,7 +2976,7 @@ async function aplicarAgenciaDesdeURL(){
   }
   gtag('event', 'vista_marca_blanca', {agencia: slug, modo: agencia.modo === 'completo' ? 'completo' : 'compartido'});
 }
-aplicarAgenciaDesdeURL();
+aplicarAgenciaDesdeURL().finally(()=>document.documentElement.classList.remove('ag-cargando'));
 
 // ---------- Estadísticas anónimas para las agencias (maletas abiertas, clics a Amazon y Civitatis) ----------
 function evento(ev, ag, des, k){

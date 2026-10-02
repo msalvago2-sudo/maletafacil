@@ -1558,12 +1558,19 @@ async function hacerTarjeta(logoSrc,nombre,op={}){
   x.fillStyle=op.pro&&op.fondo?op.fondo:op.pro&&op.color?tonosAgencia(op.color).fondo:'#13302E';x.fillRect(0,0,W,H);
   const img=await cargarImg(logoSrc);
   if(op.pro){
-    // Plan Pro: solo el logo de la agencia, grande y centrado, y debajo «Tu maleta en un minuto»
-    let w2,h2;if(img){const k=Math.min(640/img.width,280/img.height);w2=img.width*k;h2=img.height*k;}
+    // Plan Pro: solo el logo de la agencia, grande y centrado, y debajo en pequeño «Powered by Maleta Fácil» (como en la web)
+    let w2,h2;if(img){const k=Math.min(700/img.width,320/img.height);w2=img.width*k;h2=img.height*k;}
     const top2=110;
-    if(img){x.save();rr((W-w2)/2,top2+(280-h2)/2,w2,h2,18);x.clip();x.drawImage(img,(W-w2)/2,top2+(280-h2)/2,w2,h2);x.restore();}
-    else{x.fillStyle='#F6F1E4';x.font='700 72px "Work Sans", sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText(nombre,W/2,top2+140,1000);}
-    x.textAlign='center';x.textBaseline='middle';x.fillStyle='#F6F1E4';x.font='600 54px Fraunces, Georgia, serif';x.fillText('Tu maleta en un minuto',W/2,top2+280+90);
+    if(img){x.save();rr((W-w2)/2,top2+(320-h2)/2,w2,h2,18);x.clip();x.drawImage(img,(W-w2)/2,top2+(320-h2)/2,w2,h2);x.restore();}
+    else{x.fillStyle='#F6F1E4';x.font='700 72px "Work Sans", sans-serif';x.textAlign='center';x.textBaseline='middle';x.fillText(nombre,W/2,top2+160,1000);}
+    const py=top2+320+70,IC=44,t1='Powered by ',t2='Maleta Fácil';
+    x.textBaseline='middle';x.textAlign='left';
+    x.font='500 34px "Work Sans", sans-serif';const w1=x.measureText(t1).width;x.font='700 34px "Work Sans", sans-serif';const wB=x.measureText(t2).width;
+    const tot=IC+14+w1+wB,px=(W-tot)/2;
+    rr(px,py-IC/2,IC,IC,10);x.fillStyle='#F6F1E4';x.fill();
+    x.fillStyle='#13302E';x.font='700 30px Fraunces, Georgia, serif';x.textAlign='center';x.fillText('M',px+IC/2,py+2);
+    x.textAlign='left';x.globalAlpha=.75;x.fillStyle='#F6F1E4';x.font='500 34px "Work Sans", sans-serif';x.fillText(t1,px+IC+14,py);
+    x.globalAlpha=1;x.font='700 34px "Work Sans", sans-serif';x.fillText(t2,px+IC+14+w1,py);
     return c.toDataURL('image/jpeg',0.88);
   }
   // Bloque Maleta Fácil como en la cabecera: icono + nombre + etiqueta "Equipaje sin estrés" con avión

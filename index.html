@@ -78,6 +78,13 @@
     border-radius:100px;
     margin-bottom:18px;
   }
+  h1.h1-una{font-size:clamp(26px,8.2vw,44px);white-space:nowrap;margin-bottom:0;}
+  .hero{padding-bottom:18px !important;}
+  .form-resumen{margin-top:0 !important;}
+  #formResumen + .card + #weather, #formResumen ~ #weather{margin-top:14px;}
+  .results-header .rh-dur{font-family:'Work Sans',sans-serif;font-size:15px;font-weight:600;color:rgba(246,241,228,.7);margin-left:8px;white-space:nowrap;}
+  #results{margin-top:16px !important;}
+  .results-header{margin-bottom:14px !important;}
   h1{
     font-family:'Fraunces', serif;
     font-weight:600;
@@ -272,6 +279,18 @@
   .cal-footer{display:flex;align-items:center;justify-content:space-between;margin-top:18px;gap:12px;}
   .cal-link{background:none;border:none;color:var(--rust);font-size:13px;font-weight:600;cursor:pointer;text-decoration:underline;padding:0;font-family:inherit;}
 
+  .tipo-dd{position:relative;}
+  .tipo-btn{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;background:#fff;border:1.5px solid var(--line);border-radius:10px;padding:11px 14px;font:600 15px 'Work Sans',sans-serif;color:var(--ink);cursor:pointer;}
+  .tipo-btn #tipoActual{display:flex;align-items:center;gap:10px;}
+  .tipo-btn .chip-icon{width:22px;height:22px;color:var(--teal-700);display:block;margin:0;}
+  .tipo-chev{color:#8A8478;transition:transform .2s;}
+  .tipo-dd.open .tipo-chev{transform:rotate(180deg);}
+  .tipo-menu{display:none !important;position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:40;background:#fff;border:1.5px solid var(--line);border-radius:12px;padding:6px;box-shadow:0 12px 24px -8px rgba(0,0,0,.25);margin:0 !important;}
+  .tipo-dd.open .tipo-menu{display:block !important;}
+  .tipo-menu .chip{display:flex;align-items:center;gap:12px;text-align:left;border:0;border-radius:8px;padding:11px 12px;font-size:15px;background:#fff;color:var(--ink);}
+  .tipo-menu .chip .chip-icon{margin:0;}
+  .tipo-menu .chip.active{background:#E3EFEC;color:var(--teal-900);}
+  .tipo-menu .chip.active .chip-icon{color:var(--teal-700);}
   .chips{
     display:grid;
     grid-template-columns:repeat(2, 1fr);
@@ -391,7 +410,22 @@
   .generate-btn:disabled{opacity:.65;cursor:default;transform:none;}
 
   /* WEATHER */
+  .form-plegado{display:none !important;}
+  .form-resumen{width:100%;display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--paper);border:1px solid var(--paper-dark);border-radius:14px;padding:13px 16px;font:15px 'Work Sans',sans-serif;color:var(--ink);cursor:pointer;text-align:left;margin-top:4px;}
+  .form-resumen .fr-txt{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .form-resumen .fr-txt b{color:var(--teal-900);}
+  .form-resumen .fr-cambiar{flex-shrink:0;color:var(--rust);font-weight:700;font-size:14px;text-decoration:underline;}
   #weather{margin-top:22px;display:none;}
+  #weather.card{padding:16px 16px 14px;}
+  #weather .weather-title{margin-bottom:10px;}
+  #weather .weather-title h3{font-size:17px;}
+  #weather .day-card{width:74px;padding:8px 6px;border-radius:12px;}
+  #weather .day-card .dnum{margin-bottom:2px;}
+  #weather .day-card .dicon{margin-bottom:2px;}
+  #weather .day-card .dicon svg{width:22px;height:22px;}
+  #weather .day-card .dmax{font-size:15px;}
+  #weather .stat-card{padding:10px 8px;}
+  #weather .titulo-bandera{height:14px;width:auto;margin-left:7px;vertical-align:-1px;border-radius:2px;box-shadow:0 0 0 1px rgba(0,0,0,.08);}
   .weather-title{
     display:flex;
     align-items:baseline;
@@ -471,6 +505,29 @@
   }
   .results-header p{color:#CBDAD6;font-size:14px;margin:0;}
 
+  .civ-banner{display:block;text-decoration:none;color:#fff;border-radius:18px;padding:18px 18px 16px;margin:4px 0 16px;position:relative;overflow:hidden;
+    background:radial-gradient(120% 140% at 100% 0%, #ff4f86 0%, #f70759 45%, #b3003e 100%);box-shadow:0 10px 24px -10px rgba(247,7,89,.55);}
+  .civ-banner:after{content:'';position:absolute;right:-30px;bottom:-40px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,.08);}
+  .civ-top{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+  .civ-kicker{font-size:13px;font-weight:700;letter-spacing:.02em;opacity:.95;}
+  .civ-fechas{font-size:12px;font-weight:700;background:rgba(255,255,255,.2);border-radius:100px;padding:4px 10px;white-space:nowrap;}
+  .civ-ciudad{font-family:'Fraunces',serif;font-size:30px;font-weight:600;line-height:1.05;margin:4px 0 10px;}
+  .civ-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
+  .civ-chips span{font-size:12.5px;font-weight:600;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);border-radius:100px;padding:5px 10px;}
+  .civ-cta{display:block;text-align:center;background:#fff;color:#c4004a;font-weight:800;font-size:14.5px;border-radius:100px;padding:12px 14px;position:relative;z-index:1;}
+  .civ-marca{display:block;text-align:right;font-size:10.5px;opacity:.8;margin-top:8px;position:relative;z-index:1;}
+  .civ-banner.con-foto{padding:0;background:#fff;color:#1d1d1d;}
+  .civ-banner.con-foto:after{display:none;}
+  .civ-foto{position:relative;height:150px;display:flex;align-items:flex-end;justify-content:space-between;padding:14px 16px;color:#fff;
+    background:radial-gradient(120% 140% at 100% 0%, #ff4f86 0%, #f70759 45%, #b3003e 100%);background-size:cover;background-position:center;}
+  .civ-foto .civ-fechas{position:absolute;top:12px;right:12px;background:rgba(0,0,0,.45);}
+  .civ-foto .civ-ciudad{margin:2px 0 0;text-shadow:0 2px 10px rgba(0,0,0,.35);}
+  .civ-foto .civ-kicker{text-shadow:0 1px 6px rgba(0,0,0,.4);}
+  .civ-credito{position:absolute;bottom:4px;right:8px;font-size:9.5px;opacity:.8;}
+  .civ-cuerpo{padding:14px 16px 12px;}
+  .con-foto .civ-chips span{background:#FDECF2;border-color:#F9C9DA;color:#9b0036;}
+  .con-foto .civ-cta{background:#f70759;color:#fff;box-shadow:0 8px 18px -8px rgba(247,7,89,.7);font-size:16px;padding:14px;}
+  .con-foto .civ-marca{color:#8A8478;text-align:center;opacity:1;}
   .civitatis-btn{
     display:block;
     width:100%;
@@ -554,6 +611,12 @@
     text-decoration:none;
   }
 
+  .category.collapsed{padding:14px 18px;}
+  .category.collapsed .cat-count,.category.collapsed .cat-chevron{margin-bottom:0;}
+  .category.collapsed .cat-title{margin:0;}
+  .category.collapsed .cat-count{display:none;}
+  .li-maleta{justify-content:space-between;}
+  .li-maleta-txt{font-weight:600;color:var(--teal-900);}
   .category{
     background:var(--paper);
     border-radius:16px;
@@ -676,11 +739,12 @@
     cursor:pointer;
   }
   .actions button:hover{background:rgba(246,241,228,.1);}
+  .actions{flex-wrap:nowrap !important;}
+  .actions button{flex:1 1 0 !important;min-height:50px;font-size:14.5px !important;}
   .actions button.wa-btn{
     background:#25D366;
     border-color:#25D366;
     color:#0B3B21;
-    flex-basis:100%;
   }
   .actions button.wa-btn:hover{background:#20BD5A;}
 
@@ -864,14 +928,7 @@
       </div>
     </div>
     <p id="poweredByWrap" style="display:none;font-size:11px;letter-spacing:.03em;color:#8FA9A4;margin:-10px 0 18px;"><span style="display:inline-flex;align-items:center;gap:6px;"><span aria-hidden="true" style="width:16px;height:16px;border-radius:4px;background:#F6F1E4;color:#12302E;font:700 11px Fraunces,Georgia,serif;display:inline-flex;align-items:center;justify-content:center;">M</span>Powered by <b style="color:#CFE0DC;font-weight:700;">Maleta Fácil</b></span></p>
-    <h1>Prepara tu maleta<br>en un minuto</h1>
-    <div id="recientesWrap" style="display:none;margin-bottom:8px;width:100%;">
-      <p style="font-size:10px;font-weight:700;letter-spacing:.04em;color:#8FA9A4;margin:0 0 8px;text-transform:uppercase;">Tus maletas recientes</p>
-      <div id="recientesChips" style="display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch;width:100%;justify-content:center;"></div>
-    </div>
-    <button type="button" id="abrirMaletaModal" style="margin-top:16px;background:none;border:1.5px solid rgba(246,241,228,.4);color:var(--paper);padding:9px 16px;border-radius:100px;font-size:13px;font-weight:600;cursor:pointer;">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" style="vertical-align:-3px;margin-right:2px;"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M9 8V6a3 3 0 0 1 6 0v2" stroke-linecap="round"/><path d="M12 11v6" stroke-linecap="round"/></svg> ¿No tienes maleta? Te recomendamos una
-    </button>
+    <h1 class="h1-una">Tu maleta en un minuto</h1>
   </div>
 
   <div class="card">
@@ -915,7 +972,9 @@
 
     <div class="field">
       <div class="step-label"><span class="step-num">2</span> Tipo de viaje</div>
-      <div class="chips" id="tripChips">
+      <div class="tipo-dd" id="tipoDD">
+        <button type="button" class="tipo-btn" id="tipoBtn" aria-haspopup="listbox" aria-expanded="false"><span id="tipoActual"></span><svg class="tipo-chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg></button>
+        <div class="chips tipo-menu" id="tripChips" role="listbox">
         <div class="chip active" data-type="ciudad">
           <svg class="chip-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 21V9l5-4 5 4v12M14 21V5l5-2v18" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 12h1M7 16h1M11 12h1M11 16h1M16 9h1M16 13h1M16 17h1" stroke-linecap="round"/></svg>
           Ciudad
@@ -931,6 +990,7 @@
         <div class="chip" data-type="aventura">
           <svg class="chip-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 20 9.5 8l3 5.5L15 10l6 10z" stroke-linecap="round" stroke-linejoin="round"/></svg>
           Aventura
+        </div>
         </div>
       </div>
     </div>
@@ -1026,7 +1086,6 @@
       <button type="button" class="footer-link" id="abrirPrivacidadModal">Privacidad</button>
       <button type="button" class="footer-link" id="abrirCookiesModal">Cookies</button>
       <button type="button" class="footer-link footer-link-highlight" id="footerRecomendarBtn">Recomendar</button>
-      <button type="button" class="footer-link footer-link-highlight" id="footerInstalarBtn" style="display:none;" onclick="instalarApp()">Instalar app</button>
     </span>
   </footer>
 </div>
@@ -1391,6 +1450,7 @@ calAceptarBtn.addEventListener('click', ()=>{
   const end = calTempEnd || calTempStart;
   aplicarFechas(start, end);
   cerrarCalModal();
+  regenerarSiHayLista(); // si ya había lista, se rehace con las fechas nuevas (clima incluido)
 });
 
 actualizarFechasTrigger();
@@ -1402,11 +1462,21 @@ let AMAZON_TAG = 'maletafacil02-21'; // tu tracking ID de Amazon Afiliados
 const APP_URL = 'https://maletafacil.com'; // tu web (usada en la invitación por WhatsApp)
 
 // ---------- Trip type selection ----------
+// Desplegable: el botón muestra el tipo elegido (icono + nombre) y al tocarlo salen los cuatro
+function pintarTipo(){
+  const act = document.querySelector('#tripChips .chip.active') || document.querySelector('#tripChips .chip');
+  if(act) document.getElementById('tipoActual').innerHTML = act.innerHTML;
+}
+const tipoDD = document.getElementById('tipoDD');
+document.getElementById('tipoBtn').addEventListener('click', e=>{ e.stopPropagation(); const o = tipoDD.classList.toggle('open'); document.getElementById('tipoBtn').setAttribute('aria-expanded', o); });
+document.addEventListener('click', e=>{ if(!e.target.closest('#tipoDD')) tipoDD.classList.remove('open'); });
+pintarTipo();
 document.querySelectorAll('#tripChips .chip').forEach(chip=>{
   chip.addEventListener('click', ()=>{
     document.querySelectorAll('#tripChips .chip').forEach(c=>c.classList.remove('active'));
     chip.classList.add('active');
     selectedType = chip.dataset.type;
+    tipoDD.classList.remove('open'); pintarTipo();
     actualizarBarraEstimada();
     regenerarSiHayLista();
   });
@@ -1428,7 +1498,7 @@ const genMujerBtn = document.getElementById('genMujer');
 let familiaGuardada = null; // recuerda los números de la familia si sales y vuelves
 
 function actualizarUIPersonalizar(){
-  // Los tres botones siempre visibles: Hombre / Mujer (se pueden marcar los dos) o Familia
+  // Los tres botones siempre visibles: Hombre o Mujer (solo uno) o Familia (para varios)
   genHombreBtn.classList.toggle('active', !modoFamilia && numHombres > 0);
   genMujerBtn.classList.toggle('active', !modoFamilia && numMujeres > 0);
   toggleFamiliaBtn.classList.toggle('active', modoFamilia);
@@ -1473,8 +1543,8 @@ async function setGenero(value, btn){
     numBebes = 0; numNinos = 0;
     numHombres = value === 'hombre' ? 1 : 0;
     numMujeres = value === 'mujer' ? 1 : 0;
-  } else if(value === 'hombre'){ numHombres = numHombres > 0 ? 0 : 1; }
-  else{ numMujeres = numMujeres > 0 ? 0 : 1; }
+  } else if(value === 'hombre'){ const ya = numHombres > 0 && numMujeres === 0; numHombres = ya ? 0 : 1; numMujeres = 0; } // uno u otro, no los dos
+  else{ const ya = numMujeres > 0 && numHombres === 0; numMujeres = ya ? 0 : 1; numHombres = 0; }
   actualizarUIPersonalizar();
   actualizarBarraEstimada();
   await regenerarSiHayLista();
@@ -1541,8 +1611,44 @@ function tituloDestino(destinoLabel, geo){
   return pais ? `${escapeHtml(ciudad)} <span class="titulo-pais">${escapeHtml(pais)}</span>` : escapeHtml(ciudad);
 }
 
-function civitatisLink(destinoLabel){
+// Anuncio de Civitatis: un banner con la ciudad, las fechas del viaje y los tipos de tours (no un simple botón)
+function bannerCivitatis(destinoLabel, sinDestino){
   const ciudad = (destinoLabel || '').split(',')[0].trim();
+  if(!ciudad || sinDestino) return '';
+  const M = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  const ini = fechaInicioEl.value, fin = fechaFinEl.value;
+  let fechas = '';
+  if(/^\d{4}-\d{2}-\d{2}$/.test(ini)){
+    const [, m1, d1] = ini.split('-').map(Number), [, m2, d2] = (fin || ini).split('-').map(Number);
+    fechas = (ini === fin || !fin) ? `${d1} ${M[m1-1]}` : m1 === m2 ? `${d1}–${d2} ${M[m1-1]}` : `${d1} ${M[m1-1]} – ${d2} ${M[m2-1]}`;
+  }
+  const url = civitatisLink(destinoLabel).replace(/'/g, '%27');
+  const fotoCiudad = (REGION_CIUDAD[normTxt(ciudad)] ? ciudad : ciudad); // la página de Wikipedia de la ciudad o región
+  setTimeout(()=> ponerFotoCiudad(fotoCiudad), 0);
+  return `<a class="civ-banner con-foto" href="${url}" target="_blank" rel="noopener sponsored" onclick="try{gtag('event','civitatis_click')}catch(e){}">
+    <div class="civ-foto" id="civFoto"><div class="civ-foto-txt"><span class="civ-kicker">🎟️ Qué hacer en</span><p class="civ-ciudad">${escapeHtml(ciudad)}</p></div>${fechas ? `<span class="civ-fechas">${fechas}</span>` : ''}<span class="civ-credito" id="civCredito"></span></div>
+    <div class="civ-cuerpo">
+      <div class="civ-chips"><span>🏛️ Visitas guiadas</span><span>🚌 Excursiones</span><span>🎫 Entradas sin colas</span></div>
+      <span class="civ-cta">Ver precios y reservar →</span>
+      <span class="civ-marca">Actividades con Civitatis</span>
+    </div>
+  </a>`;
+}
+// Foto representativa de la ciudad: la imagen principal de su página de Wikipedia (licencia libre, con crédito)
+async function ponerFotoCiudad(ciudad){
+  try{
+    const r = await fetch('https://es.wikipedia.org/api/rest_v1/page/summary/' + encodeURIComponent(ciudad.replace(/ /g,'_')));
+    if(!r.ok) return; const d = await r.json();
+    const src = (d.originalimage && d.originalimage.width <= 2400 ? d.originalimage.source : null) || (d.thumbnail && d.thumbnail.source.replace(/\/\d+px-/, '/800px-'));
+    if(!src) return;
+    const el = document.getElementById('civFoto'); if(!el) return;
+    const im = new Image(); im.onload = ()=>{ el.style.backgroundImage = `linear-gradient(180deg,rgba(0,0,0,.05) 30%,rgba(0,0,0,.6)), url("${src}")`; el.classList.add('cargada'); const c = document.getElementById('civCredito'); if(c) c.textContent = 'Foto: Wikipedia'; }; im.src = src;
+  }catch(e){}
+}
+
+function civitatisLink(destinoLabel){
+  let ciudad = (destinoLabel || '').split(',')[0].trim();
+  const alias = REGION_CIUDAD[normTxt(ciudad)]; if(alias) ciudad = alias.split(',')[0]; // «Selva Negra» → tours en Friburgo
   const slug = civitatisSlug(ciudad);
   let url = `https://www.civitatis.com/es/${slug}/?ag_aid=${CIVITATIS_AID}`;
   // Si hay fechas, Civitatis abre ya filtrado por los días del viaje
@@ -1650,7 +1756,17 @@ function normTxt(s){
 function paisEnEspanol(cc){
   try{ return cc ? new Intl.DisplayNames(['es'], {type:'region'}).of(cc) : ''; }catch(e){ return ''; }
 }
+const REGION_CIUDAD = {'selva negra':'Friburgo','danubio':'Viena','rin':'Colonia','nilo':'Luxor','fiordos':'Bergen','fiordos noruegos':'Bergen','alpes':'Chamonix','pirineos':'Jaca','toscana':'Florencia','costa azul':'Niza','costa amalfitana':'Amalfi','riviera maya':'Cancún','caribe':'Punta Cana','laponia':'Rovaniemi','polinesia':'Papeete','maldivas':'Malé','canarias':'Las Palmas de Gran Canaria','gran canaria':'Las Palmas de Gran Canaria','baleares':'Palma','mallorca':'Palma','menorca':'Mahón','lanzarote':'Arrecife','fuerteventura':'Puerto del Rosario','andalucia':'Sevilla','galicia':'Santiago de Compostela','asturias':'Oviedo','cantabria':'Santander','costa rica':'San José, Costa Rica','republica dominicana':'Santo Domingo','egipto':'El Cairo','china':'Pekín','japon':'Tokio','tailandia':'Bangkok','vietnam':'Hanói','india':'Nueva Delhi','marruecos':'Marrakech','turquia':'Estambul','grecia':'Atenas','italia':'Roma','francia':'París','portugal':'Lisboa','alemania':'Berlín','escocia':'Edimburgo','irlanda':'Dublín','islandia':'Reikiavik','noruega':'Oslo','croacia':'Dubrovnik','suiza':'Zúrich','austria':'Viena','jordania':'Amán','kenia':'Nairobi','tanzania':'Zanzíbar','cuba':'La Habana','mexico':'Ciudad de México','peru':'Lima','ecuador':'Quito','colombia':'Bogotá','argentina':'Buenos Aires','brasil':'Río de Janeiro','estados unidos':'Nueva York','bali':'Denpasar'};
 async function buscarLugares(texto, max, signal){
+  const alias = REGION_CIUDAD[normTxt(texto.split(',')[0])];
+  if(alias){
+    const r = await buscarLugaresBase(alias, max, signal);
+    const nombre = texto.split(',')[0].trim().replace(/(^|\s)\S/g, l => l.toUpperCase());
+    return r.slice(0, 1).map(x => ({...x, name: nombre}));
+  }
+  return buscarLugaresBase(texto, max, signal);
+}
+async function buscarLugaresBase(texto, max, signal){
   // "Lisboa, Portugal" → busca "Lisboa" y usa "Portugal" como pista
   const partes = texto.split(',').map(t=>t.trim()).filter(Boolean);
   const nombre = partes[0] || texto.trim();
@@ -1742,6 +1858,7 @@ async function buscarSugerencias(texto){
         selectedDestinoGeo = {lat:r.lat, lon:r.lon, name:r.name, country:r.country||'', cc:r.cc, elevation:r.elevation};
         destinoEl.value = r.country ? `${r.name}, ${r.country}` : r.name;
         ocultarSugerencias();
+        regenerarSiHayLista(); // destino nuevo con la lista ya hecha: se rehace sola
       });
     });
   }catch(e){ /* fetch abortado o red no disponible: sin sugerencias, se sigue pudiendo escribir a mano */ }
@@ -1839,7 +1956,8 @@ function rainIcon(pct, size){
 
 function renderWeather(destinoLabel, w, dias){
   const el = document.getElementById('weather');
-  let html = `<div class="weather-title"><h3>${catIcon('clima')}Clima en ${escapeHtml(destinoLabel)}</h3>
+  const g = window.__geoActual, flag = (g && g.cc && /^[a-z]{2}$/.test(g.cc)) ? `<img class="titulo-bandera" src="https://flagcdn.com/w40/${g.cc}.png" srcset="https://flagcdn.com/w80/${g.cc}.png 2x" alt="" onerror="this.remove()">` : '';
+  let html = `<div class="weather-title"><h3>${catIcon('clima')}<span>Clima en ${escapeHtml(destinoLabel)}${flag}</span></h3>
     <span class="weather-note">${w.mode==='forecast' ? 'Previsión meteorológica' : uiIcon('aviso',13) + ' Estimación según años anteriores (no es una previsión exacta)'}</span></div>`;
 
   if(w.mode==='forecast' && dias<=10){
@@ -2017,9 +2135,9 @@ function mostrarOrigenManual(){
 
 function buildList(dias, temporada, tipo, climaFlags, numBebes, numNinos, numHombres, numMujeres, paisInfo){
   const cats = {};
-  const add = (catKey, catLabel, emoji, name, qty, shopQuery, directLink)=>{
+  const add = (catKey, catLabel, emoji, name, qty, shopQuery, directLink, botonTexto)=>{
     if(!cats[catKey]) cats[catKey] = {label:catLabel, emoji, items:[]};
-    cats[catKey].items.push({name, qty, shopQuery, directLink});
+    cats[catKey].items.push({name, qty, shopQuery, directLink, botonTexto});
   };
   const totalAdultos = Math.max(1, numHombres + numMujeres);
   // Añade "mujer"/"hombre" a la búsqueda de Amazon solo cuando todos los adultos son del mismo género
@@ -2169,6 +2287,7 @@ function buildList(dias, temporada, tipo, climaFlags, numBebes, numNinos, numHom
   }
 
   // ---- ACCESORIOS DE VIAJE (siempre, independiente del tipo de viaje) ----
+  add('accesorios','Accesorios de viaje','🎒','¿No tienes maleta? Te recomendamos una', 1, null, '#maleta', 'Elegir');
   add('accesorios','Accesorios de viaje','🎒','Almohada de viaje', 1, 'almohada viaje cervical');
   add('accesorios','Accesorios de viaje','🎒','Candado TSA para la maleta', 1, 'candado maleta TSA');
   add('accesorios','Accesorios de viaje','🎒','Cubos de compresión (organizadores)', 1, 'cubos compresión maleta organizadores');
@@ -2412,7 +2531,7 @@ async function generarMaleta(){
       }else{
         try{
           const w = await getWeather(geo.lat, geo.lon, startStr, endStr);
-          renderWeather(destinoLabel, w, dias);
+          window.__geoActual = geo; renderWeather(destinoLabel, w, dias);
 
           if(w.avgMax >= 26) temporada = 'calido';
           else if(w.avgMin <= 8) temporada = 'frio';
@@ -2457,8 +2576,7 @@ async function generarMaleta(){
     currentDestinoLabel = destinoLabel;
     currentDias = dias;
     let html = `<div class="results-header">
-      <h2><span class="eyelet-inline"></span>Tu lista para ${tituloDestino(destinoLabel, geo)}</h2>
-      <p>${textoDiasNoches(dias)} · marca lo que vayas metiendo en la maleta</p>
+      <h2><span class="eyelet-inline"></span>Tu lista de equipaje<span class="rh-dur">· ${dias}D/${Math.max(0,dias-1)}N</span></h2>
     </div>`;
     if(destinoNoEncontrado){
       html += `<div class="aviso-destino">No encontramos «${escapeHtml(destino)}» en el mapa, así que te hemos preparado una lista estándar (sin clima ni enchufes). Si es un error, revisa cómo está escrito y vuelve a probar.</div>`;
@@ -2474,11 +2592,13 @@ async function generarMaleta(){
       </div>`;
     }
 
+    let primera = true;
     order.forEach(key=>{
       const cat = cats[key];
       if(!cat) return;
-      html += `<div class="category collapsed">
-        <div class="cat-header" role="button" tabindex="0" aria-expanded="false" onclick="toggleCategoria(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleCategoria(this);}">
+      const abierta = primera; primera = false; // la primera se ve abierta: botones de Amazon a la vista
+      html += `<div class="category${abierta?'':' collapsed'}">
+        <div class="cat-header" role="button" tabindex="0" aria-expanded="${abierta}" onclick="toggleCategoria(this)" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();toggleCategoria(this);}">
           <p class="cat-title">${catIcon(key)}${cat.label}</p>
           <svg class="cat-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
         </div>
@@ -2513,6 +2633,10 @@ async function generarMaleta(){
           </div></li>`;
           return;
         }
+        if(it.directLink==='#maleta'){
+          html += `<li id="li-${id}" class="li-maleta"><span class="li-maleta-txt">🧳 ${escapeHtml(it.name)}</span><button type="button" class="amz-link" onclick="abrirMaletaModal()">${it.botonTexto||'Elegir'}</button></li>`;
+          return;
+        }
         html += `<li id="li-${id}">
           <input type="checkbox" id="${id}" onchange="toggleItem('${id}')">
           <label for="${id}">${escapeHtml(it.name)}</label>
@@ -2524,24 +2648,14 @@ async function generarMaleta(){
       html += `</ul></div>`;
     });
 
-    html += `<button class="civitatis-btn" onclick="window.open('${civitatisLink(destinoLabel)}','_blank','noopener')">Civitatis · Qué hacer en ${escapeHtml(destinoLabel.split(',')[0].trim())}</button>`;
+    html += bannerCivitatis(destinoLabel, destinoNoEncontrado);
 
-
-    html += `<div class="tarjeta-verde" id="instalarCard" style="display:none;margin:0 0 16px;">
-      <div class="tv-fila">
-        <span class="tv-icono"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M10.5 18.5h3"/><path d="M12 7v6M9.5 10.5 12 13l2.5-2.5"/></svg></span>
-        <div class="tv-textos"><p class="tv-titulo">Maleta Fácil en tu móvil</p><p class="tv-sub">Gratis y sin ocupar espacio</p></div>
-        <button type="button" class="amz-link guia-link" onclick="instalarApp()">Instalar</button>
-      </div>
-    </div>`;
 
     html += `<div class="actions">
       <button class="wa-btn" onclick="shareReferral()" style="display:flex;align-items:center;justify-content:center;gap:8px;">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="#0B3B21" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.75.46 3.45 1.32 4.95L2.05 22l5.25-1.38c1.45.79 3.08 1.21 4.74 1.21h.004c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.87 9.87 0 0 0 12.04 2zm0 18.15h-.003a8.23 8.23 0 0 1-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.22 8.22 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.25-8.24 2.2 0 4.27.86 5.83 2.42a8.19 8.19 0 0 1 2.41 5.83c0 4.55-3.7 8.23-8.24 8.23zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.13-.17.24-.64.81-.78.97-.14.17-.29.19-.53.06-.25-.12-1.04-.38-1.99-1.22-.73-.65-1.23-1.46-1.37-1.71-.14-.24-.02-.38.11-.5.11-.11.25-.29.37-.43.12-.15.16-.25.25-.42.08-.16.04-.31-.02-.43-.06-.12-.56-1.34-.76-1.84-.2-.48-.41-.42-.56-.42-.14-.01-.31-.01-.48-.01a.92.92 0 0 0-.67.31c-.23.25-.87.85-.87 2.08 0 1.22.89 2.4 1.02 2.57.12.16 1.75 2.67 4.24 3.74.59.26 1.05.41 1.41.52.59.19 1.13.16 1.56.1.48-.07 1.47-.6 1.67-1.18.21-.58.21-1.07.14-1.18-.06-.1-.23-.16-.48-.28z"/></svg>
-        Recomendar a un amigo
+        Recomendar
       </button>
-      <button onclick="copyList()">Copiar lista</button>
-      <button onclick="imprimirLista()">Imprimir</button>
       <button onclick="emailList()" style="display:flex;align-items:center;justify-content:center;gap:7px;">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m4 6.5 8 6 8-6" stroke-linecap="round"/></svg>
         Enviar por email
@@ -2554,8 +2668,9 @@ async function generarMaleta(){
     resultsEl.style.display = 'block';
 
     if(window.__desdeEnlace){
-      // Llegó por un enlace (agencia o destino): se queda arriba con la cabecera y todo relleno
+      // Llegó por un enlace (agencia o destino): el formulario se pliega en una línea y la lista queda arriba
       window.__desdeEnlace = false;
+      plegarFormulario(destinoLabel);
       window.scrollTo(0, 0);
     } else {
       document.getElementById('weather').scrollIntoView({behavior:'smooth', block:'start'});
@@ -2577,6 +2692,24 @@ function recopilarChecked(){
   return ids;
 }
 
+// Formulario plegado: una línea con destino, fechas y tipo, y «Cambiar» para abrirlo
+function plegarFormulario(destinoLabel){
+  const form = document.getElementById('generateBtn').closest('.card');
+  let res = document.getElementById('formResumen');
+  if(!res){
+    res = document.createElement('button'); res.type = 'button'; res.id = 'formResumen'; res.className = 'form-resumen';
+    res.addEventListener('click', ()=>{ form.classList.remove('form-plegado'); res.style.display = 'none'; form.scrollIntoView({behavior:'smooth', block:'start'}); });
+    form.parentNode.insertBefore(res, form);
+  }
+  const M = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  const a = fechaInicioEl.value, b = fechaFinEl.value; let f = '';
+  if(a){ const [,m1,d1] = a.split('-').map(Number), [,m2,d2] = (b||a).split('-').map(Number);
+    f = (!b || a===b) ? `${d1} ${M[m1-1]}` : m1===m2 ? `${d1}–${d2} ${M[m1-1]}` : `${d1} ${M[m1-1]} – ${d2} ${M[m2-1]}`; }
+  const tipo = (document.querySelector('#tripChips .chip.active')||{}).textContent || '';
+  res.innerHTML = `<span class="fr-txt"><b>📍 ${escapeHtml((destinoLabel||'').split(',')[0])}</b>${f?` · ${f}`:''}${tipo.trim()?` · ${escapeHtml(tipo.trim())}`:''}</span><span class="fr-cambiar">Cambiar</span>`;
+  res.style.display = 'flex';
+  form.classList.add('form-plegado');
+}
 async function regenerarSiHayLista(){
   if(!currentDestinoLabel) return;
   const checkedIds = recopilarChecked();
@@ -2636,6 +2769,7 @@ function renderRecientes(){
   let recientes = [];
   try{ recientes = JSON.parse(localStorage.getItem(RECIENTES_KEY) || '[]'); }catch(e){ recientes = []; }
   const wrap = document.getElementById('recientesWrap');
+  if(!wrap) return; // «Tus maletas recientes» ya no se muestra
   if(!recientes.length){ wrap.style.display = 'none'; return; }
   const chipsEl = document.getElementById('recientesChips');
   chipsEl.innerHTML = recientes.map((r, i)=>{
@@ -2673,6 +2807,7 @@ async function restaurarDesdeEnlace(){
   document.querySelectorAll('#tripChips .chip').forEach(chip=>{
     chip.classList.toggle('active', chip.dataset.type === selectedType);
   });
+  pintarTipo();
 
   modoFamilia = !!state.fam;
   numHombres = state.h || 0;
@@ -2719,6 +2854,19 @@ function leerRutaCorta(){
 }
 const rutaCorta = leerRutaCorta();
 
+function aplicarColorAgencia(hex){
+  const r = parseInt(hex.slice(1,3),16)/255, g = parseInt(hex.slice(3,5),16)/255, b = parseInt(hex.slice(5,7),16)/255;
+  const mx = Math.max(r,g,b), mn = Math.min(r,g,b), l = (mx+mn)/2; let h = 0, sat = 0;
+  if(mx !== mn){ const d = mx-mn; sat = l > .5 ? d/(2-mx-mn) : d/(mx+mn); h = mx===r ? (g-b)/d+(g<b?6:0) : mx===g ? (b-r)/d+2 : (r-g)/d+4; h *= 60; }
+  const H = Math.round(h), S = Math.round(Math.min(sat,.75)*100), SF = Math.min(S,55), SB = Math.max(S,35);
+  const st = document.documentElement.style;
+  st.setProperty('--teal-900', `hsl(${H},${SF}%,15%)`);   // fondo de la página
+  st.setProperty('--teal-700', `hsl(${H},${SB}%,30%)`);   // títulos y detalles
+  st.setProperty('--teal-500', `hsl(${H},${SB}%,40%)`);
+  st.setProperty('--rust', `hsl(${H},${SB}%,42%)`);       // botón «Preparar mi maleta» y enlaces
+  st.setProperty('--mustard', `hsl(${H},${SB}%,36%)`);
+  const meta = document.querySelector('meta[name=theme-color]'); if(meta) meta.setAttribute('content', `hsl(${H},${SF}%,15%)`);
+}
 async function aplicarAgenciaDesdeURL(){
   const params = new URLSearchParams(window.location.search);
   let slug = (params.get('agencia') || params.get('utm_source') || (rutaCorta && rutaCorta.agencia) || '').toLowerCase().trim();
@@ -2744,6 +2892,8 @@ async function aplicarAgenciaDesdeURL(){
   const agencia = lista[slug];
   if(!agencia) return;
   agenciaActiva = {slug, ...agencia};
+  // Plan Pro: la web se pinta con el color de la agencia (los botones de Amazon se quedan amarillos)
+  if(agencia.plan === 'pro' && /^#[0-9a-f]{6}$/i.test(agencia.color || '')) aplicarColorAgencia(agencia.color);
 
   // Su propio tracking ID de Amazon (opcional) para saber qué ventas vienen de cada agencia
   if(agencia.tag && /^[a-z0-9-]+-21$/i.test(agencia.tag)) AMAZON_TAG = agencia.tag;
@@ -2826,7 +2976,25 @@ async function cargarDestinoDesdeURL(){
       destinoParam = decodeURIComponent(path);
     }
   }
-  if(!destinoParam) return;
+  if(!destinoParam){
+    // Maleta «sin destino» que manda la agencia: se ponen ya las fechas y el cliente solo escribe a dónde va
+    const ida0 = params.get('ida'), vu0 = params.get('vuelta'), es = v => /^\d{4}-\d{2}-\d{2}$/.test(v || '');
+    if(es(ida0)){
+      let a = ida0 < MIN_DATE ? MIN_DATE : ida0, b = es(vu0) && vu0 >= a ? vu0 : '';
+      if(!b){ const f = new Date(a + 'T12:00:00'); f.setDate(f.getDate() + 6); b = `${f.getFullYear()}-${pad2(f.getMonth()+1)}-${pad2(f.getDate())}`; }
+      if(a <= MAX_DATE) aplicarFechas(a, b > MAX_DATE ? MAX_DATE : b);
+    }
+    // Hombre o mujer, si la agencia lo sabe por el nombre del cliente: ?g=h / ?g=m
+  const gUrl = (params.get('g') || '').toLowerCase();
+  if(gUrl === 'h' || gUrl === 'm'){ modoFamilia = false; numHombres = gUrl === 'h' ? 1 : 0; numMujeres = gUrl === 'm' ? 1 : 0; actualizarUIPersonalizar(); actualizarBarraEstimada(); }
+    const agQ = (params.get('agencia') || '').toLowerCase();
+    if(agQ){
+      try{ evento('abre', agQ, '', location.pathname + location.search); }catch(e){}
+      const d = document.getElementById('destino');
+      d.placeholder = '¿A dónde viajas? Escríbelo aquí'; setTimeout(()=>{ d.focus(); }, 400);
+    }
+    return;
+  }
 
   document.getElementById('destino').value = destinoParam.replace(/[-_]/g, ' ').replace(/\s*,\s*/g, ', ').trim().replace(/(^|\s)\S/g, l => l.toUpperCase()); // merida,mexico → Merida, Mexico
 
@@ -2849,11 +3017,15 @@ async function cargarDestinoDesdeURL(){
       document.getElementById('fechasTrigger').addEventListener('click', () => nota.remove(), { once: true });
     }
   }
+  // Hombre o mujer, si la agencia lo sabe por el nombre del cliente: ?g=h / ?g=m
+  const gUrl = (params.get('g') || '').toLowerCase();
+  if(gUrl === 'h' || gUrl === 'm'){ modoFamilia = false; numHombres = gUrl === 'h' ? 1 : 0; numMujeres = gUrl === 'm' ? 1 : 0; actualizarUIPersonalizar(); actualizarBarraEstimada(); }
   // Tipo de viaje opcional: ?tipo=playa, ciudad, montana…
   const tipo = (params.get('tipo') || (rutaCorta && rutaCorta.tipo) || '').toLowerCase();
   if(tipo && document.querySelector(`#tripChips .chip[data-type="${CSS.escape(tipo)}"]`)){
     selectedType = tipo;
     document.querySelectorAll('#tripChips .chip').forEach(c => c.classList.toggle('active', c.dataset.type === tipo));
+    pintarTipo();
   }
 
   // Si el enlace no trae fechas, usamos un rango de 5 días desde hoy para que el clima ya salga cargado
@@ -2956,6 +3128,7 @@ function buildListText(){
   cats.forEach(cat=>{
     text += cat.querySelector('.cat-title').textContent.trim() + '\n';
     cat.querySelectorAll('.item-list li').forEach(li=>{
+      if(li.classList.contains('li-maleta')) return; // recomendación de maleta: no es algo que meter en la lista
       const tarjeta = li.querySelector('.tv-titulo');
       if(tarjeta){
         if(!li.querySelector('.guia-link')) text += `✓ ${tarjeta.textContent.trim()}: ${li.querySelector('.tv-sub').textContent.trim()}\n`;
@@ -2969,7 +3142,7 @@ function buildListText(){
     });
     text += '\n';
   });
-  text += `📲 Hecha con Maleta Fácil. Crea la tuya en un minuto y bájate la app: ${APP_URL}`;
+  text += `📲 Hecha con Maleta Fácil. Crea la tuya en un minuto: ${APP_URL}`;
   return text;
 }
 
@@ -3135,7 +3308,7 @@ const ICONO_PERSONAL = '<svg class="modal-maleta-icono icono-personal" viewBox="
 function abrirMaletaModal(){ maletaModalOverlay.classList.add('show'); gtag('event', 'abrir_modal_maleta'); }
 function cerrarMaletaModal(){ maletaModalOverlay.classList.remove('show'); }
 
-document.getElementById('abrirMaletaModal').addEventListener('click', abrirMaletaModal);
+
 document.getElementById('maletaModalClose').addEventListener('click', cerrarMaletaModal);
 maletaModalOverlay.addEventListener('click', (e)=>{ if(e.target === maletaModalOverlay) cerrarMaletaModal(); });
 document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') cerrarMaletaModal(); });

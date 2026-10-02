@@ -203,8 +203,13 @@ body.rol-agencia #agForm .two{display:none}
 .dwrap{position:relative}.sug{position:absolute;left:0;right:0;top:calc(100% + 4px);background:#fff;border:1.5px solid #E4DCCB;border-radius:10px;max-height:240px;overflow-y:auto;z-index:30;box-shadow:0 12px 24px -8px rgba(0,0,0,.2);display:none}.sug.on{display:block}
 .sug div{padding:11px 14px;font-size:15px;color:#12302E;cursor:pointer;border-bottom:1px solid #F0EADF}.sug div:last-child{border-bottom:0}.sug div:hover{background:#F6F1E4}.sug small{display:block;color:#8A8478;font-size:12.5px}
 .vermas{display:block;width:100%;margin:10px 0 0;background:transparent;border:1.5px dashed #D9CFBC;border-radius:12px;padding:10px;color:#12302E;font-weight:600;font-size:14px;cursor:pointer}
-.ultx{background:#E3EFEC;color:#2E5E59;border-radius:10px;padding:8px 12px;font-size:14px;margin:0 0 10px}
+.ultx{background:#E3EFEC;color:#2E5E59;border-radius:10px;padding:8px 12px;font-size:14px;margin:0 0 10px;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.ultx.hide{display:none}
+#borrarExcel{background:none!important;border:0!important;color:#B65B3F!important;font-weight:700;font-size:13px!important;text-decoration:underline;cursor:pointer;padding:0!important;margin:0!important;min-height:0!important;width:auto!important;box-shadow:none!important}
 .alerta{background:#FBE9E2;border:1.5px solid #E8B9A6;border-radius:12px;padding:12px 14px;margin:0 0 12px;color:#7A2E17;font-size:14px}.alerta ul{margin:6px 0 8px;padding-left:18px}.alerta li{margin:3px 0}.alerta button{background:#7A2E17;color:#fff;border:0;border-radius:100px;padding:7px 14px;font-weight:600;font-size:13px;cursor:pointer}
+.item small.orig{display:block;font-size:12px;color:#8A8478;margin:2px 0 10px;line-height:1.35}
+.plan-f .segm button[data-v="pro"].on{background:#C9A24B;color:#12302E}
+.colrow{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.colrow input[type=color]{width:52px;height:44px;padding:2px;border-radius:10px;border:1.5px solid #D9CFBC;background:#fff}
+.colrow .ed{margin:0;min-height:40px;padding:8px 12px}.colmuestra{border-radius:10px;padding:10px 12px;color:#F6F1E4;font:600 13px 'Work Sans',sans-serif}
 </style>
 </head>
 <body>
@@ -275,23 +280,22 @@ body.rol-agencia #agForm .two{display:none}
 
 <!-- VARIOS -->
 <div id="pVarios" class="hide">
-<p class="ultx hide" id="ultExcel"></p>
-<label class="drop" for="fichero"><b>Subir Excel de reservas</b><span class="hint">Archivo .xlsx o .csv exportado de tu programa de gestión</span></label>
-<input type="file" id="fichero" accept=".xls,.xlsx,.csv,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="hide">
+<div class="ultx hide" id="ultExcelBox"><span id="ultExcel"></span><button type="button" id="borrarExcel">Borrar lo subido</button></div>
+<label class="drop" for="fichero"><b>Subir Excel de reservas</b><span class="hint">Archivo de Excel (.xls o .xlsx) o .csv sacado de tu programa de gestión</span></label>
+<input type="file" id="fichero" accept=".xls,.xlsx,.xlsm,.csv,application/vnd.ms-excel,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="hide">
 <p class="err" id="errX"></p>
 <div id="mapWrap" class="hide">
 <p class="fijo hide" id="mapaOk">✓ Columnas reconocidas como la última vez. <a href="#" id="mapaVer" style="color:#2E5E59">Cambiar</a></p>
 <div id="mapaCols">
 <p class="hint" style="margin-top:14px">Comprueba qué columna es cada dato (lo he intentado adivinar). Lo recordaremos para la próxima vez:</p>
 <div class="map">
-<div><label>Expediente</label><select data-k="expediente"></select></div>
-<div><label>Código</label><select data-k="codigo"></select></div>
 <div><label>Nombre</label><select data-k="nombre"></select></div>
 <div><label>Destino *</label><select data-k="destino"></select></div>
 <div><label>Fecha de ida *</label><select data-k="ida"></select></div>
 <div><label>Fecha de vuelta (vacía = solo ida)</label><select data-k="vuelta"></select></div>
 <div><label>Teléfono</label><select data-k="tel"></select></div>
 <div><label>Email</label><select data-k="email"></select></div>
+<div><label>Nº de expediente</label><select data-k="exp"></select></div>
 </div>
 </div>
 <div class="bar"><b id="cuenta"></b>
@@ -329,6 +333,12 @@ body.rol-agencia #agForm .two{display:none}
 <div class="hint" id="aSlug"></div></div>
 <div class="f"><label for="aLogo">Logo</label><input id="aLogo" type="file" accept="image/*">
 <div class="prev" id="aPrev"><span class="hint">Sin logo</span></div></div>
+<div class="f solo-admin plan-f"><label for="aPlan">Plan</label><div class="segm" id="aPlanSeg"><button type="button" data-v="gratis" class="on">Gratis</button><button type="button" data-v="pro">⭐ Pro</button></div><input type="hidden" id="aPlan" value="gratis">
+<div class="hint" id="aPlanTxt">Gratis: cabecera compartida, informe básico y «Tu mes».</div></div>
+<div class="f solo-admin hide" id="aColorF"><label>Colores de la web (Pro)</label>
+<div class="segm" id="aColSeg"><button type="button" data-v="mf">Los de Maleta Fácil</button><button type="button" data-v="ag" class="on">Los de la agencia</button></div>
+<div class="colrow" id="aColRow" style="margin-top:10px"><input type="color" id="aColor" value="#12302E"><button type="button" class="ed" id="aColorLogo">Sacar del logo</button><span class="colmuestra" id="aColorMuestra">Así se verá la web</span></div>
+<div class="hint" id="aColHint">Cambia el fondo, los títulos y el botón de la web. Los botones de Amazon se quedan amarillos.</div></div>
 <div class="f"><label for="aModo">Cómo se ve</label><select id="aModo"><option value="">Compartida: Maleta Fácil + su logo</option><option value="completo">Marca blanca: solo su logo</option></select></div>
 <div class="f" id="aTamF"><label>Tamaño del logo en la cabecera</label>
 <div class="segm" id="aTam"><button type="button" data-v="s">Pequeño</button><button type="button" data-v="m" class="on">Mediano</button><button type="button" data-v="l">Grande</button></div>
@@ -407,7 +417,6 @@ body.rol-agencia #agForm .two{display:none}
 <div class="fila"><button type="button" class="ed" id="edCentrar" style="flex:1">Centrar de nuevo</button></div>
 <div class="two" style="margin-top:12px"><button type="button" class="ed" id="edCancelar">Cancelar</button><button type="button" class="ok" id="edUsar" style="margin:0">Usar este logo</button></div>
 </div></div>
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script>
 const $=id=>document.getElementById(id);
 const pad=n=>String(n).padStart(2,'0');
@@ -594,26 +603,46 @@ $('destino').addEventListener('input',()=>{DESTGEO=null;const t=$('destino').val
 $('destino').addEventListener('blur',()=>{setTimeout(()=>{const v=$('destino').value;if(v&&!DESTGEO)$('destino').value=capital(v.trim());},250);});
 document.addEventListener('click',e=>{if(!e.target.closest('.dwrap'))ocultarSug();});
 // Construye enlace y mensaje. Sin nombre: no se menciona nada del nombre.
-function crear({cli,des,ida,vu,tipo}){
+// Hombre o mujer por el nombre de pila (solo si está claro; si no, la web lo deja sin marcar)
+const NOM_M=new Set('carmen pilar isabel raquel ruth rocio consuelo dolores mercedes nieves ines belen lourdes beatriz esther noemi abigail maribel sol luz paz rosario asuncion concepcion encarnacion montserrat miriam ingrid jennifer evelyn lisbeth lizbeth yasmin jasmin janeth yaneth gladys mabel nathaly nataly karen leslie libertad soledad milagros caridad trinidad marisol amparo remedios begoña iris flor nohemi deisy deysi heydi heidi yessica jessica jakeline jaqueline jacqueline lisseth lissette lizeth yuli madeleine madelein judith edith ruth anabel mariel muriel raquel abril noelia betty ketty nancy kelly mary jenny wendy sandy fanny lucy daisy leidy leydi yuly sury rosy cathy kathy shirley joselyn jocelyn katherine stefany estefany nicole michelle'.split(' '));
+const NOM_H=new Set('borja luca nikita joshua josua bautista elias jeremias tobias matias isaias josema garcia'.split(' '));
+function generoNombre(n){const p=String(n||'').trim().split(/\s+/)[0].normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+  if(!p||p.length<2) return '';
+  if(NOM_M.has(p)) return 'm'; if(NOM_H.has(p)) return 'h';
+  if(/^(maria|mari|ma)$/.test(p)) return 'm';
+  return /a$/.test(p)?'m':/[oe]$|[^aeiouy]$/.test(p)?'h':'';} // terminados en -i/-y (Yoni, Deisy…): sin marcar si no están en la lista
+function crear({cli,des,ida,vu,tipo,ent,gen}){
   const ag=$('agencia').value;
-  const lugar=lugarSlug(des);
+  // Qué viaje es: del Excel ya viene entendido; a mano, lo elegido en la lista o lo que se haya escrito («Crucero por el Danubio»)
+  if(gen===undefined) gen=/ y |, /.test(cli||'')?'':generoNombre(cli); // varios pasajeros: sin marcar
+  if(!ent){ if(DESTGEO&&ciudadDe(des)===DESTGEO.name) ent={lugar:DESTGEO.name,art:'',tipo:''};
+    else{ent=entenderDestino(des); if(!ent.lugar&&String(des||'').trim()) ent={lugar:ciudadDe(des),art:'',tipo:''};} }
+  const generica=!ent.lugar;
+  const lugar=generica?'':(DESTGEO&&ent.lugar===DESTGEO.name?lugarSlug(des):slugTxt(ent.lugar));
   const corta=d=>{const [a,m,dd]=d.split('-');return `${dd}-${m}-${a.slice(2)}`;};
   let url;
-  if(ag){
+  if(generica){
+    // Sin destino: maleta para que el cliente ponga su destino (con las fechas ya puestas)
+    const p=new URLSearchParams(); if(ag)p.set('agencia',ag); if(ida){p.set('ida',ida);if(vu)p.set('vuelta',vu);}
+    if(gen)p.set('g',gen);
+    url='https://maletafacil.com/'+(p.toString()?'?'+p.toString():'');
+  }else if(ag){
     // Enlace corto: maletafacil.com/coraltour/lisboa/27-09-26/28-09-26
     // Solo ida: maletafacil.com/coraltour/lisboa/27-09-26  (con tipo: /27-09-26/ida/playa)
-    url='https://maletafacil.com/'+ag+'/'+lugar+(ida&&vu?'/'+corta(ida)+'/'+corta(vu)+(tipo?'/'+tipo:''):ida?'/'+corta(ida)+(tipo?'/ida/'+tipo:''):'');
+    url='https://maletafacil.com/'+ag+'/'+lugar+(ida&&vu?'/'+corta(ida)+'/'+corta(vu)+(tipo?'/'+tipo:''):ida?'/'+corta(ida)+(tipo?'/ida/'+tipo:''):'')+(gen?'?g='+gen:'');
   }else{
     const p=new URLSearchParams(); p.set('destino',lugar);
-    if(ida){p.set('ida',ida);if(vu)p.set('vuelta',vu);} if(tipo)p.set('tipo',tipo);
+    if(ida){p.set('ida',ida);if(vu)p.set('vuelta',vu);} if(tipo)p.set('tipo',tipo); if(gen)p.set('g',gen);
     url='https://maletafacil.com/?'+p.toString();
   }
-  const ciudad=ciudadDe(des);
-  const fechas=(ida&&vu)?` (${rango(ida,vu)})`:'';
-  const inicio=cli?`¡Hola, ${cli}! 🧳 Para`:`🧳 Para`;
+  const ciudad=ent.lugar||'';
   const firma=ag&&nombres[ag]?`\n\n¡Buen viaje! ${nombres[ag]}`:'\n\n¡Buen viaje!';
-  const varios=/ y |, /.test(cli||''); // varios pasajeros de la misma reserva: «os», «tenéis vuestra»
-  const msg=`${inicio} que no se ${varios?'os':'te'} olvide nada en *${ciudad}*, aquí ${varios?'tenéis vuestra':'tienes tu'} maleta según el tiempo que hará:\n${url}${firma}`;
+  const varios=/ y |, /.test(cli||''); // varios pasajeros de la misma reserva: «disfrutéis», «vuestra maleta»
+  const hola=cli?`¡Hola, ${cli}! ✈️ `:'✈️ ';
+  const frase=fraseViaje(ent,varios).replace(ciudad,ciudad?`*${ciudad}*`:'');
+  const msg=generica
+    ? `${hola}Para que ${varios?'disfrutéis':'disfrutes'} ${frase} sin preocupar${varios?'os':'te'} de nada, aquí ${varios?'tenéis vuestra maleta: abridla, poned vuestro destino y os la preparamos':'tienes tu maleta: ábrela, pon tu destino y te la preparamos'} al momento 👇\n${url}${firma}`
+    : `${hola}Para que ${varios?'disfrutéis':'disfrutes'} ${frase} sin preocupar${varios?'os':'te'} de nada, ${varios?'os':'te'} hemos preparado ${varios?'vuestra':'tu'} maleta según el tiempo que hará allí 👇\n${url}${firma}`;
   return {url,msg,ciudad};
 }
 // "27–28 sep" · "30 sep – 3 oct"
@@ -711,7 +740,7 @@ async function cargarHoy(){
       h2.textContent=`${diaRel(f,a.hoy)} · ${g[f].length} cliente${g[f].length>1?'s':''}`;cont.appendChild(h2);
       g[f].forEach(v=>{const d=document.createElement('div');d.className='hitem prox';
         d.innerHTML='<div><b></b><span></span></div><div class="acc"></div>';
-        d.querySelector('b').textContent=(v.cli||'Cliente')+' · '+v.des;d.querySelector('span').textContent=rangoV(v)+(v.tel?' · +'+v.tel:' · sin teléfono');
+        d.querySelector('b').textContent=(v.cli||'Cliente')+' · '+(v.des||'maleta genérica');d.querySelector('span').textContent=rangoV(v)+(v.tel?' · +'+v.tel:' · sin teléfono');
         const x=document.createElement('button');x.type='button';x.className='x';x.title='Quitar de la lista';x.textContent='×';
         x.onclick=async()=>{if(!confirm('¿Quitar a '+(v.cli||'este cliente')+' ('+v.des+') de los próximos envíos?'))return;
           const r=await apiV({accion:'borrar',slug:s,id:v.id}).catch(()=>({ok:false}));if(!r.ok)return toast('No se ha podido quitar');
@@ -728,7 +757,7 @@ async function cargarHoy(){
 function itemHoy(s,v,hecho){
   const d=document.createElement('div');d.className='hitem'+(hecho?' hecho':'');
   d.innerHTML='<div><b></b><span></span></div><div class="acc"></div>';
-  d.querySelector('b').textContent=(v.cli||'Cliente')+' · '+v.des;
+  d.querySelector('b').textContent=(v.cli||'Cliente')+' · '+(v.des||'maleta genérica');
   d.querySelector('span').textContent=rangoV(v)+(v.tel?' · +'+v.tel:' · sin teléfono')+(hecho?' · ✓ enviado':'');
   const acc=d.querySelector('.acc');
   if(v.tel){const a=document.createElement('a');a.className='btn wa2';a.target='_blank';a.rel='noopener';a.href=v.ir;a.textContent=hecho?'Reenviar':'WhatsApp';
@@ -745,7 +774,7 @@ function pintarPanel(cont){
   if(!ags.length){cont.insertAdjacentHTML('beforeend','<p class="vacio2">Aún no hay envíos programados. Crea un enlace en «Un cliente» o sube un Excel en «Varios» y pulsa Programar.</p>');if(ROL==='admin')pintarStats(cont);return;}
   ags.sort((x,y)=>(y[1].pend.length+y[1].hechos.length)-(x[1].pend.length+x[1].hechos.length)).forEach(([k,a])=>{
     const d=document.createElement('div');d.className='hag';const lg=logoUrl((AG[k]||{}).logo);
-    d.innerHTML=(lg?'<img alt="">':'')+'<b></b><span></span>';if(lg)d.querySelector('img').src=lg;
+    d.innerHTML='<b></b><span></span>';
     d.querySelector('b').textContent=nomAg(k);const tot=a.pend.length+a.hechos.length;
     d.querySelector('span').textContent=tot?`${tot} hoy · ${a.hechos.length} enviado${a.hechos.length===1?'':'s'}`:`${a.prox.length} programado${a.prox.length===1?'':'s'}`;
     d.onclick=()=>{$('agHoy').value=k;cargarHoy();};cont.appendChild(d);});
@@ -772,9 +801,9 @@ $('agencia').addEventListener('change',async()=>{if(!CFGS[slugActual()]){const r
 // Programar (un cliente)
 $('programar').onclick=async()=>{
   const ida=$('ida').value,des=$('destino').value.trim(); if(!ida||!des) return;
-  const cli=$('cliente').value.trim(),vu=$('vuelta').value,tipo=$('tipo').value,{url,msg}=crear({cli,des,ida,vu,tipo});
+  const cli=$('cliente').value.trim(),vu=$('vuelta').value,tipo=$('tipo').value,{url,msg,ciudad}=crear({cli,des,ida,vu,tipo});
   $('programar').classList.add('off');
-  const r=await apiV({accion:'guardar',slug:slugActual(),viajes:[{cli,tel:telWa($('telCli').value),des:ciudadDe(des),ida,vu,tipo,dias:+$('diasAntes').value||0,msg,url}]}).catch(()=>({ok:false}));
+  const r=await apiV({accion:'guardar',slug:slugActual(),viajes:[{cli,tel:telWa($('telCli').value),des:ciudad||ciudadDe(des),ida,vu,tipo,dias:+$('diasAntes').value||0,msg,url}]}).catch(()=>({ok:false}));
   $('programar').classList.remove('off');
   if(!r.ok) return toast(r.status===401?'Vuelve a entrar':'No se ha podido programar');
   toast('✅ Envío programado'); $('cuando').textContent='✅ Programado. '+$('cuando').textContent;
@@ -783,7 +812,7 @@ $('programar').onclick=async()=>{
 $('mapaVer').onclick=e=>{e.preventDefault();$('mapaCols').classList.remove('hide');$('mapaOk').classList.add('hide');};
 $('programarV').onclick=async()=>{
   if(!visibles.length) return; guardarMapa(); const dias=+$('diasAntesV').value||0;
-  const viajes=visibles.map(r=>({cli:r.cli||'',tel:telWa(r.tel),des:capital(r.destino),ida:r.ida,vu:r.vuelta&&r.vuelta>=r.ida?r.vuelta:'',tipo:'',dias,msg:r.msg,url:r.url}));
+  const viajes=visibles.map(r=>({cli:r.cli||'',tel:telWa(r.tel),des:r.destino||'',exp:r.exp||'',ida:r.ida,vu:r.vuelta&&r.vuelta>r.ida?r.vuelta:'',tipo:'',dias,msg:r.msg,url:r.url}));
   $('programarV').classList.add('off');
   const r=await apiV({accion:'guardar',slug:slugActual(),origen:'excel',viajes}).catch(()=>({ok:false}));
   $('programarV').classList.remove('off');
@@ -825,7 +854,7 @@ async function cargarGeneral(){const r=await apiV({accion:'global'}).catch(()=>(
 $('gGuardar').onclick=async()=>{const r=await apiV({accion:'global',guardar:true,dias:+$('gDias').value,hora:$('gHora').value}).catch(()=>({ok:false}));
   if(!r.ok) return toast('No se ha podido guardar'); CFGS={}; toast(`✅ ${r.general.dias} días antes · ${r.general.hora}`);};
 /* ---------- Excel de un toque: recordar las columnas de cada agencia ---------- */
-const CAMPOS=['expediente','codigo','nombre','destino','ida','vuelta','tel','email'];
+const CAMPOS=['nombre','destino','ida','vuelta','tel','email','exp'];
 function mapaGuardado(){const s=slugActual();let m=(CFGS[s]||{}).mapa;if(!m){try{m=JSON.parse(localStorage.getItem('mf_mapa_'+s)||'null')}catch(e){}}return m;}
 function aplicarMapaGuardado(){
   const m=mapaGuardado(); if(!m||!m.destino||!m.ida) return false;
@@ -837,8 +866,8 @@ function guardarMapa(){const cols={};CAMPOS.forEach(k=>cols[k]=mapa[k]>=0?cab[ma
   try{localStorage.setItem('mf_mapa_'+s,JSON.stringify(cols))}catch(e){}
   CFGS[s]={...(CFGS[s]||{}),mapa:cols}; apiV({accion:'mapa',slug:s,cols}).catch(()=>{});}
 /* ---------- Estadísticas ---------- */
-function evento(ev,ag,des){try{const u='/.netlify/functions/evento?ev='+ev+'&ag='+encodeURIComponent(ag||'maletafacil')+'&des='+encodeURIComponent(des||'');navigator.sendBeacon?navigator.sendBeacon(u):fetch(u,{method:'POST',keepalive:true});}catch(e){}}
-$('wa').addEventListener('click',()=>evento('envio',slugActual(),ciudadDe($('destino').value)));
+function evento(ev,ag,des,k){try{const u='/.netlify/functions/evento?ev='+ev+'&ag='+encodeURIComponent(ag||'maletafacil')+'&des='+encodeURIComponent(des||'')+(k?'&k='+encodeURIComponent(k):'');navigator.sendBeacon?navigator.sendBeacon(u):fetch(u,{method:'POST',keepalive:true});}catch(e){}}
+$('wa').addEventListener('click',()=>evento('envio',slugActual(),ciudadDe($('destino').value),$('link').textContent));
 let STATS_PER='mes';
 const diaMad=(n=0)=>{const d=new Date(Date.now()-n*864e5);return new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Madrid',year:'numeric',month:'2-digit',day:'2-digit'}).format(d);};
 const fCorta=f=>{const [a,m,d]=f.split('-');return (+d)+'/'+(+m);};
@@ -888,7 +917,7 @@ async function pintarStats(cont,mes){
     g.innerHTML='<div class="sevot">Evolución día a día <span><i class="le"></i>enviadas <i class="la"></i>abiertas</span></div><div class="sbars"></div>';
     const bars=g.querySelector('.sbars');const cada=Math.ceil(dias.length/8);
     dias.forEach((x,i)=>{const v=r.dias[x]||{};const c=document.createElement('div');c.className='scol';c.title=fCorta(x)+': '+(v.envios||0)+' enviadas, '+(v.aperturas||0)+' abiertas';
-      c.innerHTML=`<div class="spar"><i class="be" style="height:${(v.envios||0)/mx*100}%"></i><i class="ba" style="height:${(v.aperturas||0)/mx*100}%"></i></div><small>${i%cada===0||i===dias.length-1?fCorta(x):''}</small>`;bars.appendChild(c);});
+      c.innerHTML=`<div class="spar"><i class="be" style="height:${(v.envios||0)/mx*100}%"></i><i class="ba" style="height:${(v.aperturas||0)/mx*100}%"></i></div><small>${(i===dias.length-1)||(i%cada===0&&dias.length-1-i>=cada*0.7)?fCorta(x):''}</small>`;bars.appendChild(c);});
     box.appendChild(g);}
   const t=document.createElement('div');t.className='stab';
   t.innerHTML='<div class="sfila scab"><span>Agencia</span><span>Enviadas</span><span>Abiertas</span><span>Amazon</span><span>Civit.</span></div>';
@@ -926,7 +955,7 @@ function graficaEvo(desde,hasta,diasD){
   g.innerHTML='<div class="sevot">Evolución día a día <span><i class="le"></i>enviadas <i class="la"></i>abiertas</span></div><div class="sbars"></div>';
   const bars=g.querySelector('.sbars');const cada=Math.ceil(dias.length/8);
   dias.forEach((x,i)=>{const v=diasD[x]||{};const c=document.createElement('div');c.className='scol';c.title=fCorta(x)+': '+(v.envios||0)+' enviadas, '+(v.aperturas||0)+' abiertas';
-    c.innerHTML=`<div class="spar"><i class="be" style="height:${(v.envios||0)/mx*100}%"></i><i class="ba" style="height:${(v.aperturas||0)/mx*100}%"></i></div><small>${i%cada===0||i===dias.length-1?fCorta(x):''}</small>`;bars.appendChild(c);});
+    c.innerHTML=`<div class="spar"><i class="be" style="height:${(v.envios||0)/mx*100}%"></i><i class="ba" style="height:${(v.aperturas||0)/mx*100}%"></i></div><small>${(i===dias.length-1)||(i%cada===0&&dias.length-1-i>=cada*0.7)?fCorta(x):''}</small>`;bars.appendChild(c);});
   return g;
 }
 function selPeriodoAg(meses,slug,box){
@@ -938,7 +967,8 @@ function selPeriodoAg(meses,slug,box){
   lista.forEach(m=>op('m:'+m,(m===esteMes?'Este mes (':'')+M[+m.slice(5)-1]+(m===esteMes?')':' '+m.slice(0,4))));
   op('fechas','Elegir fechas…');const rg=rangoPer(AG_PER||'');if(rg&&AG_PER.startsWith('f:'))op(AG_PER,'Del '+fCorta(rg.desde)+' al '+fCorta(rg.hasta));
   sel.value=AG_PER||'m:'+esteMes;
-  const ir=per=>{AG_PER=per;if(per.startsWith('m:'))pintarMiMes(per.slice(2),slug,box);else pintarAgRango(slug,box);};
+  const yoAg=ROL==='agencia';
+  const ir=per=>{AG_PER=per;if(per.startsWith('m:'))pintarMiMes(per.slice(2),yoAg?undefined:slug,yoAg?undefined:box);else pintarAgRango(slug,box);};
   sel.onchange=()=>{if(sel.value!=='fechas'){ir(sel.value);return;}
     let fx=box.querySelector('.sfechas');if(!fx){fx=document.createElement('div');fx.className='sfechas';box.querySelector('.hsec').after(fx);}
     fx.innerHTML='<label>Desde <input type="date" class="fDe"></label><label>Hasta <input type="date" class="fHa"></label><button type="button" class="wa2 mini2">Ver</button>';
@@ -951,17 +981,18 @@ async function pintarAgRango(slug,box){
   const r=await apiV({accion:'stats',desde:rg.desde,hasta:rg.hasta,slug}).catch(()=>({ok:false}));if(!r.ok){box.innerHTML='<p class="hint">No se han podido cargar.</p>';return;}
   const a=r.agencias[slug]||{envios:0,aperturas:0,amazon:0,civitatis:0,sinTelefono:0,destinos:{}};
   const pct=a.envios?Math.min(100,Math.round(a.aperturas/a.envios*100)):0;
-  box.innerHTML=`<div class="hsec" style="margin-top:0">📊 Estadísticas de ${String(nomAg(slug)).replace(/[<>&"]/g,'')} <small></small></div>
+  const yoAg=ROL==='agencia';
+  box.innerHTML=`<div class="hsec" style="margin-top:0">📊 ${yoAg?'Tus estadísticas':'Estadísticas de '+String(nomAg(slug)).replace(/[<>&"]/g,'')} <small></small></div>
    <div class="kpis"><div class="kpi"><b>${a.envios}</b><span>maletas enviadas</span></div>
    <div class="kpi"><b>${pct} %</b><span>abiertas (${a.aperturas})</span></div>
    <div class="kpi"><b>${a.civitatis}</b><span>clics a Civitatis</span></div>
    <div class="kpi"><b>${a.sinTelefono}</b><span>sin teléfono</span>${a.sinTelefono?'<span class="dn">añádelo en tu Excel</span>':''}</div>
-   <div class="kpi"><b>${a.amazon||0}</b><span>clics a Amazon (tuyos)</span></div></div><div class="desch"></div>`;
+   ${yoAg?'':`<div class="kpi"><b>${a.amazon||0}</b><span>clics a Amazon (tuyos)</span></div>`}</div><div class="desch"></div>`;
   box.querySelector('small').appendChild(selPeriodoAg(r.meses||[],slug,box));
   const dc=box.querySelector('.desch');Object.entries(a.destinos||{}).forEach(([d,n])=>{const sp=document.createElement('span');sp.textContent=`${d} · ${n}`;dc.appendChild(sp);});
   const g=graficaEvo(rg.desde,rg.hasta,r.dias||{});if(g)box.appendChild(g);
   const n=document.createElement('p');n.className='hint';n.style.marginTop='8px';
-  n.textContent=(!a.envios&&!a.aperturas?'Sin datos '+rg.etiq+'. Los datos por días se guardan desde el 28/9/2026. ':'')+(slug==='maletafacil'?'':'El informe por WhatsApp va por meses: elige un mes en el desplegable para enviarlo.');box.appendChild(n);botonCero(slug,box);
+  n.textContent=(!a.envios&&!a.aperturas?'Sin datos '+rg.etiq+'. Los datos por días se guardan desde el 28/9/2026. ':'')+(slug==='maletafacil'||yoAg?'':'El informe por WhatsApp va por meses: elige un mes en el desplegable para enviarlo.');box.appendChild(n);if(!yoAg)botonCero(slug,box);
 }
 function botonCero(slug,box){const b=document.createElement('button');b.type='button';b.className='reset0';b.textContent='Poner a cero las estadísticas de '+nomAg(slug);
   b.onclick=async()=>{if(!confirm('¿Borrar TODAS las estadísticas de '+nomAg(slug)+'? (maletas enviadas, abiertas, clics y destinos de todos los meses)'))return;
@@ -990,7 +1021,7 @@ async function pintarMiMes(mes,slugAdm,boxAdm){
    <div class="kpi"><b>${r.act.sinTelefono}</b><span>sin teléfono</span>${r.act.sinTelefono?'<span class="dn">añádelo en tu Excel</span>':''}</div>
    ${slugAdm?`<div class="kpi"><b>${r.act.amazon||0}</b><span>clics a Amazon (tuyos)</span>${fl(r.act.amazon||0,r.ant.amazon||0)}</div>`:''}</div>
    <div class="desch"></div>`;
-  if(slugAdm){AG_PER='m:'+r.mes;box.querySelector('small').appendChild(selPeriodoAg(meses,slugAdm,box));}
+  if(slugAdm||r.plan==='pro'){AG_PER='m:'+r.mes;box.querySelector('small').appendChild(selPeriodoAg(meses,slugAdm||MISLUG,box));} // Pro: también la agencia elige días
   else{const sel=document.createElement('select');sel.style.cssText='width:auto;min-height:36px;padding:4px 8px;font-size:13px';
   meses.forEach(m=>{const o=document.createElement('option');o.value=m;o.textContent=nm(m);sel.appendChild(o);});sel.value=r.mes;sel.onchange=()=>pintarMiMes(sel.value,slugAdm,boxAdm);
   box.querySelector('small').appendChild(sel);}
@@ -1014,56 +1045,140 @@ function tab(n){['tHoy','tUno','tVarios','tAg'].forEach((t,i)=>$(t).classList.to
   if(n===3&&ROL==='agencia'){abrirForm(MISLUG);pintarMiMes();}}
 // Fecha del último Excel subido (pestaña Varios)
 const fechaHora=ms=>{const d=new Date(ms);return d.toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'short'})+' a las '+d.toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit'});};
-async function mostrarUltExcel(){const s=slugActual(),el=$('ultExcel');if(!s){el.classList.add('hide');return;}
+async function mostrarUltExcel(){const s=slugActual(),el=$('ultExcel'),box=$('ultExcelBox');if(!s){box.classList.add('hide');return;}
   const r=await apiV({accion:'hoy',slug:s}).catch(()=>({}));const a=r.agencias&&r.agencias[s];
-  if(a&&a.ultExcel){el.textContent='📄 Último Excel subido: '+fechaHora(a.ultExcel)+(a.ultExcelN?` · ${a.ultExcelN} viajes`:'');el.classList.remove('hide');}
-  else{el.textContent='📄 Aún no se ha subido ningún Excel.';el.classList.remove('hide');}}
+  const hay=a&&(a.ultExcel||[...a.pend,...a.hechos,...a.prox].some(v=>v.origen==='excel'));
+  el.textContent=a&&a.ultExcel?'📄 Último Excel subido: '+fechaHora(a.ultExcel)+(a.ultExcelN?` · ${a.ultExcelN} viajes`:''):hay?'📄 Hay viajes de Excel programados':'📄 Aún no se ha subido ningún Excel.';
+  $('borrarExcel').style.display=hay?'':'none';box.classList.remove('hide');}
+// Dejar en blanco: quita todos los viajes que vinieron de Excel (los de «Un cliente» se quedan)
+$('borrarExcel').onclick=async()=>{const s=slugActual();
+  if(!confirm('¿Borrar todos los viajes subidos por Excel de '+(nombres[s]||s)+'? No se mandarán sus maletas. Los que metiste a mano en «Un cliente» se quedan.'))return;
+  const r=await apiV({accion:'borrarExcel',slug:s}).catch(()=>({ok:false}));if(!r.ok)return toast('No se ha podido borrar');
+  toast(`🗑 ${r.quitados} viaje${r.quitados===1?'':'s'} borrado${r.quitados===1?'':'s'}`);
+  filas=[];visibles=[];$('lista').innerHTML='';$('cuenta').textContent='';$('mapWrap').classList.add('hide');$('cuandoV').textContent='';$('fichero').value='';
+  mostrarUltExcel();};
 $('agencia').addEventListener('change',()=>{if(!$('pVarios').classList.contains('hide'))mostrarUltExcel();});
 $('tHoy').onclick=()=>tab(0); $('tUno').onclick=()=>tab(1); $('tVarios').onclick=()=>tab(2); $('tAg').onclick=()=>tab(3);
 
-/* ---------- LECTOR DE EXCEL (.xls / .xlsx / .csv) ----------
-   Admite los listados antiguos de agencias: varias hojas, cabecera en la fila 5,
-   y destinos codificados dentro de "Descripción" mediante códigos IATA. */
-function textoNorm(s){return String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().trim();}
-function esCabeceraViajes(row){
-  const t=row.map(x=>textoNorm(x)).join(' | ');
-  return /exped\.?/.test(t)&&/codigo/.test(t)&&/titular/.test(t)&&/fecha de salida/.test(t);
+/* ---------- LECTOR DE EXCEL (.xlsx) SIN LIBRERÍAS ---------- */
+async function inflar(bytes){
+  const ds=new DecompressionStream('deflate-raw');
+  return new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(ds)).arrayBuffer());
 }
-function normalizarListadoAgencia(rows){
-  const idx=rows.findIndex(esCabeceraViajes); if(idx<0)return null;
-  const h=rows[idx].map(x=>String(x||'').trim());
-  const col=(rx,extra=-1)=>h.findIndex((x,i)=>i!==extra&&rx.test(textoNorm(x)));
-  const iExp=col(/exped/), iCod=col(/codigo/), iNom=col(/titular|nombre|cliente/), iDesc=col(/descripcion|descripci/);
-  const iIda=col(/fecha de salida|salida|ida/), iVuelta=col(/fecha de regreso|regreso|vuelta/), iTel=col(/telefono|tel[eé]fono|movil|m[oó]vil/);
-  if(iNom<0||iIda<0)return null;
-  const out=[['Expediente','Código','Nombre','Destino','Fecha de ida','Fecha de vuelta','Teléfono','Descripción']];
-  for(const r of rows.slice(idx+1)){
-    if(!r.some(x=>String(x||'').trim()))continue;
-    const v=i=>i>=0?String(r[i]??'').trim():'';
-    const exp=v(iExp),cod=v(iCod),nom=v(iNom),desc=v(iDesc),ida=v(iIda),vu=v(iVuelta),tel=v(iTel);
-    if(!nom&&!ida&&!desc)continue;
-    // Guardamos la descripción en Destino temporalmente; después se traduce el IATA.
-    out.push([exp,cod,nom,desc,ida,vu,tel,desc]);
+async function leerZip(buf){
+  const dv=new DataView(buf), u8=new Uint8Array(buf); let e=-1;
+  for(let i=buf.byteLength-22;i>=Math.max(0,buf.byteLength-66000);i--){if(dv.getUint32(i,true)===0x06054b50){e=i;break;}}
+  if(e<0) throw new Error('zip');
+  const n=dv.getUint16(e+10,true); let off=dv.getUint32(e+16,true); const files={};
+  const dec=new TextDecoder();
+  for(let k=0;k<n;k++){
+    const met=dv.getUint16(off+10,true), csz=dv.getUint32(off+20,true), nl=dv.getUint16(off+28,true), xl=dv.getUint16(off+30,true), cl=dv.getUint16(off+32,true), lho=dv.getUint32(off+42,true);
+    const name=dec.decode(u8.subarray(off+46,off+46+nl));
+    files[name]={met,csz,lho}; off+=46+nl+xl+cl;
   }
-  return out.length>1?out:null;
+  return async name=>{const f=files[name]; if(!f) return null;
+    const ln=dv.getUint16(f.lho+26,true), lx=dv.getUint16(f.lho+28,true); const st=f.lho+30+ln+lx;
+    const raw=u8.subarray(st,st+f.csz); const out=f.met===0?raw:await inflar(raw); return dec.decode(out);};
 }
-async function leerExcelArchivo(f){
-  if(typeof XLSX==='undefined')throw new Error('xlsx-lib');
+const colIdx=r=>{const m=r.match(/^[A-Z]+/)[0];let n=0;for(const c of m)n=n*26+(c.charCodeAt(0)-64);return n-1;};
+async function leerXlsx(buf){
+  const get=await leerZip(buf); const P=new DOMParser();
+  const ss=[]; const sx=await get('xl/sharedStrings.xml');
+  if(sx){P.parseFromString(sx,'application/xml').querySelectorAll('si').forEach(si=>ss.push([...si.getElementsByTagName('t')].map(t=>t.textContent).join('')));}
+  let sheet=await get('xl/worksheets/sheet1.xml');
+  if(!sheet) throw new Error('sheet');
+  const doc=P.parseFromString(sheet,'application/xml'); const rows=[];
+  doc.querySelectorAll('sheetData row').forEach(r=>{const arr=[];r.querySelectorAll('c').forEach(c=>{const t=c.getAttribute('t'),v=c.getElementsByTagName('v')[0];let val='';
+    if(t==='s'&&v)val=ss[+v.textContent]||'';else if(t==='inlineStr'){val=[...c.getElementsByTagName('t')].map(x=>x.textContent).join('');}else if(v)val=v.textContent;
+    arr[colIdx(c.getAttribute('r'))]=val;});rows.push(Array.from(arr,x=>x==null?'':x));});
+  return rows;
+}
+/* ---------- LECTOR DE EXCEL ANTIGUO (.xls, BIFF8) SIN LIBRERÍAS: todas las hojas seguidas ---------- */
+function leerXls(buf){
+  const u8=new Uint8Array(buf),dv=new DataView(buf);
+  if(dv.getUint32(0,true)!==0xE011CFD0) throw new Error('xls');
+  const ss=1<<dv.getUint16(30,true), mss=1<<dv.getUint16(32,true);
+  const nFat=dv.getUint32(44,true), dir0=dv.getUint32(48,true), cutoff=dv.getUint32(56,true), mini0=dv.getUint32(60,true), difat0=dv.getUint32(68,true);
+  const off=s=>512+s*ss;
+  // Tabla de sectores (FAT)
+  const fatSec=[];for(let i=0;i<109&&fatSec.length<nFat;i++){const v=dv.getUint32(76+i*4,true);if(v<0xFFFFFFFA)fatSec.push(v);}
+  let d=difat0,guard=0;while(d<0xFFFFFFFA&&fatSec.length<nFat&&guard++<10000){for(let i=0;i<ss/4-1&&fatSec.length<nFat;i++){const v=dv.getUint32(off(d)+i*4,true);if(v<0xFFFFFFFA)fatSec.push(v);}d=dv.getUint32(off(d)+ss-4,true);}
+  const fat=new Uint32Array(fatSec.length*ss/4);fatSec.forEach((s,k)=>{for(let i=0;i<ss/4;i++)fat[k*ss/4+i]=dv.getUint32(off(s)+i*4,true);});
+  const cadena=(s,tab)=>{const r=[];let g=0;while(s<0xFFFFFFFA&&g++<2e6){r.push(s);s=tab[s];}return r;};
+  const leer=(s,len)=>{const out=new Uint8Array(len);let p=0;for(const x of cadena(s,fat)){const n=Math.min(ss,len-p);if(n<=0)break;out.set(u8.subarray(off(x),off(x)+n),p);p+=n;}return out;};
+  // Directorio: buscar el flujo «Workbook» (o «Book» en versiones viejas)
+  const dirB=leer(dir0,cadena(dir0,fat).length*ss),dd=new DataView(dirB.buffer);
+  let wb=null,root=null;
+  for(let o=0;o+128<=dirB.length;o+=128){const nl=dd.getUint16(o+64,true);if(!nl)continue;
+    const nombre=String.fromCharCode(...new Uint16Array(dirB.buffer.slice(o,o+Math.max(0,nl-2))));
+    const e={tipo:dirB[o+66],ini:dd.getUint32(o+116,true),tam:dd.getUint32(o+120,true)};
+    if(e.tipo===5)root=e; if(/^(Workbook|Book)$/i.test(nombre))wb=e;}
+  if(!wb) throw new Error('xls');
+  let datos;
+  if(wb.tam<cutoff&&root){ // flujo pequeño: va en el «mini stream»
+    const mfat=leer(mini0,cadena(mini0,fat).length*ss),mfv=new DataView(mfat.buffer),mtab=new Uint32Array(mfat.length/4);for(let i=0;i<mtab.length;i++)mtab[i]=mfv.getUint32(i*4,true);
+    const ms=leer(root.ini,root.tam);datos=new Uint8Array(wb.tam);let p=0;for(const x of cadena(wb.ini,mtab)){const n=Math.min(mss,wb.tam-p);if(n<=0)break;datos.set(ms.subarray(x*mss,x*mss+n),p);p+=n;}
+  }else datos=leer(wb.ini,wb.tam);
+  const v=new DataView(datos.buffer,datos.byteOffset,datos.byteLength);
+  // Registros BIFF
+  const rec=[];for(let p=0;p+4<=datos.length;){const t=v.getUint16(p,true),l=v.getUint16(p+2,true);rec.push({t,p:p+4,l});p+=4+l;}
+  const dec16=new TextDecoder('utf-16le'),dec8=new TextDecoder('latin1');
+  // Tabla de textos compartidos (SST), que puede seguir en registros CONTINUE
+  const sst=[];
+  for(let i=0;i<rec.length;i++){if(rec[i].t!==0x00FC)continue;
+    const segs=[rec[i]];for(let j=i+1;j<rec.length&&rec[j].t===0x003C;j++)segs.push(rec[j]);
+    let si=0,p=segs[0].p+8,fin=segs[0].p+segs[0].l;const total=v.getUint32(segs[0].p+4,true);
+    const sig=()=>{si++;if(si>=segs.length)return false;p=segs[si].p;fin=p+segs[si].l;return true;};
+    const u16=()=>{if(p+2>fin&&!sig())return 0;const x=v.getUint16(p,true);p+=2;return x;};
+    const u32=()=>{if(p+4>fin&&!sig())return 0;const x=v.getUint32(p,true);p+=4;return x;};
+    const saltar=n=>{while(n>0){const k=Math.min(n,fin-p);p+=k;n-=k;if(n>0&&!sig())break;}};
+    for(let k=0;k<total;k++){
+      if(p>=fin&&!sig())break;
+      const cch=u16();if(p>=fin&&!sig())break;let fl=datos[p++];
+      const rich=fl&8?u16():0,ext=fl&4?u32():0;let txt='',quedan=cch;
+      while(quedan>0){if(p>=fin){if(!sig())break;fl=datos[p++];}
+        const ancho=fl&1?2:1,cabe=Math.min(quedan,Math.floor((fin-p)/ancho));
+        txt+=ancho===2?dec16.decode(datos.subarray(p,p+cabe*2)):dec8.decode(datos.subarray(p,p+cabe));p+=cabe*ancho;quedan-=cabe;}
+      saltar(rich*4);saltar(ext);sst.push(txt);}
+    break;}
+  const rk=x=>{let n;if(x&2)n=x>>2;else{const b=new DataView(new ArrayBuffer(8));b.setUint32(4,x&0xFFFFFFFC,true);n=b.getFloat64(0,true);}return x&1?n/100:n;};
+  const num=n=>Number.isInteger(n)?String(n):String(n);
+  const filas=[];let hoja=null,ultFormula=null;
+  const poner=(r,c,val)=>{if(!hoja)return;(hoja[r]||(hoja[r]=[]))[c]=val;};
+  for(const r of rec){const p=r.p;
+    switch(r.t){
+      case 0x0809:hoja=[];break; // empieza hoja (o libro)
+      case 0x000A:if(hoja){for(const f of hoja)if(f)filas.push(Array.from(f,x=>x==null?'':x));}hoja=null;break;
+      case 0x00FD:poner(v.getUint16(p,true),v.getUint16(p+2,true),sst[v.getUint32(p+6,true)]||'');break;
+      case 0x0203:poner(v.getUint16(p,true),v.getUint16(p+2,true),num(v.getFloat64(p+6,true)));break;
+      case 0x027E:poner(v.getUint16(p,true),v.getUint16(p+2,true),num(rk(v.getUint32(p+6,true))));break;
+      case 0x00BD:{const fila=v.getUint16(p,true),c0=v.getUint16(p+2,true),n=(r.l-6)/6;for(let k=0;k<n;k++)poner(fila,c0+k,num(rk(v.getUint32(p+4+k*6+2,true))));break;}
+      case 0x0204:{const cch=v.getUint16(p+6,true),fl=datos[p+8];poner(v.getUint16(p,true),v.getUint16(p+2,true),fl&1?dec16.decode(datos.subarray(p+9,p+9+cch*2)):dec8.decode(datos.subarray(p+9,p+9+cch)));break;}
+      case 0x0006:{const fila=v.getUint16(p,true),col=v.getUint16(p+2,true);
+        if(v.getUint16(p+12,true)===0xFFFF){if(datos[p+6]===0)ultFormula=[fila,col];}else poner(fila,col,num(v.getFloat64(p+6,true)));break;}
+      case 0x0207:if(ultFormula){const cch=v.getUint16(p,true),fl=datos[p+2];poner(ultFormula[0],ultFormula[1],fl&1?dec16.decode(datos.subarray(p+3,p+3+cch*2)):dec8.decode(datos.subarray(p+3,p+3+cch)));ultFormula=null;}break;
+    }}
+  return filas;
+}
+async function leerHojas(f){
   const buf=await f.arrayBuffer();
-  const wb=XLSX.read(buf,{type:'array',cellDates:false,raw:true});
-  let todas=[];
-  for(const name of wb.SheetNames){
-    const ws=wb.Sheets[name];
-    const rows=XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:true,blankrows:false});
-    const normal=normalizarListadoAgencia(rows);
-    if(normal)todas=todas.concat(normal.slice(1));
+  if(/\.xls$/i.test(f.name)||new DataView(buf).getUint32(0,true)===0xE011CFD0) return leerXls(buf); // Excel antiguo
+  return leerXlsxTodas(buf);
+}
+// .xlsx sin librerías, todas las hojas seguidas
+async function leerXlsxTodas(buf){
+  const get=await leerZip(buf); const P=new DOMParser();
+  const ss=[]; const sx=await get('xl/sharedStrings.xml');
+  if(sx){P.parseFromString(sx,'application/xml').querySelectorAll('si').forEach(si=>ss.push([...si.getElementsByTagName('t')].map(t=>t.textContent).join('')));}
+  const rows=[];
+  for(let n=1;n<400;n++){
+    const sheet=await get(`xl/worksheets/sheet${n}.xml`); if(!sheet){if(n===1)throw new Error('sheet');break;}
+    const doc=P.parseFromString(sheet,'application/xml');
+    doc.querySelectorAll('sheetData row').forEach(r=>{const arr=[];r.querySelectorAll('c').forEach(c=>{const t=c.getAttribute('t'),v=c.getElementsByTagName('v')[0];let val='';
+      if(t==='s'&&v)val=ss[+v.textContent]||'';else if(t==='inlineStr'){val=[...c.getElementsByTagName('t')].map(x=>x.textContent).join('');}else if(v)val=v.textContent;
+      arr[colIdx(c.getAttribute('r'))]=val;});rows.push(Array.from(arr,x=>x==null?'':x));});
   }
-  if(todas.length){
-    return [['Expediente','Código','Nombre','Destino','Fecha de ida','Fecha de vuelta','Teléfono','Descripción'],...todas];
-  }
-  // Excel normal de una sola tabla: conservamos el comportamiento anterior de mapeo.
-  const ws=wb.Sheets[wb.SheetNames[0]];
-  return XLSX.utils.sheet_to_json(ws,{header:1,defval:'',raw:true,blankrows:false});
+  return rows;
 }
 function leerCsv(txt){
   const primera=txt.split(/\r?\n/)[0]; const sep=(primera.split(';').length>primera.split(',').length)?';':',';
@@ -1072,7 +1187,8 @@ function leerCsv(txt){
     if(q){if(ch==='"'){if(txt[i+1]==='"'){cur+='"';i++;}else q=false;}else cur+=ch;}
     else if(ch==='"')q=true; else if(ch===sep){row.push(cur);cur='';}
     else if(ch==='\n'){row.push(cur.replace(/\r$/,''));rows.push(row);row=[];cur='';} else cur+=ch;}
-  if(cur||row.length){row.push(cur);rows.push(row);} return rows;
+  if(cur||row.length){row.push(cur);rows.push(row);}
+  return rows;
 }
 // Fechas: número de Excel, dd/mm/aaaa, dd-mm-aa, aaaa-mm-dd
 function aFecha(v){
@@ -1082,146 +1198,124 @@ function aFecha(v){
   m=v.match(/^(\d{1,2})[-\/.](\d{1,2})[-\/.](\d{2,4})/); if(m){let y=+m[3]; if(y<100)y+=2000; return `${y}-${pad(m[2])}-${pad(m[1])}`;}
   return '';
 }
-/* ---------- RESOLUCIÓN MUNDIAL DE IATA + DESTINOS TURÍSTICOS ----------
-   Cargamos un catálogo mundial de IATA (ciudad, región y país) y añadimos
-   reglas turísticas para que "SELVA" pueda resolverse como "Selva Negra",
-   "COSTA DEL SOL" como destino regional, etc. Si no hay conexión a Internet,
-   se usa la caché local y el catálogo básico incluido abajo. */
-const IATA_CIUDADES={
-  MAD:'Madrid',UIO:'Quito',SAP:'San Pedro Sula',GYE:'Guayaquil',XPL:'Comayagua',
-  SAL:'San Salvador',LIM:'Lima',DUS:'Düsseldorf',AGP:'Málaga',BUE:'Buenos Aires',
-  EAS:'San Sebastián',BCN:'Barcelona',ROM:'Roma',LPA:'Las Palmas de Gran Canaria',
-  CUC:'Cúcuta',SJO:'San José',PTY:'Ciudad de Panamá',ASU:'Asunción',HOU:'Houston',
-  GUA:'Ciudad de Guatemala',CCS:'Caracas',MIL:'Milán',MDE:'Medellín',BIO:'Bilbao',
-  MAS:'Manila',MEX:'Ciudad de México',CUN:'Cancún',PAR:'París',LON:'Londres',FCO:'Roma',
-  LGW:'Londres',LHR:'Londres',AMS:'Ámsterdam',LIS:'Lisboa',FRA:'Fráncfort',ZRH:'Zúrich',
-  VIE:'Viena',PRG:'Praga',ATH:'Atenas',IST:'Estambul',JFK:'Nueva York',EWR:'Nueva York',
-  MIA:'Miami',ORD:'Chicago',LAX:'Los Ángeles',SFO:'San Francisco',YYZ:'Toronto',
-  GRU:'São Paulo',EZE:'Buenos Aires',BOG:'Bogotá',HAV:'La Habana',PUJ:'Punta Cana',
-  SDQ:'Santo Domingo',CPT:'Ciudad del Cabo',JNB:'Johannesburgo',CAI:'El Cairo',DXB:'Dubái',
-  DOH:'Doha',NRT:'Tokio',HND:'Tokio',PEK:'Pekín',BKK:'Bangkok',SIN:'Singapur'
-};
-const IATA_DB={};
-const IATA_MAC={ROM:'Roma',BUE:'Buenos Aires',PAR:'París',LON:'Londres',MIL:'Milán',TYO:'Tokio',NYC:'Nueva York',CHI:'Chicago',SEL:'Seúl',OSA:'Osaka',WAS:'Washington D.C.',YMQ:'Montreal',YTO:'Toronto'};
-const REGION_DESTINOS=[
-  {re:/\bselva(?:\s+negra)?\b|black\s+forest/i,nombre:'Selva Negra (Alemania)',iata:['FKB','STR','BSL','SXB']},
-  {re:/\bcosta\s+del\s+sol\b/i,nombre:'Costa del Sol (España)',iata:['AGP']},
-  {re:/\bcosta\s+brava\b/i,nombre:'Costa Brava (España)',iata:['BCN','GRO']},
-  {re:/\bcosta\s+blanca\b/i,nombre:'Costa Blanca (España)',iata:['ALC']},
-  {re:/\briviera\s+maya\b/i,nombre:'Riviera Maya (México)',iata:['CUN']},
-  {re:/\bcaribe\b/i,nombre:'Caribe',iata:['PUJ','SDQ','SJU','MBJ','NAS','HAV']},
-  {re:/\bislas\s+canarias\b|\bcanarias\b/i,nombre:'Islas Canarias (España)',iata:['LPA','TFS','TFN','ACE','FUE']},
-  {re:/\bbaleares\b|\bmallorca\b/i,nombre:'Islas Baleares (España)',iata:['PMI','IBZ','MAH']},
-  {re:/\balpes\b/i,nombre:'Alpes',iata:['GVA','ZRH','INN','LYS','MUC','MXP']},
-  {re:/\bbaviera\b|\bbavaria\b/i,nombre:'Baviera (Alemania)',iata:['MUC','NUE','SZG']},
-  {re:/\btoscana\b/i,nombre:'Toscana (Italia)',iata:['FLR','PSA','BLQ']},
-  {re:/\bandaluc[ií]a\b/i,nombre:'Andalucía (España)',iata:['SVQ','AGP','GRX','XRY']},
-  {re:/\bprovenza\b/i,nombre:'Provenza (Francia)',iata:['MRS','NCE','AVN']},
-  {re:/\bnormand[ií]a\b/i,nombre:'Normandía (Francia)',iata:['CFR','URO','LEH']},
-  {re:/\bbretaña\b/i,nombre:'Bretaña (Francia)',iata:['RNS','BES','NTE']},
-  {re:/\balsacia\b/i,nombre:'Alsacia (Francia)',iata:['SXB','MLH']},
-  {re:/\bcapadocia\b/i,nombre:'Capadocia (Turquía)',iata:['NAV','ASR']},
-  {re:/\bpatagonia\b/i,nombre:'Patagonia',iata:['BRC','FTE','USH','PUQ']},
-  {re:/\batacama\b/i,nombre:'Desierto de Atacama (Chile)',iata:['CJC']},
-  {re:/\bfiordos?\b/i,nombre:'Fiordos de Noruega',iata:['BGO','SVG','AES','TOS']}
-];
-let IATA_CARGADA=false;
-function csvSimple(s){const out=[];let row=[],cur='',q=false;for(let i=0;i<s.length;i++){const c=s[i];if(q){if(c==='"'){if(s[i+1]==='"'){cur+='"';i++;}else q=false;}else cur+=c;}else if(c==='"')q=true;else if(c===','){row.push(cur);cur='';}else if(c==='\n'){row.push(cur.replace(/\r$/,''));out.push(row);row=[];cur='';}else cur+=c;}if(cur||row.length){row.push(cur);out.push(row);}return out;}
-function incorporarIATA(csv){
-  const rows=csvSimple(csv); if(!rows.length)return 0;
-  const h=rows[0].map(x=>String(x||'').toLowerCase());
-  const ii=h.indexOf('iata'), ic=h.indexOf('city'), is=h.indexOf('subd'), ico=h.indexOf('country'), ina=h.indexOf('name');
-  let n=0;
-  for(const r of rows.slice(1)){
-    const code=String(r[ii]||'').trim().toUpperCase(); if(!/^[A-Z]{3}$/.test(code))continue;
-    const city=String(r[ic]||'').trim(), subd=String(r[is]||'').trim(), country=String(r[ico]||'').trim(), name=String(r[ina]||'').trim();
-    if(!city&&!name)continue;
-    if(!IATA_DB[code]){IATA_DB[code]={city:city||name,subd,country,name};n++;}
-  }
-  return n;
-}
-async function cargarIATAMundial(){
-  if(IATA_CARGADA)return;
-  Object.keys(IATA_CIUDADES).forEach(k=>IATA_DB[k]={city:IATA_CIUDADES[k],subd:'',country:'',name:''});
-  try{
-    const cache=localStorage.getItem('mf_iata_world_v1');
-    if(cache)incorporarIATA(cache);
-  }catch(e){}
-  try{
-    const url='https://raw.githubusercontent.com/mborsetti/airportsdata/main/airportsdata/airports.csv';
-    const r=await fetch(url,{cache:'force-cache'}); if(r.ok){const txt=await r.text(); if(txt.length>100000){incorporarIATA(txt);try{localStorage.setItem('mf_iata_world_v1',txt);}catch(e){}}}
-  }catch(e){}
-  IATA_CARGADA=true;
-}
-function ciudadIATA(c){const x=String(c||'').toUpperCase().trim();return IATA_MAC[x]||IATA_DB[x]?.city||IATA_CIUDADES[x]||'';}
-function regionDesdeDescripcion(desc,ruta){
-  const texto=String(desc||'');
-  for(const regla of REGION_DESTINOS){
-    if(regla.re.test(texto))return regla.nombre;
-  }
-  return '';
-}
-function destinoDesdeDescripcion(desc){
-  const regional=regionDesdeDescripcion(desc,[]); if(regional)return regional;
-  const raw=String(desc||'').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Z0-9]+/g,' ');
-  const toks=raw.split(/\s+/).filter(Boolean);
-  const ruta=toks.filter(t=>/^[A-Z]{3}$/.test(t)&&ciudadIATA(t));
-  if(ruta.length>=2)return ciudadIATA(ruta[1]);
-  if(ruta.length===1)return ciudadIATA(ruta[0]);
-  const texto=textoNorm(desc);
-  const directas=[
-    [/par[ií]s/,'París'],[/londres/,'Londres'],[/canarias/,'Islas Canarias (España)'],[/madrid/,'Madrid'],
-    [/bilbao/,'Bilbao'],[/san pedro/,'San Pedro Sula'],[/selva(?:\s+negra)?/,'Selva Negra (Alemania)'],
-    [/costa\s+del\s+sol/,'Costa del Sol (España)'],[/costa\s+brava/,'Costa Brava (España)'],
-    [/costa\s+blanca/,'Costa Blanca (España)'],[/riviera\s+maya/,'Riviera Maya (México)'],
-    [/baviera|bavaria/,'Baviera (Alemania)'],[/toscana/,'Toscana (Italia)'],[/andaluc[ií]a/,'Andalucía (España)']
-  ];
-  for(const [re,n] of directas)if(re.test(texto))return n;
-  return '';
-}
 let cab=[], filas=[], mapa={};
-const ADIV={expediente:/exped|expediente/i,codigo:/^codigo$|c[oó]digo/i,nombre:/nombre|cliente|pasajero|titular|\bpax\b|viajero/i, destino:/destino|ciudad|lugar|descrip|pa[ií]s/i, vuelta:/regreso|vuelta|fin\b|fecha fin|hasta|llegada/i, ida:/salida|ida\b|inicio|desde|fecha ini|fecha viaje/i, tel:/tel[eé]f|m[oó]vil|movil|whats|celular/i, email:/e-?mail|correo/i};
+const ADIV={exp:/exped|localizador|n[ºo°.]* ?reserva|^reserva/i, nombre:/nombre|cliente|pasajero|titular|\bpax\b|viajero/i, destino:/destino|descrip|ciudad|lugar|pa[ií]s|servicio|producto/i, vuelta:/regreso|vuelta|fin\b|fecha fin|hasta|llegada/i, ida:/salida|ida\b|inicio|desde|fecha ini|fecha viaje/i, tel:/tel[eé]f|m[oó]vil|movil|whats|celular/i, email:/e-?mail|correo/i};
 $('fichero').addEventListener('change',async e=>{
   const f=e.target.files[0]; if(!f) return; $('errX').style.display='none';
   try{
-    await cargarIATAMundial();
     let rows;
+    $('errX').textContent='Leyendo el archivo…';$('errX').style.display='block';$('errX').style.color='#6B6459';
     if(/\.csv$/i.test(f.name)) rows=leerCsv(await f.text());
-    else if(/\.xls[x]?$/i.test(f.name)) rows=await leerExcelArchivo(f);
+    else if(/\.(xls|xlsx|xlsm)$/i.test(f.name)) rows=await leerHojas(f);
     else throw new Error('tipo');
+    $('errX').style.display='none';$('errX').style.color='';
     rows=rows.filter(r=>r.some(c=>String(c).trim()!==''));
+    // La fila de títulos es la primera que tiene al menos 2 columnas reconocibles (los listados suelen traer antes el nombre de la empresa, la fecha…)
+    const esCab=r=>r.filter(c=>{const h=String(c).trim();return h&&h.length<40&&Object.values(ADIV).some(re=>re.test(h));}).length>=2;
+    const hi=rows.slice(0,40).findIndex(esCab);
     if(rows.length<2) throw new Error('vacio');
-    cab=rows[0].map(c=>String(c).trim()); filas=rows.slice(1);
+    cab=rows[hi>=0?hi:0].map(c=>String(c).trim());
+    const firmaCab=cab.join('|');
+    filas=rows.slice((hi>=0?hi:0)+1).filter(r=>r.map(c=>String(c).trim()).join('|')!==firmaCab); // en listados de muchas páginas la cabecera se repite
     const usados=new Set();
     const reconocido=aplicarMapaGuardado();
-    if(!reconocido) ['expediente','codigo','vuelta','ida','nombre','destino','tel','email'].forEach(k=>{const i=cab.findIndex((h,j)=>!usados.has(j)&&ADIV[k].test(h)); mapa[k]=i; if(i>=0)usados.add(i);});
+    if(!reconocido) ['exp','vuelta','ida','nombre','destino','tel','email'].forEach(k=>{const i=cab.findIndex((h,j)=>!usados.has(j)&&ADIV[k].test(h)); mapa[k]=i; if(i>=0)usados.add(i);});
     $('mapaOk').classList.toggle('hide',!reconocido); $('mapaCols').classList.toggle('hide',reconocido);
     document.querySelectorAll('.map select').forEach(sel=>{const k=sel.dataset.k;
       sel.innerHTML='<option value="-1">— No está —</option>'+cab.map((h,i)=>`<option value="${i}">${h||('Columna '+(i+1))}</option>`).join('');
-      sel.value=String(mapa[k]??-1); sel.onchange=()=>{mapa[k]=+sel.value;guardarMapa();pintarLista();};});
+      sel.value=String(mapa[k]); sel.onchange=()=>{mapa[k]=+sel.value;guardarMapa();pintarLista();};});
     $('mapWrap').classList.remove('hide'); pintarLista();
   }catch(err){
-    $('errX').textContent=err.message==='tipo'?'Sube un archivo .xls, .xlsx o .csv.':err.message==='xlsx-lib'?'No se ha podido cargar el lector de Excel. Comprueba tu conexión y vuelve a intentarlo.':'No he podido leer el archivo. Revisa que sea un Excel válido.';
+    $('errX').style.color='';
+    $('errX').textContent=err.message==='tipo'?'Sube un archivo de Excel (.xls o .xlsx) o .csv.':err.message==='xls'?'No he podido abrir este Excel antiguo (.xls). Ábrelo y guárdalo como .xlsx, y vuelve a subirlo.':'No he podido leer el archivo. Prueba a guardarlo de nuevo como .xlsx o .csv.';
     $('errX').style.display='block';
   }
 });
 $('rango').addEventListener('change',()=>pintarLista());
 // Número sin prefijo (9 cifras): se pone el del país de la agencia (Portugal +351, si no +34)
-function telWa(t,slug){let d=String(t||'').replace(/\D/g,''); if(!d) return ''; if(d.startsWith('00'))d=d.slice(2); if(d.length===9){const tz=((CFGS[slug||slugActual()]||{}).tz)||'';d=(tz==='Europe/Lisbon'?'351':'34')+d;} return d;}
+/* ---------- Entender el destino de la descripción del expediente ----------
+   «VUELO MAD UIO MAD CON IB» → Quito · «Crucero por el Danubio» → crucero por el Danubio · «CAMBIO FECHA» → sin destino */
+const IATA={MAD:'Madrid',BCN:'Barcelona',AGP:'Málaga',SVQ:'Sevilla',VLC:'Valencia',ALC:'Alicante',BIO:'Bilbao',PMI:'Palma de Mallorca',IBZ:'Ibiza',MAH:'Menorca',LPA:'Gran Canaria',TFN:'Tenerife',TFS:'Tenerife',ACE:'Lanzarote',FUE:'Fuerteventura',SPC:'La Palma',SCQ:'Santiago de Compostela',VGO:'Vigo',OVD:'Asturias',SDR:'Santander',ZAZ:'Zaragoza',GRX:'Granada',XRY:'Jerez',MJV:'Murcia',RMU:'Murcia',SDQ:'Santo Domingo',
+UIO:'Quito',UOI:'Quito',GYE:'Guayaquil',CUE:'Cuenca',LIM:'Lima',CUZ:'Cuzco',BOG:'Bogotá',MDE:'Medellín',CLO:'Cali',CTG:'Cartagena de Indias',BAQ:'Barranquilla',BGA:'Bucaramanga',PEI:'Pereira',CCS:'Caracas',VVI:'Santa Cruz de la Sierra',SRZ:'Santa Cruz de la Sierra',LPB:'La Paz',CBB:'Cochabamba',ASU:'Asunción',EZE:'Buenos Aires',BUE:'Buenos Aires',AEP:'Buenos Aires',SCL:'Santiago de Chile',MVD:'Montevideo',GRU:'São Paulo',SAO:'São Paulo',GIG:'Río de Janeiro',RIO:'Río de Janeiro',SSA:'Salvador de Bahía',FOR:'Fortaleza',
+MEX:'Ciudad de México',CUN:'Cancún',GDL:'Guadalajara',MTY:'Monterrey',PVR:'Puerto Vallarta',HAV:'La Habana',VRA:'Varadero',PUJ:'Punta Cana',POP:'Puerto Plata',SJU:'San Juan',PTY:'Panamá',SJO:'San José',MGA:'Managua',SAL:'San Salvador',GUA:'Ciudad de Guatemala',TGU:'Tegucigalpa',SAP:'San Pedro Sula',XPL:'Comayagua',RTB:'Roatán',MIA:'Miami',JFK:'Nueva York',EWR:'Nueva York',NYC:'Nueva York',LGA:'Nueva York',LAX:'Los Ángeles',SFO:'San Francisco',ORD:'Chicago',MCO:'Orlando',LAS:'Las Vegas',BOS:'Boston',IAD:'Washington',WAS:'Washington',YYZ:'Toronto',YUL:'Montreal',
+LON:'Londres',LHR:'Londres',LGW:'Londres',STN:'Londres',LTN:'Londres',PAR:'París',CDG:'París',ORY:'París',ROM:'Roma',FCO:'Roma',MIL:'Milán',MXP:'Milán',LIN:'Milán',VCE:'Venecia',NAP:'Nápoles',FLR:'Florencia',BLQ:'Bolonia',LIS:'Lisboa',OPO:'Oporto',FAO:'Faro',BER:'Berlín',MUC:'Múnich',FRA:'Fráncfort',HAM:'Hamburgo',DUS:'Düsseldorf',CGN:'Colonia',AMS:'Ámsterdam',BRU:'Bruselas',CRL:'Bruselas',ZRH:'Zúrich',GVA:'Ginebra',VIE:'Viena',PRG:'Praga',BUD:'Budapest',WAW:'Varsovia',KRK:'Cracovia',CPH:'Copenhague',ARN:'Estocolmo',STO:'Estocolmo',OSL:'Oslo',HEL:'Helsinki',DUB:'Dublín',EDI:'Edimburgo',MAN:'Mánchester',ATH:'Atenas',IST:'Estambul',SAW:'Estambul',RAK:'Marrakech',CMN:'Casablanca',TNG:'Tánger',ALG:'Argel',TUN:'Túnez',CAI:'El Cairo',DXB:'Dubái',DOH:'Doha',TLV:'Tel Aviv',AMM:'Amán',
+BKK:'Bangkok',HKT:'Phuket',NRT:'Tokio',HND:'Tokio',TYO:'Tokio',PEK:'Pekín',PVG:'Shanghái',SHA:'Shanghái',HKG:'Hong Kong',SIN:'Singapur',DPS:'Bali',BOM:'Bombay',MLE:'Maldivas',MRU:'Mauricio',ZNZ:'Zanzíbar',NBO:'Nairobi',JNB:'Johannesburgo',CPT:'Ciudad del Cabo',SYD:'Sídney',MEL:'Melbourne',DKR:'Dakar',ACC:'Acra',LOS:'Lagos',SSG:'Malabo',RBA:'Rabat',FEZ:'Fez',AGA:'Agadir',HRG:'Hurgada',SSH:'Sharm el-Sheij',LXR:'Luxor',REK:'Reikiavik',KEF:'Reikiavik'};
+// Palabras de la descripción que no son sitios (compañías, servicios, relleno)
+const NO_SITIO=new Set('VUELO VUELOS BILLETE BILLETES PASAJE PASAJES CON SIN SOLO IDA VUELTA VENIDA REGRESO RETORNO DIRECTO ESCALA ESCALAS IDAYVUELTA CLASE TURISTA BUSINESS PREMIUM ECONOMY IB IBE IBER IBERI IBERIA LAN LATAM UX AIREUROPA AIR EUROPA AVIANCA KLM KL AF UA E9 XL D8 VY FR U2 TP AA DL LH LX AV CM AM PU EVELOP PLUS ULTRA WORLD2FLY ESTELAR CONVIASA COPA UNITED DELTA AMERICAN LEVEL VUELING RYANAIR EASYJET BINTER Y E EN DE DEL AL A LA EL LOS LAS POR PARA UN UNA MAS PLUS HOTEL HOTELES ESTANCIA PAQUETE VIAJE VIAJES OJO INGRESO SEGURO SEGUROS ASISTENCIA RECEPTIVO SCHENGEN CHENGEN CANCELACION ANULACION MALETA MALETAS EXTRA EQUIPAJE CAMBIO CAMBIOS FECHA FECHAS NOMBRE TASAS REEMBOLSO DEVOLUCION RESERVA LOCALIZADOR EMISION TODO INCLUIDO MEDIA PENSION COMPLETA ALOJAMIENTO TRASLADO TRASLADOS TRASLADOS COCHE ALQUILER RENFE AVE TREN AUTOBUS BUS ALSA VISADO VISA ENERO FEBRERO MARZO ABRIL MAYO JUNIO JULIO AGOSTO SEPTIEMBRE SETIEMBRE OCTUBRE NOVIEMBRE DICIEMBRE NOCHE NOCHES DIAS DIA PERSONA PERSONAS ADULTO ADULTOS NINO NINOS BEBE PAX PENDIENTE PAGADO PAGO RESTO SENAL CONFIRMADO OK TOUR TOURS CULTURALES CULTURAL RUTA RUTAS CRUCERO CRUCEROS CIRCUITO CIRCUITOS AUTOCIRCUITO ESCAPADA EXCURSION EXCURSIONES MERCADILLOS MERCADOS NAVIDENOS NAVIDAD PURA VIDA LUNA MIEL GRUPO FAMILIA'.split(' '));
+// Países, regiones e islas que no tienen aeropuerto propio en la lista: [cómo se escribe, nombre bonito, artículo]
+const SITIOS=[['SAN PEDRO SULA','San Pedro Sula',''],['SAN PEDRO','San Pedro Sula',''],['GRAN CANARIAS','Gran Canaria',''],['SELVA NEGRA','Selva Negra','la '],['DANUBIO','Danubio','el '],['RIN','Rin','el '],['NILO','Nilo','el '],['FIORDOS','Fiordos noruegos','los '],['ALPES','Alpes','los '],['PIRINEOS','Pirineos','los '],['TOSCANA','Toscana','la '],['COSTA AZUL','Costa Azul','la '],['COSTA AMALFITANA','Costa Amalfitana','la '],['RIVIERA MAYA','Riviera Maya','la '],['CARIBE','Caribe','el '],['LAPONIA','Laponia',''],['POLINESIA','Polinesia','la '],['BALI','Bali',''],['MALDIVAS','Maldivas','las '],['PUNTA CANA','Punta Cana',''],
+['GRAN CANARIA','Gran Canaria',''],['TENERIFE','Tenerife',''],['LANZAROTE','Lanzarote',''],['FUERTEVENTURA','Fuerteventura',''],['MALLORCA','Mallorca',''],['MENORCA','Menorca',''],['IBIZA','Ibiza',''],['BENIDORM','Benidorm',''],['MARBELLA','Marbella',''],['TORREMOLINOS','Torremolinos',''],['SALOU','Salou',''],['PENISCOLA','Peñíscola',''],['GANDIA','Gandía',''],['CANARIAS','Canarias',''],['BALEARES','Baleares',''],['ANDALUCIA','Andalucía',''],['GALICIA','Galicia',''],['ASTURIAS','Asturias',''],['CANTABRIA','Cantabria',''],
+['COSTA RICA','Costa Rica',''],['REPUBLICA DOMINICANA','República Dominicana',''],['EGIPTO','Egipto',''],['CHINA','China',''],['JAPON','Japón',''],['TAILANDIA','Tailandia',''],['VIETNAM','Vietnam',''],['INDIA','India','la '],['MARRUECOS','Marruecos',''],['TURQUIA','Turquía',''],['GRECIA','Grecia',''],['ITALIA','Italia',''],['FRANCIA','Francia',''],['PORTUGAL','Portugal',''],['ALEMANIA','Alemania',''],['ESCOCIA','Escocia',''],['IRLANDA','Irlanda',''],['ISLANDIA','Islandia',''],['NORUEGA','Noruega',''],['CROACIA','Croacia',''],['SUIZA','Suiza',''],['AUSTRIA','Austria',''],['JORDANIA','Jordania',''],['KENIA','Kenia',''],['TANZANIA','Tanzania',''],['CUBA','Cuba',''],['MEXICO','México',''],['PERU','Perú',''],['ECUADOR','Ecuador',''],['COLOMBIA','Colombia',''],['ARGENTINA','Argentina',''],['BRASIL','Brasil',''],['ESTADOS UNIDOS','Estados Unidos',''],['NUEVA YORK','Nueva York',''],
+['LONDRES','Londres',''],['PARIS','París',''],['ROMA','Roma',''],['LISBOA','Lisboa',''],['OPORTO','Oporto',''],['AMSTERDAM','Ámsterdam',''],['BERLIN','Berlín',''],['PRAGA','Praga',''],['VIENA','Viena',''],['BUDAPEST','Budapest',''],['VENECIA','Venecia',''],['FLORENCIA','Florencia',''],['MILAN','Milán',''],['NAPOLES','Nápoles',''],['BRUSELAS','Bruselas',''],['DUBLIN','Dublín',''],['ESTAMBUL','Estambul',''],['ATENAS','Atenas',''],['MARRAKECH','Marrakech',''],['DUBAI','Dubái',''],['CANCUN','Cancún',''],['MIAMI','Miami',''],['ORLANDO','Orlando',''],
+['MADRID','Madrid',''],['BARCELONA','Barcelona',''],['SEVILLA','Sevilla',''],['VALENCIA','Valencia',''],['MALAGA','Málaga',''],['GRANADA','Granada',''],['BILBAO','Bilbao',''],['SANTANDER','Santander',''],['QUITO','Quito',''],['GUAYAQUIL','Guayaquil',''],['CUENCA','Cuenca',''],['LIMA','Lima',''],['BOGOTA','Bogotá',''],['MEDELLIN','Medellín',''],['CARACAS','Caracas',''],['ASUNCION','Asunción',''],['BUENOS AIRES','Buenos Aires',''],['SANTIAGO DE CHILE','Santiago de Chile',''],['LA HABANA','La Habana',''],['SANTO DOMINGO','Santo Domingo',''],['TEGUCIGALPA','Tegucigalpa',''],['SAN PEDRO SULA','San Pedro Sula',''],['MANAGUA','Managua',''],['PALMEROLA','Comayagua',''],['BUCARAMANGA','Bucaramanga',''],['CALI','Cali','']];
+SITIOS.sort((a,b)=>b[0].length-a[0].length); // primero los nombres largos («Gran Canaria» antes que «Canarias»)
+const TIPOS=[[/AUTOCIRCUITO|AUTO CIRCUITO|ROAD ?TRIP/,'circuito'],[/CRUCERO/,'crucero'],[/CIRCUITO/,'circuito'],[/\bRUTAS?\b/,'ruta'],[/ESCAPADA/,'escapada'],[/LUNA DE MIEL/,'luna de miel'],[/MERCADILLOS|MERCADOS NAVIDE/,'viaje a los mercadillos navideños']];
+const SERVICIO=/^(CAMBIO( DE)? (FECHA|NOMBRE|BILLETE)|MALETA EXTRA|EQUIPAJE|TASAS|REEMBOLSO|DEVOLUCION|ANULACION|CANCELACION|SEGURO|VISADO|BILLETE DE (RENFE|TREN|AUTOBUS)|RENFE|ALQUILER)/;
+const sinTilde=t=>String(t||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toUpperCase();
+const bonitoTxt=t=>t.toLowerCase().replace(/(^|\s)\S/g,l=>l.toUpperCase());
+function entenderDestino(desc){
+  const T=sinTilde(desc).replace(/[^A-Z0-9Ñ]+/g,' ').trim();
+  const res={lugar:'',art:'',tipo:'',servicio:false,original:String(desc||'').trim()};
+  if(!T){return res;}
+  for(const [re,t] of TIPOS) if(re.test(T)){res.tipo=t;break;}
+  // 1) Códigos de aeropuerto y nombres de ciudades, en orden: el primero es el origen y el destino es el primero distinto
+  const sec=[];const pal=T.split(' ');
+  for(let i=0;i<pal.length;i++){const w=pal[i];
+    let hit=null;
+    for(const [k,n] of SITIOS){const kp=k.split(' ');if(pal.slice(i,i+kp.length).join(' ')===k){hit={n,art:SITIOS.find(x=>x[0]===k)[2]};i+=kp.length-1;break;}}
+    if(!hit&&/^[A-Z]{3}$/.test(w)&&IATA[w]&&w!=='DEL'&&w!=='SOL')hit={n:IATA[w],art:''};
+    if(!hit&&/^[A-Z]{6}$/.test(w)&&IATA[w.slice(0,3)]&&IATA[w.slice(3)]){sec.push({n:IATA[w.slice(0,3)],art:''});hit={n:IATA[w.slice(3)],art:''};} // MADUIO
+    if(!hit&&/^[A-Z]{4}$/.test(w)&&!NO_SITIO.has(w)){if(IATA[w.slice(1)])hit={n:IATA[w.slice(1)],art:''};else if(IATA[w.slice(0,3)])hit={n:IATA[w.slice(0,3)],art:''};} // DGYE, BERL
+    if(!hit&&/^[A-Z]{5,}$/.test(w)&&!NO_SITIO.has(w)&&!/^(\w)\1+$/.test(w))hit={n:bonitoTxt(w),art:'',dudoso:true}; // palabra desconocida: puede ser un sitio (Bucaramanga)
+    if(hit)sec.push(hit);}
+  const seguros=sec.filter(x=>!x.dudoso);
+  const usa=seguros.length?seguros:sec;
+  // Ruta de vuelo («MAD UIO MAD»): el primero es el origen. Si no («Estancia en Sevilla y Granada»), el primero es el destino
+  const nCod=pal.filter(w=>/^[A-Z]{3}$/.test(w)&&IATA[w]).length;
+  const esRuta=/VUELO|BILLETE|PASAJE/.test(T)||nCod>=2||(usa.length>=2&&usa[0].n==='Madrid');
+  if(usa.length&&!esRuta){res.lugar=usa[0].n;res.art=usa[0].art||'';}
+  else if(usa.length){const o=usa[0].n;const d=usa.find(x=>x.n!==o)||usa[0];
+    // «MAD BUCARAMANGA MAD»: si solo conocemos el origen, vale la palabra desconocida de en medio
+    if(seguros.length&&!seguros.some(x=>x.n!==o)){const dud=sec.find(x=>x.dudoso);if(dud&&seguros.length>=2){res.lugar=dud.n;return res;}}
+    res.lugar=d.n;res.art=d.art||'';}
+  if(!res.lugar&&SERVICIO.test(T))res.servicio=true;
+  return res;
+}
+// Frase del mensaje: «de tu viaje a Quito», «de tu crucero por el Danubio», «de tu viaje»
+function fraseViaje(e,varios){
+  const tu=varios?'vuestro':'tu';
+  if(!e.lugar) return e.tipo?`de ${tu} ${e.tipo.replace(/^viaje a /,'')}`:`de ${tu} viaje`;
+  if(e.tipo==='crucero'||e.tipo==='circuito'||e.tipo==='ruta') return `de ${tu} ${e.tipo} por ${e.art}${e.lugar}`;
+  if(e.tipo==='luna de miel') return `de ${varios?'vuestra':'tu'} luna de miel en ${e.art}${e.lugar}`;
+  if(e.tipo==='escapada') return `de ${varios?'vuestra':'tu'} escapada a ${e.art.replace(/^el /,'').replace(/^(.)/,'$1')}${e.art==='el '?'al ':''}${e.lugar}`.replace('a al ','al ');
+  return `de ${tu} viaje a ${e.art==='el '?'':e.art}${e.art==='el '?'al ':''}${e.lugar}`.replace('a al ','al ');
+}
+
+// Teléfono para WhatsApp: quita espacios, «+», «:», «TLF»…; 9 cifras = móvil del país de la agencia; fijos e incompletos no valen
+function telWa(t,slug){let d=String(t||'').replace(/\.0+$/,'').replace(/\D/g,''); if(!d) return ''; if(d.startsWith('00'))d=d.slice(2);
+  const pt=(((CFGS[slug||slugActual()]||{}).tz)||'')==='Europe/Lisbon';
+  if(d.length===9){ if(pt) return /^9/.test(d)?'351'+d:''; return /^[67]/.test(d)?'34'+d:''; } // fijos (91…, 2…) no tienen WhatsApp
+  if(d.length===11&&d.startsWith('34')) return /^34[67]/.test(d)?d:'';
+  if(d.length===12&&d.startsWith('351')) return /^3519/.test(d)?d:'';
+  if(d.length>=10&&d.length<=15) return d; // con prefijo de otro país (593…, 504…, 57…)
+  return '';}
 function claveEnviado(r){return 'mf_env_'+[r.nombre,r.destino,r.ida].join('|');}
 let visibles=[];
 let LISTA_TODA=false;
 function pintarLista(){
   if(!filas.length) return;
-  const val=(r,k)=>mapa[k]>=0?String(r[mapa[k]]??'').trim():'';
-  const valDestino=r=>{const v=val(r,'destino');return ciudadIATA(v)||destinoDesdeDescripcion(v)||v;};
+  const val=(r,k)=>mapa[k]>=0?String(r[mapa[k]]||'').trim():'';
   const lim=new Date(); lim.setDate(lim.getDate()+(+$('rango').value)); const LIM=ymd(lim);
-  visibles=filas.map(r=>({expediente:val(r,'expediente'),codigo:val(r,'codigo'),nombre:val(r,'nombre'),destino:valDestino(r),ida:aFecha(val(r,'ida')),vuelta:aFecha(val(r,'vuelta')),tel:val(r,'tel'),email:val(r,'email')}))
-    .filter(r=>r.destino&&r.ida&&r.ida>=HOY&&r.ida<=LIM).sort((a,b)=>a.ida.localeCompare(b.ida));
+  visibles=filas.map(r=>{const desc=val(r,'destino'),e=entenderDestino(desc);
+      return {nombre:val(r,'nombre').replace(/\s+/g,' '),desc,destino:e.lugar,ent:e,ida:aFecha(val(r,'ida')),vuelta:aFecha(val(r,'vuelta')),tel:val(r,'tel'),email:val(r,'email'),exp:val(r,'exp')};})
+    .filter(r=>r.ida&&r.ida>=HOY&&r.ida<=LIM&&(r.desc||r.nombre)).sort((a,b)=>a.ida.localeCompare(b.ida));
+  // «CAMBIO FECHA», «MALETA EXTRA», «SEGURO»…: si el mismo cliente ya tiene su viaje en la lista, no se le manda otra maleta
+  const conViaje=new Set(visibles.filter(r=>!r.ent.servicio).map(r=>telWa(r.tel)||r.nombre.toLowerCase()));
+  visibles=visibles.filter(r=>!(r.ent.servicio&&conViaje.has(telWa(r.tel)||r.nombre.toLowerCase())));
   // Una fila por pasajero → un solo WhatsApp por reserva (mismo teléfono, destino y fecha de ida)
   const grupos=new Map(),solos=[];
   visibles.forEach(r=>{const t=telWa(r.tel);if(!t){solos.push({...r,pax:[r.nombre]});return;}
-    const k=t+'|'+normT(r.destino)+'|'+r.ida;const g=grupos.get(k);
+    const k=t+'|'+normT(r.destino||'?')+'|'+r.ida;const g=grupos.get(k);
     if(g){if(r.nombre&&!g.pax.includes(r.nombre))g.pax.push(r.nombre);if(!g.vuelta&&r.vuelta)g.vuelta=r.vuelta;if(!g.email&&r.email)g.email=r.email;}
     else grupos.set(k,{...r,pax:[r.nombre].filter(Boolean)});});
   const nomPila=n=>capital(String(n||'').trim().split(/\s+/)[0].toLowerCase());
@@ -1233,20 +1327,21 @@ function pintarLista(){
   $('lista').innerHTML='';
   const MAXV=20;
   visibles.forEach((r,i)=>{
-    const vu=r.vuelta&&r.vuelta>=r.ida?r.vuelta:'';
-    const {url,msg,ciudad}=crear({cli:r.cli,des:r.destino,ida:r.ida,vu,tipo:''});
+    const vu=r.vuelta&&r.vuelta>r.ida?r.vuelta:''; // misma fecha de ida y vuelta = solo ida
+    const {url,msg,ciudad}=crear({cli:r.cli,des:r.destino,ida:r.ida,vu,tipo:'',ent:r.ent,gen:r.npax>1?'':generoNombre(r.nombre)});
     r.url=url; r.msg=msg;
     const tel=telWa(r.tel); let env=false; try{env=localStorage.getItem(claveEnviado(r))==='1'}catch(e){}
     const d=document.createElement('div'); d.className='item'+(env?' sent':'');
     d.innerHTML=`<h3></h3><p></p><div class="ib"><a class="btn wa" target="_blank" rel="noopener">WhatsApp</a>${r.email?'<a class="btn mail">Email</a>':''}<button type="button" class="copy">Copiar</button></div><label class="chk"><input type="checkbox"> Enviado</label>`;
-    d.querySelector('h3').textContent=(r.npax>1?r.cli+' ('+r.npax+' pasajeros)':(r.nombre||'Sin nombre'))+' · '+ciudad;
-    d.querySelector('p').textContent=(vu?`Del ${fechaBonita(r.ida)} al ${fechaBonita(vu)}`:`Sale el ${fechaBonita(r.ida)}`)+(r.expediente||r.codigo?` · Exp. ${r.expediente||'—'} · Cód. ${r.codigo||'—'}`:'');
+    d.querySelector('h3').textContent=(r.npax>1?r.cli+' ('+r.npax+' pasajeros)':(capital((r.nombre||'Sin nombre').toLowerCase())))+' · '+(ciudad||'maleta genérica');
+    d.querySelector('p').textContent=(vu?`Del ${fechaBonita(r.ida)} al ${fechaBonita(vu)}`:`Sale el ${fechaBonita(r.ida)}`)+(r.exp?` · exp. ${r.exp}`:'')+(telWa(r.tel)?'':' · sin móvil');
+    if(r.desc&&r.desc.toUpperCase()!==String(ciudad).toUpperCase()){const o=document.createElement('small');o.className='orig';o.textContent=(ciudad?'«':'No sé el destino de «')+r.desc+'»'+(ciudad?'':': le llega una maleta para que ponga su destino');d.querySelector('p').after(o);}
     d.querySelector('.wa').href=`https://wa.me/${tel}?text=${encodeURIComponent(msg)}`;
     if(r.email) d.querySelector('.mail').href=`mailto:${encodeURIComponent(r.email)}?subject=${encodeURIComponent('Tu maleta para '+ciudad)}&body=${encodeURIComponent(msg.replace(/\*/g,''))}`;
     d.querySelector('.copy').onclick=()=>copiar(msg);
     const cb=d.querySelector('input'); cb.checked=env;
     const marcar=()=>{cb.checked=true;d.classList.add('sent');try{localStorage.setItem(claveEnviado(r),'1')}catch(e){}};
-    d.querySelector('.wa').addEventListener('click',()=>{marcar();evento('envio',slugActual(),capital(r.destino));}); if(r.email) d.querySelector('.mail').addEventListener('click',marcar);
+    d.querySelector('.wa').addEventListener('click',()=>{marcar();evento('envio',slugActual(),r.destino,r.url);}); if(r.email) d.querySelector('.mail').addEventListener('click',marcar);
     cb.onchange=()=>{d.classList.toggle('sent',cb.checked);try{cb.checked?localStorage.setItem(claveEnviado(r),'1'):localStorage.removeItem(claveEnviado(r))}catch(e){}};
     if(i>=MAXV&&!LISTA_TODA)d.classList.add('hide');
     $('lista').appendChild(d);
@@ -1258,7 +1353,7 @@ function pintarLista(){
 $('descargar').onclick=()=>{
   if(!visibles.length) return;
   const esc=v=>'"'+String(v||'').replace(/"/g,'""')+'"';
-  const lineas=[['Expediente','Código','Nombre','Destino','Ida','Vuelta','Teléfono','Email','Enlace'].map(esc).join(';')].concat(visibles.map(r=>[r.expediente,r.codigo,r.nombre,r.destino,r.ida,r.vuelta,r.tel,r.email,r.url].map(esc).join(';')));
+  const lineas=[['Nombre','Destino','Ida','Vuelta','Teléfono','Email','Enlace'].map(esc).join(';')].concat(visibles.map(r=>[r.nombre,r.destino,r.ida,r.vuelta,r.tel,r.email,r.url].map(esc).join(';')));
   const blob=new Blob(['﻿'+lineas.join('\n')],{type:'text/csv;charset=utf-8'});
   const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download='maletas-'+HOY+'.csv'; a.click();
 };
@@ -1287,6 +1382,8 @@ function pintarAgencias(){
 function abrirForm(slug){
   editando=slug||null; logoData=''; const d=slug?AG[slug]||{}:{};
   $('agTit').textContent=slug?'Editar agencia':'Nueva agencia';
+  ponerPlan(d.plan==='pro'?'pro':'gratis',false); $('aColor').value=/^#[0-9a-f]{6}$/i.test(d.color||'')?d.color:'#12302E'; pintarMuestra();
+  ponerColModo(d.plan==='pro'&&!/^#[0-9a-f]{6}$/i.test(d.color||'')?'mf':'ag');
   $('aNombre').value=d.nombre||''; $('aModo').value=d.modo==='completo'?'completo':''; $('aTag').value=d.tag||''; $('aSeguro').value=d.seguro||''; $('aCiv').value=d.civitatis||''; $('aLogo').value=''; tamLogo=['s','l'].includes(d.tam)?d.tam:'m'; $('aTamF').style.display=d.modo==='completo'?'none':'';
   const src=logoUrl(d.logo); $('aPrev').innerHTML=src?'<img alt="">':'<span class="hint">Sin logo</span>'; if(src)$('aPrev').querySelector('img').src=src;
   const cf={hora:'09:30',dias:7,tz:'Europe/Madrid',email:'',...(CFGS[slug]||{})};
@@ -1407,6 +1504,42 @@ function marcarBotones(){document.querySelectorAll('#edForma button').forEach(b=
     $('edLogo').classList.add('hide');document.body.style.overflow='';
   };
 })();
+/* ---------- Plan Gratis / Pro de cada agencia ---------- */
+function ponerPlan(p,cambiar=true){
+  $('aPlan').value=p; document.querySelectorAll('#aPlanSeg button').forEach(b=>b.classList.toggle('on',b.dataset.v===p));
+  $('aColorF').classList.toggle('hide',p!=='pro');
+  $('aPlanTxt').textContent=p==='pro'?'Pro: marca blanca con su logo y su color, informe completo y estadísticas por días en su cuenta.':'Gratis: cabecera compartida, informe básico y «Tu mes».';
+  if(cambiar){ // al cambiar de plan se ajustan solos (puedes retocarlos después)
+    $('aModo').value=p==='pro'?'completo':''; $('aModo').dispatchEvent(new Event('change'));
+    $('aInfCont').value=p==='pro'?'completo':'basico';
+    if(p==='pro'&&COLMODO==='ag'&&$('aColor').value.toLowerCase()==='#12302e') colorDelLogo();
+  }
+}
+document.querySelectorAll('#aPlanSeg button').forEach(b=>b.onclick=()=>ponerPlan(b.dataset.v));
+// Color dominante del logo (el más vivo y repetido, sin blancos ni negros)
+async function colorDelLogo(){
+  const img=await cargarImg(logoData||logoUrl((AG[editando]||{}).logo)); if(!img) return toast('Sube primero el logo');
+  const c=document.createElement('canvas');c.width=c.height=60;const x=c.getContext('2d');x.drawImage(img,0,0,60,60);
+  let d;try{d=x.getImageData(0,0,60,60).data;}catch(e){return;}
+  const cub={};for(let i=0;i<d.length;i+=4){if(d[i+3]<200)continue;const r=d[i],g=d[i+1],b=d[i+2],mx=Math.max(r,g,b),mn=Math.min(r,g,b);
+    if(mx>235&&mn>215)continue; if(mx<35)continue; const sat=mx?(mx-mn)/mx:0; if(sat<.25)continue;
+    const k=(r>>5)+','+(g>>5)+','+(b>>5);(cub[k]=cub[k]||{n:0,r:0,g:0,b:0});cub[k].n++;cub[k].r+=r;cub[k].g+=g;cub[k].b+=b;}
+  const top=Object.values(cub).sort((a,b)=>b.n-a.n)[0]; if(!top) return toast('El logo no tiene un color claro: elígelo a mano');
+  const h=v=>Math.round(v/top.n).toString(16).padStart(2,'0'); $('aColor').value='#'+h(top.r)+h(top.g)+h(top.b); pintarMuestra();
+}
+$('aColorLogo').onclick=colorDelLogo;
+// Pro con los colores de Maleta Fácil (solo marca blanca con su logo) o con los de la agencia
+let COLMODO='ag';
+function ponerColModo(m){COLMODO=m;document.querySelectorAll('#aColSeg button').forEach(b=>b.classList.toggle('on',b.dataset.v===m));
+  $('aColRow').classList.toggle('hide',m!=='ag');$('aColHint').textContent=m==='ag'?'Cambia el fondo, los títulos y el botón de la web. Los botones de Amazon se quedan amarillos.':'La web se queda con los colores de Maleta Fácil; solo cambia la cabecera a su logo.';
+  if(m==='ag'&&$('aColor').value.toLowerCase()==='#12302e')colorDelLogo();}
+document.querySelectorAll('#aColSeg button').forEach(b=>b.onclick=()=>ponerColModo(b.dataset.v));
+// Muestra con los mismos tonos que usará la web
+function tonosAgencia(hex){const r=parseInt(hex.slice(1,3),16)/255,g=parseInt(hex.slice(3,5),16)/255,b=parseInt(hex.slice(5,7),16)/255,mx=Math.max(r,g,b),mn=Math.min(r,g,b);
+  let h=0,s=0;const l=(mx+mn)/2;if(mx!==mn){const dd=mx-mn;s=l>.5?dd/(2-mx-mn):dd/(mx+mn);h=mx===r?(g-b)/dd+(g<b?6:0):mx===g?(b-r)/dd+2:(r-g)/dd+4;h*=60;}
+  const S=Math.round(Math.min(s,.75)*100),H=Math.round(h);return {fondo:`hsl(${H},${Math.min(S,55)}%,15%)`,boton:`hsl(${H},${Math.max(S,35)}%,42%)`};}
+function pintarMuestra(){const t=tonosAgencia($('aColor').value);const m=$('aColorMuestra');m.style.background=t.fondo;m.style.boxShadow=`inset -60px 0 0 ${t.boton}`;}
+$('aColor').addEventListener('input',pintarMuestra);
 // Tarjeta de WhatsApp (1200x630): logo de Maleta Fácil | logo de la agencia + "Prepara tu maleta en un minuto" (con la etiqueta "Equipaje sin estrés")
 function cargarImg(src){return new Promise(ok=>{if(!src)return ok(null);const i=new Image();i.onload=()=>ok(i);i.onerror=()=>ok(null);i.src=src;});}
 async function hacerTarjeta(logoSrc,nombre){
@@ -1455,10 +1588,11 @@ $('aGuardar').onclick=async()=>{
   const emailR=$('aEmail').value.trim(); if(emailR&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(emailR)) return fallo('Revisa el email del resumen.');
   $('aGuardar').disabled=true;
   let og; try{og=await hacerTarjeta(logoData||logoUrl((AG[slug]||{}).logo),nombre);}catch(e){}
-  const r=await api({accion:'guardar',slug,nombre,modo:$('aModo').value,tam:tamLogo,tag,seguro,civitatis:civ,logo:logoData||undefined,og}).catch(()=>({ok:false}));
+  const plan=$('aPlan').value, color=plan==='pro'&&COLMODO==='ag'?$('aColor').value:''; // «Los de Maleta Fácil»: solo cambia el logo
+  const r=await api({accion:'guardar',slug,nombre,plan,color,modo:$('aModo').value,tam:tamLogo,tag,seguro,civitatis:civ,logo:logoData||undefined,og}).catch(()=>({ok:false}));
   $('aGuardar').disabled=false;
   if(!r.ok) return fallo(r.status===401?'La sesión ha caducado: vuelve a entrar.':'No se ha podido guardar. Inténtalo de nuevo.');
-  const cfg={email:emailR,hora:$('aHora').value||'09:30',dias:+$('aDias').value||0,tz:$('aTz').value,informeCada:$('aInfCada').value,informeCanal:$('aInfCanal').value,informeContenido:$('aInfCont').value};
+  const cfg={email:emailR,hora:$('aHora').value||'09:30',dias:+$('aDias').value||0,tz:$('aTz').value,informeCada:$('aInfCada').value,informeCanal:$('aInfCanal').value,informeContenido:$('aInfCont').value,plan};
   await apiV({accion:'config',slug,...cfg}).catch(()=>{}); CFGS[slug]={...(CFGS[slug]||{}),...cfg};
   toast('Agencia guardada'); if(ROL!=='agencia'){$('agForm').classList.add('hide'); $('agLista').classList.remove('hide');} cargarAgencias();
 };

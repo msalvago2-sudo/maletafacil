@@ -22,7 +22,10 @@
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-  gtag('config', 'G-5FHPD9YJD6', {'anonymize_ip': true});
+  // Enlace de lanzamiento maletafacil.com/app/AGENCIA: Analytics lo cuenta como campaña de WhatsApp
+  (function(){var s=location.pathname.split('/').filter(Boolean),o={'anonymize_ip': true};
+    if(s[0]==='app') o.page_location=location.origin+'/?utm_source=whatsapp&utm_medium=difusion&utm_campaign=lanzamiento'+(s[1]?'&agencia='+encodeURIComponent(s[1]):'');
+    gtag('config', 'G-5FHPD9YJD6', o);})();
 </script>
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
@@ -979,6 +982,7 @@ body.con-lista .dest-pop,html.ag-cargando .dest-pop,html.dest-cargando .dest-pop
 (function(){try{
   var s=location.pathname.split('/').filter(Boolean),q=new URLSearchParams(location.search),c=document.documentElement.classList;
   var agR=window.__MF_AG&&s.length===1&&window.__MF_AG.slug===s[0].toLowerCase(); // maletafacil.com/AGENCIA
+  if(s[0]==='app'){ if(s[1])c.add('ag-cargando'); return; } // maletafacil.com/app/AGENCIA: portada con su marca
   var esM=s[0]==='m'; // maleta guardada: maletafacil.com/m/CÓDIGO
   var ag=(q.get('agencia')||q.get('utm_source')||(agR?s[0]:'')||(s.length>=2&&!esM?s[0]:'')).toLowerCase();
   var dest=q.get('destino')||(esM?'m':s.length>=2?s[1]:(s.length===1&&!agR&&s[0].indexOf('.')<0?s[0]:''));
@@ -3044,7 +3048,11 @@ function leerRutaCorta(){
 }
 const rutaCorta = leerRutaCorta();
 // maletafacil.com/AGENCIA (una sola palabra que es una agencia, no un destino): lo confirma el servidor al meter sus datos
-const AG_RUTA = (()=>{ const seg = location.pathname.split('/').filter(Boolean); return (seg.length === 1 && window.__MF_AG && window.__MF_AG.slug === seg[0].toLowerCase()) ? seg[0].toLowerCase() : ''; })();
+// maletafacil.com/app o /app/AGENCIA: enlace de lanzamiento (portada + aviso de instalar la app)
+const APP_RUTA = location.pathname.split('/').filter(Boolean)[0] === 'app';
+const AG_RUTA = (()=>{ const seg = location.pathname.split('/').filter(Boolean);
+  if(seg[0] === 'app') return /^[a-z0-9-]+$/i.test(seg[1] || '') ? seg[1].toLowerCase() : '';
+  return (seg.length === 1 && window.__MF_AG && window.__MF_AG.slug === seg[0].toLowerCase()) ? seg[0].toLowerCase() : ''; })();
 
 function aplicarColorAgencia(hex, fondo){
   const r = parseInt(hex.slice(1,3),16)/255, g = parseInt(hex.slice(3,5),16)/255, b = parseInt(hex.slice(5,7),16)/255;
@@ -3169,7 +3177,7 @@ async function cargarDestinoDesdeURL(){
   let destinoParam = params.get('destino') || (rutaCorta && rutaCorta.destino) || '';
   if(!destinoParam){
     const path = window.location.pathname.replace(/^\/+|\/+$/g, '');
-    if(path && !AG_RUTA && path.toLowerCase() !== 'index.html' && !/\.[a-z]{2,5}\.?$/i.test(path)){
+    if(path && !AG_RUTA && !APP_RUTA && path.toLowerCase() !== 'index.html' && !/\.[a-z]{2,5}\.?$/i.test(path)){
       destinoParam = decodeURIComponent(path);
     }
   }
@@ -3396,7 +3404,7 @@ function mostrarTarjetaInstalar(){
 mostrarTarjetaInstalar();
 window.addEventListener('beforeinstallprompt', e=>{ e.preventDefault(); avisoInstalar = e; mostrarTarjetaInstalar(); if(LLEGA_LANZAMIENTO) setTimeout(()=>abrirHojaInstalar('enlace', true), 1200); });
 // Enlace de lanzamiento de la agencia (…&app=1): la hoja sale nada más entrar
-const LLEGA_LANZAMIENTO = new URLSearchParams(location.search).get('app') === '1';
+const LLEGA_LANZAMIENTO = new URLSearchParams(location.search).get('app') === '1' || APP_RUTA;
 if(LLEGA_LANZAMIENTO && esIOS) setTimeout(()=>abrirHojaInstalar('enlace', true), 1500);
 window.addEventListener('appinstalled', ()=>{ avisoInstalar = null; mostrarTarjetaInstalar(); gtag('event', 'app_instalada'); });
 async function instalarApp(){

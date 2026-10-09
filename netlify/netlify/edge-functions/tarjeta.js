@@ -27,6 +27,7 @@ export default async (req, context) => {
         if (p[0] === "1") { destino = p[1] || ""; slug = (p[7] || "").toLowerCase(); }
       } catch (e) {}
     }
+    else if (seg[0] === "app") { slug = (seg[1] || "").toLowerCase(); }   // lanzamiento: maletafacil.com/app/AGENCIA
     else if (seg.length >= 2 && /^[a-z0-9-]+$/i.test(seg[0])) { slug = seg[0].toLowerCase(); destino = seg[1]; }
     else if (seg.length === 1 && url.pathname !== "/index.html") { palabra = seg[0]; }   // maletafacil.com/roma o maletafacil.com/AGENCIA
     else { slug = (url.searchParams.get("agencia") || "").toLowerCase(); destino = url.searchParams.get("destino") || ""; }
@@ -79,5 +80,5 @@ export default async (req, context) => {
 
 export const config = {
   path: "/*",
-  excludedPath: ["/.netlify/*", "/app", "/app/*", "/agencias/*", "/que-llevar/*", "/enlace.html", "/*.html", "/sw.js", "/manifest.json", "/*.png", "/*.jpg", "/*.jpeg", "/*.svg", "/*.ico", "/*.js", "/*.css", "/*.json", "/*.txt", "/*.xml"],
+  excludedPath: ["/.netlify/*", "/agencias/*", "/que-llevar/*", "/enlace.html", "/*.html", "/sw.js", "/manifest.json", "/*.png", "/*.jpg", "/*.jpeg", "/*.svg", "/*.ico", "/*.js", "/*.css", "/*.json", "/*.txt", "/*.xml"],
 };

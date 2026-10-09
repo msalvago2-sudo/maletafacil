@@ -2083,7 +2083,7 @@ function renderWeather(destinoLabel, w, dias){
   const el = document.getElementById('weather');
   const g = window.__geoActual, flag = (g && g.cc && /^[a-z]{2}$/.test(g.cc)) ? `<img class="titulo-bandera" src="https://flagcdn.com/w40/${g.cc}.png" srcset="https://flagcdn.com/w80/${g.cc}.png 2x" alt="" onerror="this.remove()">` : '';
   let html = `<div class="weather-title"><h3>${catIcon('clima')}<span>Clima en ${escapeHtml(destinoLabel)}${flag}</span></h3>
-    <span class="weather-note">${w.mode==='forecast' ? 'Previsión meteorológica' : uiIcon('aviso',13) + ' Estimación según años anteriores (no es una previsión exacta)'}</span></div>`;
+    ${w.mode==='forecast' ? '' : '<span class="weather-note">' + uiIcon('aviso',13) + ' Estimación según años anteriores (no es una previsión exacta)</span>'}</div>`;
 
   if(w.mode==='forecast' && dias<=10){
     html += `<div class="day-scroll">`;

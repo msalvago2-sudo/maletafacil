@@ -50,6 +50,7 @@ button,.btn{font:700 15px 'Work Sans',sans-serif;border:0;border-radius:100px;pa
 .wa{background:#25D366;color:#0B3B21}
 .btns .wa{grid-column:1/-1}
 .copy{background:var(--teal);color:var(--paper)}
+.avisos-ok{margin:0 0 6px;font-size:14.5px;font-weight:600;color:#1F5F5B}.avisos-ok a{display:block;font-weight:500;font-size:13px;color:#6B6459;margin-top:4px}.avisos-ok.hide{display:none}
 .lanz-paso{background:#fff;border:1.5px solid #E4DCCB;border-radius:12px;padding:12px;margin-top:10px}.lanz-paso b{display:block;font-size:14.5px;margin-bottom:4px}
 .lanz-resumen{font-weight:700;margin:12px 0 0;font-size:15px}
 .lanz-lista{margin-top:8px}.lanz-fila{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #F0EADF}.lanz-fila:last-child{border-bottom:0}
@@ -258,6 +259,7 @@ body.rol-agencia #agForm .two{display:none}
 <b style="font:700 17px Fraunces,serif">🔔 Avisos en este móvil</b>
 <p class="hint" id="avisoTxt" style="margin:4px 0 10px"></p>
 <button type="button" class="btn recor" id="activarAvisos">Activar avisos en este móvil</button>
+<p class="avisos-ok hide" id="avisosOk">✅ Este móvil ya recibe los avisos. <a href="#" id="reactivarAvisos">¿No te llegan? Volver a activarlos</a></p>
 <a class="mini" id="probarResumen">Probar el resumen ahora</a>
 </div>
 </div>
@@ -770,7 +772,7 @@ const cortoF=f=>{const M=['ene','feb','mar','abr','may','jun','jul','ago','sep',
 const rangoV=v=>v.vu?`${cortoF(v.ida)} – ${cortoF(v.vu)}`:`sale el ${cortoF(v.ida)}`;
 function diaRel(f,hoy){const dd=Math.round((new Date(f+'T12:00')-new Date(hoy+'T12:00'))/864e5);if(dd===1)return 'Mañana';const d=new Date(f+'T12:00');return DIAS[d.getDay()].replace(/^./,c=>c.toUpperCase())+' '+d.getDate();}
 async function cargarHoy(){
-  const s=$('agHoy').value, cont=$('hoyCont');
+  const s=$('agHoy').value, cont=$('hoyCont'); pintarBotonAvisos();
   const r=await apiV({accion:'hoy',slug:s}).catch(()=>({ok:false}));
   if(!r.ok){cont.innerHTML='<p class="err" style="display:block">No se ha podido cargar la lista. Revisa la conexión.</p>';return;}
   HOYDATA=r.agencias||{}; Object.entries(HOYDATA).forEach(([k,v])=>CFGS[k]=v.cfg);
@@ -888,6 +890,15 @@ $('programarV').onclick=async()=>{
 const esIOS=/iPhone|iPad|iPod/.test(navigator.userAgent), instalada=window.matchMedia('(display-mode: standalone)').matches||navigator.standalone;
 if('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});
 const aBytes=b=>{const p='='.repeat((4-b.length%4)%4),r=atob((b+p).replace(/-/g,'+').replace(/_/g,'/'));return Uint8Array.from([...r].map(c=>c.charCodeAt(0)));};
+// Si este móvil ya está suscrito (y con permiso), no hace falta el botón grande
+async function pintarBotonAvisos(){
+  const s=$('agHoy').value; let ya=false;
+  try{ if(s&&'serviceWorker' in navigator&&'PushManager' in window&&Notification.permission==='granted'){
+    const reg=await navigator.serviceWorker.getRegistration(); const sub=reg&&await reg.pushManager.getSubscription();
+    ya=!!sub; } }catch(e){}
+  $('activarAvisos').classList.toggle('hide',ya); $('avisosOk').classList.toggle('hide',!ya);
+}
+$('reactivarAvisos').onclick=e=>{e.preventDefault();$('activarAvisos').click();};
 $('activarAvisos').onclick=async()=>{
   const s=$('agHoy').value; if(!s) return toast('Elige primero una agencia');
   if(esIOS&&!instalada) return alert('En iPhone, primero añade esta herramienta a la pantalla de inicio:\n\n1. Toca el botón Compartir de Safari.\n2. Elige «Añadir a pantalla de inicio».\n3. Ábrela desde el icono nuevo y pulsa otra vez «Activar avisos».');
@@ -898,7 +909,8 @@ $('activarAvisos').onclick=async()=>{
     const reg=await navigator.serviceWorker.ready;
     let sub=await reg.pushManager.getSubscription(); if(!sub) sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:aBytes(clave)});
     const r=await apiV({accion:'push',slug:s,sub:sub.toJSON(),quien:esIOS?'iPhone':'Android'}); if(!r.ok) throw new Error('guardar');
-    await apiV({accion:'pushPrueba',slug:s}); toast('🔔 Avisos activados'); cargarHoy();
+    try{localStorage.setItem('mf_push_ok:'+s,'1');}catch(e){}
+    await apiV({accion:'pushPrueba',slug:s}); toast('🔔 Avisos activados'); cargarHoy(); pintarBotonAvisos();
   }catch(e){alert('No se han podido activar los avisos. Inténtalo de nuevo en unos minutos.');}
 };
 $('probarResumen').onclick=async()=>{const s=$('agHoy').value;if(!s)return;const r=await apiV({accion:'resumenAhora',slug:s}).catch(()=>({ok:false}));

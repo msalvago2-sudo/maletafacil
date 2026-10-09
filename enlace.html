@@ -1415,7 +1415,7 @@ function pintarAgencias(){
 // Si no se pone email para el resumen y el informe, se usa el email con el que la agencia entra
 function ponerPhEmail(c){const ac=(ACCESOS[editando]||{}).email||(c&&c.emailAuto?c.email:'')||(ROL==='agencia'?MIEMAIL:'');
   $('aEmail').placeholder=ac?'Vacío = se usa el de acceso: '+ac:'Email para el resumen (ej. reservas@agencia.es)';}
-function enlaceLanzamiento(slug){return `https://maletafacil.com/?agencia=${encodeURIComponent(slug)}&app=1&utm_source=whatsapp&utm_medium=difusion&utm_campaign=lanzamiento`;}
+function enlaceLanzamiento(slug){return `https://maletafacil.com/app/${encodeURIComponent(slug)}`;} // redirige a /?agencia=…&app=1&utm_… (ver _redirects)
 function pintarLanzamiento(slug,d){
   const f=$('lanzF'); if(!slug){f.classList.add('hide');return;} f.classList.remove('hide');
   const url=enlaceLanzamiento(slug), nombre=(d&&d.nombre)||slug;

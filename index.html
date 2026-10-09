@@ -530,6 +530,10 @@
   .civ-fechas{font-size:12px;font-weight:700;background:rgba(255,255,255,.2);border-radius:100px;padding:4px 10px;white-space:nowrap;}
   .civ-ciudad{font-family:'Fraunces',serif;font-size:30px;font-weight:600;line-height:1.05;margin:4px 0 10px;}
   .civ-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
+  .civ-chips span{display:inline-flex;align-items:center;gap:5px;}
+  .ic-l{width:1.15em;height:1.15em;flex-shrink:0;vertical-align:-.2em;}
+  .li-maleta-txt{display:flex;align-items:center;gap:8px;} .li-maleta-txt .ic-l{width:20px;height:20px;color:var(--teal-700);}
+  .form-resumen .fr-txt b .ic-l{margin-right:4px;color:var(--rust);}
   .civ-chips span{font-size:12.5px;font-weight:600;background:rgba(255,255,255,.16);border:1px solid rgba(255,255,255,.28);border-radius:100px;padding:5px 10px;}
   .civ-cta{display:block;text-align:center;background:#fff;color:#c4004a;font-weight:800;font-size:14.5px;border-radius:100px;padding:12px 14px;position:relative;z-index:1;}
   .civ-marca{display:block;text-align:right;font-size:10.5px;opacity:.8;margin-top:8px;position:relative;z-index:1;}
@@ -1132,7 +1136,7 @@ body.con-lista .dest-pop,html.ag-cargando .dest-pop,html.dest-cargando .dest-pop
       <div id="barraMaletas" class="barra-maletas" style="display:none;"></div>
       <p class="hint" id="barraTexto">Estimación orientativa según lo que llevas elegido.</p>
       <p class="hint" id="barraAvisoFacturar" style="display:none;color:var(--rust);font-weight:600;">
-        🧳 Te recomendamos facturar maleta. <a href="#" id="verAerolineasLink" style="color:var(--rust);">Mira las medidas por aerolínea</a>
+        <svg class="ic-l" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="7" width="16" height="13" rx="2"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M9 11v5M15 11v5"/></svg> Te recomendamos facturar maleta. <a href="#" id="verAerolineasLink" style="color:var(--rust);">Mira las medidas por aerolínea</a>
       </p>
     </div>
 
@@ -1742,7 +1746,7 @@ function bannerCivitatis(destinoLabel, sinDestino){
   return `<a class="civ-banner con-foto" href="${url}" target="_blank" rel="noopener sponsored" onclick="try{gtag('event','civitatis_click')}catch(e){}">
     <div class="civ-foto" id="civFoto"><svg class="civ-skyline" viewBox="0 0 400 90" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><path d="M0 90V62h18V48h14v14h10V30h8l4-10 4 10h8v32h12V52h16v10h10V40h22v22h8V26h6V14h4v12h6v36h14V50h18v12h10V36l12-8 12 8v26h10V44h20v18h8V22h4l6-12 6 12h4v40h12V54h14v8h10V34h24v28h12V48h16v14h14V40h18v50z" fill="rgba(255,255,255,.14)"/></svg><div class="civ-foto-txt"><span class="civ-kicker">🎟️ Qué hacer en</span><p class="civ-ciudad">${escapeHtml(ciudad)}</p></div>${fechas ? `<span class="civ-fechas">${fechas}</span>` : ''}<span class="civ-credito" id="civCredito"></span></div>
     <div class="civ-cuerpo">
-      <div class="civ-chips"><span>🏛️ Visitas guiadas</span><span>🚌 Excursiones</span><span>🎫 Entradas sin colas</span></div>
+      <div class="civ-chips"><span><svg class="ic-l" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 21h18M5 21V10M19 21V10M9 21V10M15 21V10M2 10l10-6 10 6"/></svg>Visitas guiadas</span><span><svg class="ic-l" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="4" width="16" height="13" rx="2"/><path d="M4 11h16M7 17v3M17 17v3"/><circle cx="8" cy="14" r=".5"/><circle cx="16" cy="14" r=".5"/></svg>Excursiones</span><span><svg class="ic-l" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8a2 2 0 0 0 0 4v4h16v-4a2 2 0 0 1 0-4V4H4z"/><path d="M12 4v12" stroke-dasharray="2 2"/></svg>Entradas sin colas</span></div>
       <span class="civ-cta">Ver precios y reservar →</span>
       <span class="civ-marca">Actividades con Civitatis</span>
     </div>
@@ -2780,7 +2784,7 @@ async function generarMaleta(){
           return;
         }
         if(it.directLink==='#maleta'){
-          html += `<li id="li-${id}" class="li-maleta"><span class="li-maleta-txt">🧳 ${escapeHtml(it.name)}</span><button type="button" class="amz-link" onclick="abrirMaletaModal()">${it.botonTexto||'Elegir'}</button></li>`;
+          html += `<li id="li-${id}" class="li-maleta"><span class="li-maleta-txt"><svg class="ic-l" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="7" width="16" height="13" rx="2"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2M9 11v5M15 11v5"/></svg>${escapeHtml(it.name)}</span><button type="button" class="amz-link" onclick="abrirMaletaModal()">${it.botonTexto||'Elegir'}</button></li>`;
           return;
         }
         html += `<li id="li-${id}">
@@ -2864,7 +2868,7 @@ function plegarFormulario(destinoLabel){
   if(a){ const [,m1,d1] = a.split('-').map(Number), [,m2,d2] = (b||a).split('-').map(Number);
     f = (!b || a===b) ? `${d1} ${M[m1-1]}` : m1===m2 ? `${d1}–${d2} ${M[m1-1]}` : `${d1} ${M[m1-1]} – ${d2} ${M[m2-1]}`; }
   const tipo = (document.querySelector('#tripChips .chip.active')||{}).textContent || '';
-  res.innerHTML = `<span class="fr-txt"><b>📍 ${escapeHtml((destinoLabel||'').split(',')[0])}</b>${f?` · ${f}`:''}${tipo.trim()?` · ${escapeHtml(tipo.trim())}`:''}</span><span class="fr-cambiar">Cambiar</span>`;
+  res.innerHTML = `<span class="fr-txt"><b><svg class="ic-l" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>${escapeHtml((destinoLabel||'').split(',')[0])}</b>${f?` · ${f}`:''}${tipo.trim()?` · ${escapeHtml(tipo.trim())}`:''}</span><span class="fr-cambiar">Cambiar</span>`;
   res.style.display = 'flex';
   form.classList.add('form-plegado');
 }

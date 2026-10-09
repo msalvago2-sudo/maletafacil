@@ -21,7 +21,7 @@ body{margin:0;background:var(--teal);font-family:'Work Sans',sans-serif;color:va
 .wrap{max-width:520px;margin:0 auto;padding:28px 16px 40px}
 .brand{display:flex;align-items:center;gap:10px;color:var(--paper);margin-bottom:6px}
 .logo{width:52px;height:52px;display:block;flex-shrink:0}
-.brand b.marca{font:700 23px Fraunces,serif;margin:0;white-space:nowrap}.brand b.marca span{color:#E9845F}
+.brand b.marca{font:700 23px Fraunces,serif;margin:0;white-space:nowrap}.marca-sub{display:block;font:500 12.5px 'Work Sans',sans-serif;color:#BFD3CE;white-space:nowrap;margin-top:1px}.brand b.marca span{color:#E9845F}
 .brandAg{margin-left:4px;padding-left:14px;border-left:1px solid rgba(246,241,228,.28);height:46px;min-width:0;flex:0 1 auto;display:flex;align-items:center}.brandAg.hide{display:none}.brandAg img{max-height:42px;max-width:100%;border-radius:8px;display:block;object-fit:contain}.brandAg span{font:600 15px Fraunces,serif;color:var(--paper);text-align:left;line-height:1.15}
 .brand b{font:600 19px Fraunces,serif;display:block;line-height:1.1;margin-bottom:4px}
 .etq{display:inline-flex;align-items:center;gap:5px;background:#8B5A2B;color:var(--paper);font:600 11px 'Work Sans',sans-serif;padding:3px 9px;border-radius:100px}
@@ -178,7 +178,8 @@ body.rol-agencia #agForm .two{display:none}
 .cab.blanca .cablogo img{max-height:64px;max-width:220px}
 .cabpw{display:flex;align-items:center;gap:5px;font-size:10px;color:rgba(246,241,228,.7)}.cabpw b{color:var(--paper)}
 .cabpw img{width:13px;height:13px;border-radius:3px}
-.cabh1{font:600 21px Fraunces,serif;color:var(--paper);margin-top:2px}
+.cabh1{font:500 14px 'Work Sans',sans-serif;color:#BFD3CE;margin-top:2px}
+.cabsub{display:block;font:500 9.5px 'Work Sans',sans-serif;color:#BFD3CE;white-space:nowrap;margin-top:-2px}
 .cabbtn{color:#fff;font-weight:700;font-size:13px;border-radius:10px;padding:8px 16px;margin-top:2px}
 .cablogo span{color:var(--paper);font-weight:700;font-size:14px}
 /* Editor de logo */
@@ -226,7 +227,7 @@ body.rol-agencia #agForm .two{display:none}
 </head>
 <body>
 <div class="wrap">
-<div class="brand"><img class="logo" src="/img/logo-maleta.png" alt=""><div><b class="marca">Maleta <span>Fácil</span></b></div><div class="brandAg hide" id="brandAg"></div></div>
+<div class="brand"><img class="logo" src="/img/logo-maleta.png" alt=""><div><b class="marca">Maleta <span>Fácil</span></b><small class="marca-sub">Tu maleta en un minuto.</small></div><div class="brandAg hide" id="brandAg"></div></div>
 <h1>Crear enlace de maleta</h1>
 <p class="sub">Envía a tus clientes su maleta ya preparada, con su destino y sus fechas.</p>
 
@@ -1436,8 +1437,8 @@ function pintarCab(){
   cab.style.background=suyos?$('aFondo').value:'';
   const logo='<div class="cablogo"></div>';
   cab.innerHTML=blanca
-    ? logo+'<div class="cabpw"><img src="/img/logo-maleta.png" alt="">Powered by <b>Maleta Fácil</b></div><div class="cabh1">Tu maleta en un minuto</div><div class="cabbtn">Preparar mi maleta</div>'
-    : '<div class="cabmf"><img class="cabic" src="/img/logo-maleta.png" alt=""><div><b>Maleta <span style="color:#E9845F">Fácil</span></b></div></div><div class="cabsep"></div>'+logo;
+    ? logo+'<div class="cabpw"><img src="/img/logo-maleta.png" alt="">Powered by <b>Maleta Fácil</b></div><div class="cabh1">Tu maleta en un minuto.</div><div class="cabbtn">Preparar mi maleta</div>'
+    : '<div class="cabmf"><img class="cabic" src="/img/logo-maleta.png" alt=""><div><b>Maleta <span style="color:#E9845F">Fácil</span></b><small class="cabsub">Tu maleta en un minuto.</small></div></div><div class="cabsep"></div>'+logo;
   const btn=cab.querySelector('.cabbtn'); if(btn) btn.style.background=suyos?$('aColor').value:'#B65B3F';
   const h=cab.querySelector('.cablogo');
   if(!im){h.innerHTML='<span></span>';h.firstChild.textContent=nombre;}
@@ -1630,20 +1631,22 @@ async function hacerTarjeta(logoSrc,nombre,op={}){
   }
   // Bloque Maleta Fácil como en la cabecera: logo de la maleta + «Maleta Fácil»
   const mf=await cargarImg('/img/logo-maleta.png');
-  x.font='700 64px Fraunces, Georgia, serif';const wM=x.measureText('Maleta ').width,wF=x.measureText('Fácil').width,tw=wM+wF;
+  const SUB='Tu maleta en un minuto.';
+  x.font='500 33px "Work Sans", sans-serif';const wS=x.measureText(SUB).width;
+  x.font='700 64px Fraunces, Georgia, serif';const wM=x.measureText('Maleta ').width,wF=x.measureText('Fácil').width,tw=Math.max(wM+wF,wS);
   let lw,lh;
   if(img){const k=Math.min(330/img.width,140/img.height);lw=img.width*k;lh=img.height*k;}
   else{x.font='700 40px "Work Sans", sans-serif';lw=Math.min(330,x.measureText(nombre).width);lh=60;}
-  const IC=150,total=IC+28+tw+46+3+46+lw, x0=(W-total)/2, top=195, cy=top+IC/2;
+  const IC=150,total=IC+28+tw+46+3+46+lw, x0=(W-total)/2, top=(H-IC)/2, cy=top+IC/2;
   if(mf){x.save();rr(x0,top,IC,IC,34);x.clip();x.drawImage(mf,x0,top,IC,IC);x.restore();}
   const tx=x0+IC+28;
   x.textAlign='left';x.textBaseline='middle';x.font='700 64px Fraunces, Georgia, serif';
-  x.fillStyle='#F6F1E4';x.fillText('Maleta ',tx,cy+4);x.fillStyle='#E9845F';x.fillText('Fácil',tx+wM,cy+4);
+  x.fillStyle='#F6F1E4';x.fillText('Maleta ',tx,cy-20);x.fillStyle='#E9845F';x.fillText('Fácil',tx+wM,cy-20);
+  x.font='500 33px "Work Sans", sans-serif';x.fillStyle='#BFD3CE';x.fillText(SUB,tx,cy+40);
   const sx=tx+tw+46;x.fillStyle='rgba(246,241,228,.3)';x.fillRect(sx,top,3,IC);
   const lx=sx+49;
   if(img){x.save();rr(lx,cy-lh/2,lw,lh,14);x.clip();x.drawImage(img,lx,cy-lh/2,lw,lh);x.restore();}
   else{x.fillStyle='#F6F1E4';x.font='700 40px "Work Sans", sans-serif';x.fillText(nombre,lx,cy,330);}
-  x.textAlign='center';x.fillStyle='#F6F1E4';x.font='600 44px Fraunces, Georgia, serif';x.fillText('Tu maleta en un minuto',W/2,top+IC+80);
   return c.toDataURL('image/jpeg',0.88);
 }
 $('aGuardar').onclick=async()=>{

@@ -2101,8 +2101,6 @@ function renderWeather(destinoLabel, w, dias){
       <div class="stat-card"><div class="sicon">${rainIcon(w.rainProb)}</div><div class="sval">${Math.round(w.rainProb)}%</div><div class="slabel">Prob. de lluvia</div></div>
     </div>`;
   }
-  const gd = guiaDestino(destinoLabel);
-  if(gd) html += `<a class="guia-dest" href="/que-llevar/${gd.slug}/"><span>📘</span><span><b>Qué llevar a ${escapeHtml(gd.nombre)} según el mes</b></span><span class="gd-fl">→</span></a>`;
   el.innerHTML = html;
   el.style.display = 'block';
 }

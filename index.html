@@ -80,6 +80,9 @@
   }
   .h1-una{font-family:'Fraunces',serif;font-weight:700;color:var(--paper);font-size:clamp(26px,8.2vw,44px);white-space:nowrap;margin:0 0 0;display:none;}
   body.desde-agencia .h1-una{display:block;} body.desde-agencia .sub-mf{display:none;}
+  body.desde-agencia .h1-una{font-family:'Work Sans',sans-serif;font-weight:500;font-size:15.5px;color:#BFD3CE;letter-spacing:.01em;margin:0;}
+  body.desde-agencia .fila-compartida .sub-mf{display:block !important;font-size:12.5px;margin-top:3px;}
+  body.desde-agencia .hero:has(.fila-compartida) .h1-una{display:none;}
   .hero .sub-mf{font-family:'Work Sans',sans-serif;font-weight:500;font-size:15.5px;color:#BFD3CE;margin:7px 0 0;letter-spacing:.01em;line-height:1.2;white-space:nowrap;}
   .hero{padding-top:0 !important;padding-bottom:14px !important;}
   .wrap{padding-top:max(12px, env(safe-area-inset-top)) !important;}
@@ -854,6 +857,9 @@
     transition:width .5s ease, background .3s ease;
   }
   .barra-track-wrap{position:relative;padding-top:26px;}
+  .barra-cab{display:flex;align-items:center;gap:4px;}
+  .barra-cifra{margin-left:auto;font-family:'Work Sans',sans-serif;font-size:13.5px;font-weight:500;color:#6E6A60;text-transform:none;letter-spacing:0;}
+  #barraTexto{margin-top:6px;}
   .barra-marker{
     position:absolute;
     top:0;
@@ -1098,7 +1104,7 @@ body.con-lista .dest-pop,html.ag-cargando .dest-pop,html.dest-cargando .dest-pop
 
 
     <div class="field">
-      <p class="field-label" style="margin-bottom:8px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" style="vertical-align:-3px;margin-right:2px;"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M9 8V6a3 3 0 0 1 6 0v2" stroke-linecap="round"/><path d="M12 11v6" stroke-linecap="round"/></svg> Tu maleta</p>
+      <p class="field-label barra-cab" style="margin-bottom:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" style="vertical-align:-3px;margin-right:2px;"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M9 8V6a3 3 0 0 1 6 0v2" stroke-linecap="round"/><path d="M12 11v6" stroke-linecap="round"/></svg> Tu maleta<span class="barra-cifra" id="barraCifra"></span></p>
       <div class="barra-track-wrap">
         <div class="barra-track"><div class="barra-fill" id="barraFill"></div></div>
         <div class="barra-marker barra-marker-cabina" title="Límite de cabina">
@@ -1407,6 +1413,7 @@ const DEFAULT_DIAS_SIN_FECHAS = 5;
 // fechas, justo debajo, ya puede necesitar recalcularla)
 const barraFillEl = document.getElementById('barraFill');
 const barraTextoEl = document.getElementById('barraTexto');
+const barraCifraEl = document.getElementById('barraCifra');
 const barraAvisoFacturarEl = document.getElementById('barraAvisoFacturar');
 const CAPACIDAD_CABINA_UNIDADES = 36; // recalibrado tras excluir accesorios/documentos (no ocupan espacio real): ciudad/5 días ronda el 75%
 
@@ -3071,6 +3078,7 @@ async function aplicarAgenciaDesdeURL(){
     fila.append(marca, separador, hueco);
     fila.style.gap = '12px';
     fila.classList.add('fila-compartida');
+    const h1a = document.getElementById('h1Agencia'); if(h1a) h1a.style.display = 'none';
   }
   gtag('event', 'vista_marca_blanca', {agencia: slug, modo: agencia.modo === 'completo' ? 'completo' : 'compartido'});
 }
@@ -3218,7 +3226,8 @@ function pintarBarra(unidades, esEstimacion){
     maletasEl.innerHTML = icono.repeat(Math.min(maletas, 8));
     maletasEl.style.display = 'flex';
     trackWrap.style.display = 'none';
-    barraTextoEl.textContent = `Unas ${maletas} maleta${maletas>1?'s':''} de cabina para ${personas} personas — ${coletilla}.`;
+    barraCifraEl.textContent = `≈ ${maletas} maleta${maletas>1?'s':''} de cabina`;
+    barraTextoEl.textContent = `Para ${personas} personas — ${coletilla}.`;
     barraAvisoFacturarEl.style.display = 'none';
     return;
   }
@@ -3231,9 +3240,8 @@ function pintarBarra(unidades, esEstimacion){
   const pctVisual = Math.min(100, Math.round(pctReal / 2));
   barraFillEl.style.width = pctVisual + '%';
   barraFillEl.style.background = pctReal < 100 ? '#3F8F5F' : 'var(--rust)';
-  barraTextoEl.textContent = esEstimacion
-    ? `${pctReal}% de una maleta de cabina — ${coletilla}.`
-    : `${pctReal}% de una maleta de cabina, ${coletilla}.`;
+  barraCifraEl.textContent = `≈ ${pctReal} % de cabina`;
+  barraTextoEl.textContent = esEstimacion ? 'Estimación orientativa según lo que llevas.' : 'Con tu lista ya generada (estimación orientativa).';
   barraAvisoFacturarEl.style.display = unidades > CAPACIDAD_CABINA_UNIDADES ? 'block' : 'none';
 }
 

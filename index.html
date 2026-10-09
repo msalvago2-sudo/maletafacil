@@ -858,7 +858,8 @@
   }
   .barra-track-wrap{position:relative;padding-top:26px;}
   .barra-cab{display:flex;align-items:center;gap:4px;}
-  .barra-cifra{margin-left:auto;font-family:'Work Sans',sans-serif;font-size:13.5px;font-weight:500;color:#6E6A60;text-transform:none;letter-spacing:0;}
+  .barra-cifra{font-family:'Work Sans',sans-serif;font-size:14px;font-weight:700;color:#3F8F5F;text-transform:none;letter-spacing:0;margin-left:2px;}
+  .barra-cifra:not(:empty)::before{content:'· ';color:#8A8478;font-weight:500;}
   #barraTexto{margin-top:6px;}
   .barra-marker{
     position:absolute;
@@ -3226,7 +3227,7 @@ function pintarBarra(unidades, esEstimacion){
     maletasEl.innerHTML = icono.repeat(Math.min(maletas, 8));
     maletasEl.style.display = 'flex';
     trackWrap.style.display = 'none';
-    barraCifraEl.textContent = `≈ ${maletas} maleta${maletas>1?'s':''} de cabina`;
+    barraCifraEl.textContent = `${maletas} maleta${maletas>1?'s':''} de cabina`; barraCifraEl.style.color = '#3F8F5F';
     barraTextoEl.textContent = `Para ${personas} personas — ${coletilla}.`;
     barraAvisoFacturarEl.style.display = 'none';
     return;
@@ -3240,7 +3241,7 @@ function pintarBarra(unidades, esEstimacion){
   const pctVisual = Math.min(100, Math.round(pctReal / 2));
   barraFillEl.style.width = pctVisual + '%';
   barraFillEl.style.background = pctReal < 100 ? '#3F8F5F' : 'var(--rust)';
-  barraCifraEl.textContent = `≈ ${pctReal} % de cabina`;
+  barraCifraEl.textContent = `${pctReal} % de cabina`; barraCifraEl.style.color = pctReal < 100 ? '#3F8F5F' : 'var(--rust)';
   barraTextoEl.textContent = esEstimacion ? 'Estimación orientativa según lo que llevas.' : 'Con tu lista ya generada (estimación orientativa).';
   barraAvisoFacturarEl.style.display = unidades > CAPACIDAD_CABINA_UNIDADES ? 'block' : 'none';
 }

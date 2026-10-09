@@ -1124,7 +1124,7 @@ body.con-lista .dest-pop,html.ag-cargando .dest-pop,html.dest-cargando .dest-pop
       <div id="barraMaletas" class="barra-maletas" style="display:none;"></div>
       <p class="hint" id="barraTexto">Estimación orientativa según lo que llevas elegido.</p>
       <p class="hint" id="barraAvisoFacturar" style="display:none;color:var(--rust);font-weight:600;">
-        Puede que no quepa en cabina — <a href="#" id="verAerolineasLink" style="color:var(--rust);">mira las medidas por aerolínea</a>
+        🧳 Te recomendamos facturar maleta. <a href="#" id="verAerolineasLink" style="color:var(--rust);">Mira las medidas por aerolínea</a>
       </p>
     </div>
 
@@ -3233,7 +3233,7 @@ function pintarBarra(unidades, esEstimacion){
     trackWrap.style.display = 'none';
     barraCifraEl.textContent = `${maletas} maleta${maletas>1?'s':''} de cabina`; barraCifraEl.style.color = '#3F8F5F';
     barraTextoEl.textContent = `Para ${personas} personas — ${coletilla}.`;
-    barraAvisoFacturarEl.style.display = 'none';
+    barraAvisoFacturarEl.style.display = 'none'; barraTextoEl.style.display = '';
     return;
   }
 
@@ -3247,7 +3247,9 @@ function pintarBarra(unidades, esEstimacion){
   barraFillEl.style.background = pctReal < 100 ? '#3F8F5F' : 'var(--rust)';
   barraCifraEl.textContent = `${pctReal} % de cabina`; barraCifraEl.style.color = pctReal < 100 ? '#3F8F5F' : 'var(--rust)';
   barraTextoEl.textContent = esEstimacion ? 'Estimación orientativa según lo que llevas.' : 'Con tu lista ya generada (estimación orientativa).';
-  barraAvisoFacturarEl.style.display = unidades > CAPACIDAD_CABINA_UNIDADES ? 'block' : 'none';
+  const pasa = unidades > CAPACIDAD_CABINA_UNIDADES;
+  barraAvisoFacturarEl.style.display = pasa ? 'block' : 'none';
+  barraTextoEl.style.display = pasa ? 'none' : '';
 }
 
 function actualizarBarraEstimada(){

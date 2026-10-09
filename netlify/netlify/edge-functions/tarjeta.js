@@ -18,18 +18,28 @@ export default async (req, context) => {
   try {
     const url = new URL(req.url);
     const seg = url.pathname.split("/").filter(Boolean);
-    let slug = "", destino = "";
-    if (seg.length >= 2 && /^[a-z0-9-]+$/i.test(seg[0])) { slug = seg[0].toLowerCase(); destino = seg[1]; }
-    else if (seg.length === 1 && url.pathname !== "/index.html") { destino = seg[0]; }          // maletafacil.com/roma
+    let slug = "", destino = "", palabra = "";
+    if (seg[0] === "m" && seg.length === 2) {
+      // Maleta guardada: maletafacil.com/m/CÓDIGO → destino y agencia van dentro del código
+      try {
+        let c = seg[1].replace(/-/g, "+").replace(/_/g, "/"); while (c.length % 4) c += "=";
+        const p = decodeURIComponent(escape(atob(c))).split("|");
+        if (p[0] === "1") { destino = p[1] || ""; slug = (p[7] || "").toLowerCase(); }
+      } catch (e) {}
+    }
+    else if (seg.length >= 2 && /^[a-z0-9-]+$/i.test(seg[0])) { slug = seg[0].toLowerCase(); destino = seg[1]; }
+    else if (seg.length === 1 && url.pathname !== "/index.html") { palabra = seg[0]; }   // maletafacil.com/roma o maletafacil.com/AGENCIA
     else { slug = (url.searchParams.get("agencia") || "").toLowerCase(); destino = url.searchParams.get("destino") || ""; }
     if (slug && !/^[a-z0-9-]+$/.test(slug)) slug = "";
-    if (!slug && !destino) return; // portada normal: se queda con sus etiquetas
+    if (!slug && !destino && !palabra) return; // portada normal: se queda con sus etiquetas
 
+    const necesitaLista = slug || (palabra && /^[a-z0-9-]+$/i.test(palabra));
     const [res, lista] = await Promise.all([
       context.next(),
-      slug ? fetch(new URL("/.netlify/functions/agencias", url.origin)).then(r => r.ok ? r.json() : {}).catch(() => ({})) : {},
+      necesitaLista ? fetch(new URL("/.netlify/functions/agencias", url.origin)).then(r => r.ok ? r.json() : {}).catch(() => ({})) : {},
     ]);
     if (!(res.headers.get("content-type") || "").includes("text/html")) return res;
+    if (palabra) { const pl = palabra.toLowerCase(); if (lista[pl]) slug = pl; else destino = palabra; } // ¿agencia o destino?
     const ag = slug ? lista[slug] : null;
     if (!ag && !destino) return res;
 
@@ -48,7 +58,9 @@ export default async (req, context) => {
       // Los datos de la agencia van dentro de la página (la web no tiene que pedirlos) y el logo se empieza a bajar ya
       const datos = JSON.stringify({ slug, ...ag }).replace(/</g, "\\u003c");
       const logo = !ag.logo ? "" : (/^(\/|https:\/\/)/.test(ag.logo) ? ag.logo : "/agencias/" + encodeURIComponent(ag.logo));
-      let extra = `<script>window.__MF_AG=${datos}</script>`;
+      // Los datos van lo primero de la página: así la web sabe desde el principio que /AGENCIA es una agencia y no un destino
+      html = html.replace("<head>", `<head><script>window.__MF_AG=${datos}</script>`);
+      let extra = "";
       if (logo) extra += `<link rel="preload" as="image" href="${esc(logo)}">`;
       if (ag.plan === "pro" && /^#[0-9a-f]{6}$/i.test(ag.color || "")) {
         const c = colores(ag.color, ag.fondo);
@@ -67,5 +79,5 @@ export default async (req, context) => {
 
 export const config = {
   path: "/*",
-  excludedPath: ["/.netlify/*", "/app/*", "/agencias/*", "/que-llevar/*", "/enlace.html", "/*.html", "/sw.js", "/manifest.json", "/*.png", "/*.jpg", "/*.jpeg", "/*.svg", "/*.ico", "/*.js", "/*.css", "/*.json", "/*.txt", "/*.xml"],
+  excludedPath: ["/.netlify/*", "/app", "/app/*", "/agencias/*", "/que-llevar/*", "/enlace.html", "/*.html", "/sw.js", "/manifest.json", "/*.png", "/*.jpg", "/*.jpeg", "/*.svg", "/*.ico", "/*.js", "/*.css", "/*.json", "/*.txt", "/*.xml"],
 };

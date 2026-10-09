@@ -654,17 +654,19 @@ function crear({cli,des,ida,vu,tipo,ent,gen}){
   let url;
   if(generica){
     // Sin destino: maleta para que el cliente ponga su destino (con las fechas ya puestas)
-    const p=new URLSearchParams(); if(ag)p.set('agencia',ag); if(ida){p.set('ida',ida);if(vu)p.set('vuelta',vu);}
+    // Corto: maletafacil.com/coraltour?ida=2026-10-02&vuelta=2026-10-06
+    const p=new URLSearchParams(); if(ida){p.set('ida',ida);if(vu)p.set('vuelta',vu);}
     if(gen)p.set('g',gen);
-    url='https://maletafacil.com/'+(p.toString()?'?'+p.toString():'');
+    url='https://maletafacil.com/'+(ag||'')+(p.toString()?'?'+p.toString():'');
   }else if(ag){
     // Enlace corto: maletafacil.com/coraltour/lisboa/27-09-26/28-09-26
     // Solo ida: maletafacil.com/coraltour/lisboa/27-09-26  (con tipo: /27-09-26/ida/playa)
     url='https://maletafacil.com/'+ag+'/'+lugar+(ida&&vu?'/'+corta(ida)+'/'+corta(vu)+(tipo?'/'+tipo:''):ida?'/'+corta(ida)+(tipo?'/ida/'+tipo:''):'')+(gen?'?g='+gen:'');
   }else{
-    const p=new URLSearchParams(); p.set('destino',lugar);
+    // Sin agencia: maletafacil.com/lisboa?ida=…&vuelta=…
+    const p=new URLSearchParams();
     if(ida){p.set('ida',ida);if(vu)p.set('vuelta',vu);} if(tipo)p.set('tipo',tipo); if(gen)p.set('g',gen);
-    url='https://maletafacil.com/?'+p.toString();
+    url='https://maletafacil.com/'+lugar+(p.toString()?'?'+p.toString():'');
   }
   const ciudad=ent.lugar||'';
   const firma=ag&&nombres[ag]?`\n\n¡Buen viaje! ${nombres[ag]}`:'\n\n¡Buen viaje!';
@@ -1403,7 +1405,7 @@ function pintarAgencias(){
     el.innerHTML='<div class="lg"></div><div class="tx"><b></b><small></small><div class="bd"></div></div><div class="ac"><button type="button" class="ed">Editar</button><button type="button" class="del">Quitar</button></div>';
     const src=logoUrl(d.logo); if(src){const im=document.createElement('img');im.src=src;im.alt='';el.querySelector('.lg').appendChild(im);}
     el.querySelector('b').textContent=d.nombre||slug;
-    el.querySelector('small').textContent='maletafacil.com/?agencia='+slug;
+    el.querySelector('small').textContent='maletafacil.com/'+slug;
     const bd=el.querySelector('.bd'); [[d.modo==='completo','Marca blanca'],[d.tag,'Amazon'],[d.seguro,'Seguro'],[d.civitatis,'Civitatis']].forEach(([v,t])=>{if(v){const s=document.createElement('span');s.textContent=t;bd.appendChild(s);}});
     const ac=ACCESOS[slug],sp=document.createElement('span');sp.className=ac&&!ac.bloqueada?'acc':'noacc';sp.textContent=!ac?'Sin acceso':ac.bloqueada?'Acceso desactivado':'Acceso: '+ac.email;bd.appendChild(sp);
     el.querySelector('.ed').onclick=()=>abrirForm(slug);
@@ -1476,7 +1478,7 @@ function copiarMiCab(){
 document.querySelectorAll('#aTam button').forEach(b=>b.onclick=()=>{tamLogo=b.dataset.v;pintarCab();});
 $('aModo').addEventListener('change',()=>{$('aTamF').style.display=$('aModo').value==='completo'?'none':'';pintarCab();});
 new MutationObserver(pintarCab).observe($('aPrev'),{childList:true});
-function actSlug(){const sl=editando||slugify($('aNombre').value); $('aSlug').textContent=sl?'Su enlace: maletafacil.com/?agencia='+sl:'';}
+function actSlug(){const sl=editando||slugify($('aNombre').value); $('aSlug').textContent=sl?'Su enlace: maletafacil.com/'+sl:'';}
 $('aNombre').addEventListener('input',actSlug);
 $('agNueva').onclick=()=>abrirForm(null);
 $('aCancelar').onclick=()=>{$('agForm').classList.add('hide');$('agLista').classList.remove('hide');};

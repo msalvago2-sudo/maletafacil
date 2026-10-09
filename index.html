@@ -810,7 +810,7 @@
     font-family:inherit;white-space:nowrap;
   }
   .footer-link:hover{color:var(--paper);}
-  body.con-lista #footerRecomendarBtn, body.con-lista #footerInstalarBtn{display:none !important;}
+  body.con-lista #footerRecomendarBtn{display:none !important;}
   .footer-link-highlight{color:var(--paper);font-weight:700;}
 
   .cookie-banner{
@@ -888,6 +888,14 @@
     padding:20px;
   }
   .modal-overlay.show{display:flex;}
+  .inst-hoja{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:90;background:var(--paper);border-radius:18px;padding:14px;display:grid;grid-template-columns:52px 1fr;gap:10px 12px;align-items:center;box-shadow:0 18px 40px -10px rgba(0,0,0,.45);transform:translateY(140%);transition:transform .35s ease;max-width:460px;margin:0 auto;}
+  .inst-hoja.show{transform:none;}
+  .inst-ic{width:52px;height:52px;border-radius:12px;display:block;}
+  .inst-tx b{display:block;font:700 16px 'Fraunces',serif;color:var(--teal-900);margin-bottom:2px;}
+  .inst-tx span{font-size:13.5px;color:#5A6763;line-height:1.35;display:block;}
+  .inst-bt{grid-column:1/-1;display:flex;gap:8px;}
+  .inst-si{flex:1;background:var(--rust);color:#fff;border:0;border-radius:12px;padding:12px;font:700 15px 'Work Sans',sans-serif;cursor:pointer;}
+  .inst-no{background:transparent;border:0;color:#6E6A60;font:600 14px 'Work Sans',sans-serif;padding:12px 10px;cursor:pointer;}
   .modal-card{
     background:var(--paper);
     border-radius:18px;
@@ -1148,6 +1156,7 @@ body.con-lista .dest-pop,html.ag-cargando .dest-pop,html.dest-cargando .dest-pop
     <span>© <span id="footerYear"></span> Maleta Fácil</span>
     <span class="footer-links">
       <button type="button" class="footer-link" id="footerTusMaletas">Tus maletas</button>
+      <button type="button" class="footer-link" id="footerInstalarBtn" style="display:none;" onclick="instalarApp()">Instalar app</button>
       <a class="footer-link" href="mailto:hola@maletafacil.com?subject=Contacto%20desde%20Maleta%20F%C3%A1cil">Contacto</a>
       <button type="button" class="footer-link" id="abrirLegalMenu">Legal</button>
       <button type="button" class="footer-link footer-link-highlight" id="footerRecomendarBtn">Recomendar</button>
@@ -1215,12 +1224,17 @@ body.con-lista .dest-pop,html.ag-cargando .dest-pop,html.dest-cargando .dest-pop
   </div>
 </div>
 
+<div id="instalarHoja" class="inst-hoja" role="dialog" aria-label="Instalar Maleta Fácil" aria-hidden="true">
+  <img src="/apple-touch-icon.png" alt="" class="inst-ic">
+  <div class="inst-tx"><b id="instalarTitulo">Llévate Maleta Fácil en el móvil</b><span>Se abre como una app, sin pasar por la tienda y sin ocupar espacio.</span></div>
+  <div class="inst-bt"><button type="button" class="inst-si" onclick="instalarApp()">Añadir</button><button type="button" class="inst-no" onclick="cerrarHojaInstalar()">Ahora no</button></div>
+</div>
 <div id="instalarIosOverlay" class="modal-overlay">
   <div class="modal-card" style="max-width:380px;">
     <button type="button" class="modal-close" aria-label="Cerrar" onclick="document.getElementById('instalarIosOverlay').classList.remove('show')">✕</button>
     <h3 style="font-family:'Fraunces',serif;font-size:20px;color:var(--teal-900);margin:0 0 6px;">Instala Maleta Fácil</h3>
-    <p class="hint" style="margin-bottom:16px;">En iPhone se instala desde Safari en dos toques:</p>
-    <div style="display:flex;gap:12px;align-items:center;margin-bottom:14px;"><span class="tv-icono">1</span><p style="margin:0;font-size:15px;color:#12302E;">Toca el botón <b>Compartir</b> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2E827C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;" aria-hidden="true"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg> de la barra de Safari</p></div>
+    <p class="hint" id="iosInstHint" style="margin-bottom:16px;">En iPhone se instala desde Safari en dos toques:</p>
+    <div style="display:flex;gap:12px;align-items:center;margin-bottom:14px;"><span class="tv-icono">1</span><p style="margin:0;font-size:15px;color:#12302E;">Toca el botón <b>Compartir</b> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2E827C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;" aria-hidden="true"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg> de Safari <span style="color:#6E6A60;font-size:13.5px;">(si no lo ves, está dentro de <b>···</b>)</span></p></div>
     <div style="display:flex;gap:12px;align-items:center;margin-bottom:14px;"><span class="tv-icono">2</span><p style="margin:0;font-size:15px;color:#12302E;">Elige <b>Añadir a pantalla de inicio</b> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2E827C" stroke-width="2" stroke-linecap="round" style="vertical-align:-3px;" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M12 8v8M8 12h8"/></svg></p></div>
     <p class="hint" style="margin:6px 0 0;">Aparecerá el icono de Maleta Fácil junto a tus apps. Si no ves la opción, abre esta página en Safari.</p>
   </div>
@@ -2797,6 +2811,7 @@ async function generarMaleta(){
     resultsEl.innerHTML = html;
     document.body.classList.add('con-lista'); // ya hay botones grandes: el pie no los repite
     mostrarTarjetaInstalar();
+    setTimeout(()=>abrirHojaInstalar('maleta'), 4000);
     resultsEl.style.display = 'block';
 
     if(window.__desdeEnlace){
@@ -2805,7 +2820,11 @@ async function generarMaleta(){
       plegarFormulario(destinoLabel);
       window.scrollTo(0, 0);
     } else {
-      document.getElementById('weather').scrollIntoView({behavior:'smooth', block:'start'});
+      // Dejamos aire arriba (barra de estado del iPhone) y lo corregimos si algo se ha movido mientras bajaba
+      const wEl = document.getElementById('weather');
+      const irAlClima = suave => { const y = wEl.getBoundingClientRect().top + scrollY - margenArriba(); window.scrollTo({top: Math.max(0, y), behavior: suave ? 'smooth' : 'auto'}); };
+      irAlClima(true);
+      setTimeout(()=>{ const t = wEl.getBoundingClientRect().top; if(Math.abs(t - margenArriba()) > 30) irAlClima(true); }, 900);
     }
   }catch(e){
     console.error('Error inesperado al generar la maleta:', e);
@@ -2826,6 +2845,12 @@ function recopilarChecked(){
 }
 
 // Formulario plegado: una línea con destino, fechas y tipo, y «Cambiar» para abrirlo
+function margenArriba(){
+  // Hueco de la barra de estado (iPhone) + un poco de aire
+  let safe = 0;
+  try{ const d = document.createElement('div'); d.style.cssText = 'position:fixed;top:0;height:env(safe-area-inset-top);visibility:hidden'; document.body.appendChild(d); safe = d.offsetHeight; d.remove(); }catch(e){}
+  return safe + 16;
+}
 function plegarFormulario(destinoLabel){
   const form = document.getElementById('generateBtn').closest('.card');
   let res = document.getElementById('formResumen');
@@ -3256,6 +3281,16 @@ function actualizarBarraEstimada(){
   let diasEstimado = DEFAULT_DIAS_SIN_FECHAS;
   const s = fechaInicioEl.value, e = fechaFinEl.value;
   if(s && e && e >= s){ diasEstimado = daysInclusive(s, e); }
+  else{
+    // Sin fechas todavía: la maleta empieza vacía
+    barraFillEl.style.width = '0%'; barraFillEl.style.background = '#3F8F5F';
+    barraCifraEl.textContent = '0 % de cabina'; barraCifraEl.style.color = '#8A8478';
+    document.getElementById('barraMaletas').style.display = 'none';
+    barraFillEl.closest('.barra-track-wrap').style.display = '';
+    barraTextoEl.style.display = ''; barraTextoEl.textContent = 'Pon las fechas y te decimos cuánto ocupa.';
+    barraAvisoFacturarEl.style.display = 'none';
+    return;
+  }
   const catsEstimadas = buildList(diasEstimado, 'templado', selectedType, null, numBebes, numNinos, numHombres, numMujeres, null);
   pintarBarra(contarUnidades(catsEstimadas), true);
 }
@@ -3300,15 +3335,33 @@ const esIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platfo
 function yaInstalada(){
   return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
 }
+function puedeInstalar(){ return !yaInstalada() && !!(avisoInstalar || esIOS); }
+// Hoja de abajo «Llévate Maleta Fácil en el móvil»: al llegar con el enlace de lanzamiento (?app=1) o tras preparar la maleta
+function hojaPospuesta(){ try{ return Date.now() - Number(localStorage.getItem('mf_inst_no')||0) < 7*864e5; }catch(e){ return false; } }
+let hojaVista = false;
+function abrirHojaInstalar(motivo, forzar){
+  if(hojaVista || !puedeInstalar() || (!forzar && hojaPospuesta())) return;
+  hojaVista = true;
+  const h = document.getElementById('instalarHoja'); if(!h) return;
+  h.classList.add('show'); h.setAttribute('aria-hidden','false');
+  gtag('event', 'ver_aviso_instalar', {motivo});
+}
+function cerrarHojaInstalar(){
+  const h = document.getElementById('instalarHoja'); if(h){ h.classList.remove('show'); h.setAttribute('aria-hidden','true'); }
+  try{ localStorage.setItem('mf_inst_no', String(Date.now())); }catch(e){}
+}
 function mostrarTarjetaInstalar(){
   const card = document.getElementById('instalarCard');
-  const puede = !yaInstalada() && (avisoInstalar || esIOS);
+  const puede = puedeInstalar();
   if(card) card.style.display = puede ? 'block' : 'none';
   const pie = document.getElementById('footerInstalarBtn');
   if(pie) pie.style.display = puede ? '' : 'none';
 }
 mostrarTarjetaInstalar();
-window.addEventListener('beforeinstallprompt', e=>{ e.preventDefault(); avisoInstalar = e; mostrarTarjetaInstalar(); });
+window.addEventListener('beforeinstallprompt', e=>{ e.preventDefault(); avisoInstalar = e; mostrarTarjetaInstalar(); if(LLEGA_LANZAMIENTO) setTimeout(()=>abrirHojaInstalar('enlace', true), 1200); });
+// Enlace de lanzamiento de la agencia (…&app=1): la hoja sale nada más entrar
+const LLEGA_LANZAMIENTO = new URLSearchParams(location.search).get('app') === '1';
+if(LLEGA_LANZAMIENTO && esIOS) setTimeout(()=>abrirHojaInstalar('enlace', true), 1500);
 window.addEventListener('appinstalled', ()=>{ avisoInstalar = null; mostrarTarjetaInstalar(); gtag('event', 'app_instalada'); });
 async function instalarApp(){
   // La app se abre siempre limpia (sin nada marcado), con la marca de la agencia si viene de una.
@@ -3318,12 +3371,17 @@ async function instalarApp(){
     history.replaceState(null, '', slug ? '/?agencia=' + encodeURIComponent(slug) : '/');
   }catch(e){}
   gtag('event', 'pulsar_instalar', {ios: esIOS});
+  const h = document.getElementById('instalarHoja'); if(h){ h.classList.remove('show'); h.setAttribute('aria-hidden','true'); }
   if(avisoInstalar){
     avisoInstalar.prompt();
     try{ await avisoInstalar.userChoice; }catch(e){}
     avisoInstalar = null;
     mostrarTarjetaInstalar();
   }else if(esIOS){
+    // Navegadores dentro de otras apps (Instagram, Facebook…): no dejan añadir a la pantalla de inicio
+    if(/FBAN|FBAV|Instagram|Line\/|GSA\//i.test(navigator.userAgent)){
+      document.getElementById('iosInstHint').innerHTML = '<b>Primero ábrela en Safari</b> (menú ··· → «Abrir en Safari»). Después, dos toques:';
+    }
     document.getElementById('instalarIosOverlay').classList.add('show');
   }
 }

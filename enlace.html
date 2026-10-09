@@ -50,6 +50,7 @@ button,.btn{font:700 15px 'Work Sans',sans-serif;border:0;border-radius:100px;pa
 .wa{background:#25D366;color:#0B3B21}
 .btns .wa{grid-column:1/-1}
 .copy{background:var(--teal);color:var(--paper)}
+.lanz-msg{width:100%;box-sizing:border-box;border:1.5px solid #E4DCCB;border-radius:12px;padding:12px;font:15px/1.4 'Work Sans',sans-serif;color:#12302E;background:#fff;resize:vertical}.lanzF.hide{display:none}
 .test{background:#F5C86A;color:var(--teal)}
 .mail{background:#E3EFEC;color:var(--teal)}
 .err{color:var(--rust);font-size:13px;font-weight:600;margin-top:8px;display:none}
@@ -364,6 +365,11 @@ body.rol-agencia #agForm .two{display:none}
 <div class="f soloAg" id="miCabF"><label id="miCabTit">Así ven tus clientes tu cabecera</label>
 <div class="cab" id="miCab"></div>
 <div class="hint" id="miCabHint">¿Quieres cambiar el nombre o el logo? Habla con Maleta Fácil y te lo dejamos perfecto.</div></div>
+<div class="f lanzF hide" id="lanzF"><label>📣 Anúncialo a todos tus clientes</label>
+<div class="hint" style="margin:0 0 8px">Manda este mensaje a tu lista de difusión de WhatsApp. Al abrir el enlace verán tu marca y la web les invitará a guardarla en el móvil como una app.</div>
+<textarea id="lanzMsg" rows="6" class="lanz-msg"></textarea>
+<div class="sec2" style="margin-top:8px"><button type="button" class="copy" id="lanzCopiar">Copiar mensaje</button><button type="button" class="btn wa" id="lanzCompartir">Compartir…</button></div>
+<div class="hint" style="margin-top:6px">Solo el enlace: <a href="#" id="lanzLink" style="word-break:break-all"></a></div></div>
 <div class="f resumenF"><label>Resumen diario de envíos</label>
 <div class="hint" style="margin:0 0 8px">Cada mañana la agencia recibe la lista de clientes a los que toca enviar la maleta por WhatsApp.</div>
 <input id="aEmail" type="email" inputmode="email" placeholder="Email para el resumen (ej. reservas@agencia.es)" autocomplete="off">
@@ -1409,8 +1415,18 @@ function pintarAgencias(){
 // Si no se pone email para el resumen y el informe, se usa el email con el que la agencia entra
 function ponerPhEmail(c){const ac=(ACCESOS[editando]||{}).email||(c&&c.emailAuto?c.email:'')||(ROL==='agencia'?MIEMAIL:'');
   $('aEmail').placeholder=ac?'Vacío = se usa el de acceso: '+ac:'Email para el resumen (ej. reservas@agencia.es)';}
+function enlaceLanzamiento(slug){return `https://maletafacil.com/?agencia=${encodeURIComponent(slug)}&app=1&utm_source=whatsapp&utm_medium=difusion&utm_campaign=lanzamiento`;}
+function pintarLanzamiento(slug,d){
+  const f=$('lanzF'); if(!slug){f.classList.add('hide');return;} f.classList.remove('hide');
+  const url=enlaceLanzamiento(slug), nombre=(d&&d.nombre)||slug;
+  $('lanzMsg').value=`¡Hola! 👋 En ${nombre} estrenamos una herramienta gratis para tus viajes: te prepara la maleta en un minuto según tu destino, tus fechas y el tiempo que va a hacer allí 🧳☀️\n\nPruébala y guárdala en tu móvil como una app:\n${url}`;
+  $('lanzLink').textContent=url; $('lanzLink').href=url;
+}
+$('lanzCopiar').onclick=()=>copiar($('lanzMsg').value);
+$('lanzCompartir').onclick=()=>{const t=$('lanzMsg').value; if(navigator.share) navigator.share({text:t}).catch(()=>{}); else copiar(t);};
+$('lanzLink').onclick=e=>{e.preventDefault();copiar($('lanzLink').textContent);};
 function abrirForm(slug){
-  editando=slug||null; logoData=''; const d=slug?AG[slug]||{}:{};
+  editando=slug||null; logoData=''; const d=slug?AG[slug]||{}:{}; pintarLanzamiento(slug,d);
   $('agTit').textContent=slug?'Editar agencia':'Nueva agencia';
   ponerPlan(d.plan==='pro'?'pro':'gratis',false); $('aColor').value=/^#[0-9a-f]{6}$/i.test(d.color||'')?d.color:'#12302E';
   $('aFondo').value=/^#[0-9a-f]{6}$/i.test(d.fondo||'')?d.fondo:(/^#[0-9a-f]{6}$/i.test(d.color||'')?tonosAgencia(d.color).fondoHex:'#12302E'); pintarMuestra();

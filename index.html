@@ -976,7 +976,6 @@ body.con-lista .dest-pop,html.ag-cargando .dest-pop,html.dest-cargando .dest-pop
   <div class="carga-lista" aria-live="polite"><i></i>Preparando tu maleta…</div>
 
   <div class="card" id="formCard">
-    <div class="eyelet"></div>
 
     <div class="field">
       <div class="step-label"><span class="step-num">1</span> Destino y fechas</div>
@@ -2695,7 +2694,7 @@ async function generarMaleta(){
     currentDestinoLabel = destinoLabel;
     currentDias = dias;
     let html = `<div class="results-header">
-      <h2><span class="eyelet-inline"></span>Tu lista de equipaje<span class="rh-dur">· ${dias}D/${Math.max(0,dias-1)}N</span></h2>
+      <h2>Tu lista de equipaje<span class="rh-dur">· ${dias}D/${Math.max(0,dias-1)}N</span></h2>
     </div>`;
     if(destinoNoEncontrado){
       html += `<div class="aviso-destino">No encontramos «${escapeHtml(destino)}» en el mapa, así que te hemos preparado una lista estándar (sin clima ni enchufes). Si es un error, revisa cómo está escrito y vuelve a probar.</div>`;

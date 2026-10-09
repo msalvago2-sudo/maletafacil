@@ -218,6 +218,10 @@
   .suggest-item:last-child{border-bottom:none;}
   .suggest-item:hover, .suggest-item.highlighted{background:var(--paper);}
   .suggest-item .suggest-sub{color:#8A8478;font-size:12.5px;}
+  .suggest-item{display:flex;align-items:center;gap:12px;}
+  .suggest-flag{width:28px;height:20px;flex-shrink:0;border-radius:3px;object-fit:cover;box-shadow:0 0 0 1px rgba(0,0,0,.12);display:block;}
+  span.suggest-flag{box-shadow:none;}
+  .suggest-txt{min-width:0;}
   .date-native{position:relative;z-index:1;background:#fff;color:transparent;}
   .date-native.has-value{color:var(--ink);}
   .date-placeholder{
@@ -777,8 +781,6 @@
   .footer-links{display:flex;gap:10px 16px;flex-wrap:wrap;justify-content:center;}
   .logo-mf{display:block;}
   .hero{position:relative;}
-  .tus-maletas-btn{position:absolute;top:10px;right:0;display:inline-flex;align-items:center;gap:6px;background:rgba(246,241,228,.1);border:1px solid rgba(246,241,228,.25);color:var(--paper);font:600 12.5px 'Work Sans',sans-serif;padding:7px 11px;border-radius:999px;cursor:pointer;}
-  body.desde-agencia .tus-maletas-btn{position:relative;top:0;margin:14px 0 0 50%;transform:translateX(-50%);}
   .legal-menu{display:flex;flex-direction:column;gap:8px;}
   .legal-menu button{background:var(--paper-dark);border:none;border-radius:12px;padding:13px 14px;text-align:left;font:600 15px 'Work Sans',sans-serif;color:var(--teal-900);cursor:pointer;}
   .tm-item{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--line);}
@@ -961,7 +963,6 @@ body.con-lista .dest-pop,html.ag-cargando .dest-pop,html.dest-cargando .dest-pop
 <div class="wrap">
 
   <div class="hero">
-    <button type="button" class="tus-maletas-btn" id="tusMaletasBtn" style="display:none;" aria-label="Tus maletas"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M9 8V6a3 3 0 0 1 6 0v2" stroke-linecap="round"/></svg>Tus maletas</button>
     <div id="logoHeaderRow" style="display:flex;align-items:center;justify-content:center;gap:13px;margin-bottom:18px;">
       <img class="logo-mf" src="/img/logo-maleta.png" width="74" height="74" alt="" style="flex-shrink:0;">
       <div style="text-align:left;">
@@ -1355,7 +1356,7 @@ document.getElementById('abrirPrivacidadModal').addEventListener('click', ()=>{ 
 document.getElementById('abrirCookiesModal').addEventListener('click', ()=>{ cerrarLegalMenu(); cookiesModalOverlay.classList.add('show'); });
 // «Tus maletas»: arriba a la derecha (si hay alguna) y en el pie
 const tusMaletasOverlay = document.getElementById('tusMaletasOverlay');
-document.getElementById('tusMaletasBtn').addEventListener('click', abrirTusMaletas);
+
 document.getElementById('footerTusMaletas').addEventListener('click', abrirTusMaletas);
 document.getElementById('tusMaletasClose').addEventListener('click', ()=> tusMaletasOverlay.classList.remove('show'));
 tusMaletasOverlay.addEventListener('click', (e)=>{ if(e.target === tusMaletasOverlay) tusMaletasOverlay.classList.remove('show'); });
@@ -1957,7 +1958,8 @@ async function buscarSugerencias(texto){
     if(!results.length){ ocultarSugerencias(); return; }
     sugList.innerHTML = results.map((r,i)=>{
       const sub = [r.admin1 !== r.name ? r.admin1 : '', r.country].filter(Boolean).join(', ');
-      return `<div class="suggest-item" data-i="${i}">${escapeHtml(r.name)}${sub ? `<div class="suggest-sub">${escapeHtml(sub)}</div>` : ''}</div>`;
+      const band = /^[a-z]{2}$/.test(r.cc||'') ? `<img class="suggest-flag" src="https://flagcdn.com/w40/${r.cc}.png" srcset="https://flagcdn.com/w80/${r.cc}.png 2x" alt="" loading="lazy" onerror="this.style.visibility='hidden'">` : '<span class="suggest-flag"></span>';
+      return `<div class="suggest-item" data-i="${i}">${band}<div class="suggest-txt">${escapeHtml(r.name)}${sub ? `<div class="suggest-sub">${escapeHtml(sub)}</div>` : ''}</div></div>`;
     }).join('');
     sugList.classList.add('show');
     sugList.querySelectorAll('.suggest-item').forEach(el=>{
@@ -2887,8 +2889,6 @@ function guardarMaletaReciente(destinoLabel, dias){
 function leerRecientes(){ try{ return JSON.parse(localStorage.getItem(RECIENTES_KEY) || '[]'); }catch(e){ return []; } }
 function renderRecientes(){
   const recientes = leerRecientes();
-  const btn = document.getElementById('tusMaletasBtn');
-  if(btn) btn.style.display = recientes.length ? 'inline-flex' : 'none';
   const lista = document.getElementById('tusMaletasLista'); if(!lista) return;
   if(!recientes.length){ lista.innerHTML = '<p class="hint" style="margin:6px 0;">Aún no has preparado ninguna maleta en este móvil. Cuando hagas una, aparecerá aquí.</p>'; return; }
   const M = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];

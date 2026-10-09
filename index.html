@@ -78,7 +78,9 @@
     border-radius:100px;
     margin-bottom:18px;
   }
-  h1.h1-una{font-size:clamp(26px,8.2vw,44px);white-space:nowrap;margin-bottom:0;}
+  .h1-una{font-family:'Fraunces',serif;font-weight:700;color:var(--paper);font-size:clamp(26px,8.2vw,44px);white-space:nowrap;margin:0 0 0;display:none;}
+  body.desde-agencia .h1-una{display:block;} body.desde-agencia .sub-mf{display:none;}
+  .hero .sub-mf{font-family:'Work Sans',sans-serif;font-weight:500;font-size:15.5px;color:#BFD3CE;margin:7px 0 0;letter-spacing:.01em;line-height:1.2;white-space:nowrap;}
   .hero{padding-bottom:18px !important;}
   .form-resumen{margin-top:0 !important;}
   #formResumen + .card + #weather, #formResumen ~ #weather{margin-top:14px;}
@@ -773,7 +775,18 @@
     color:#8FA9A4;
   }
   .footer-links{display:flex;gap:10px 16px;flex-wrap:wrap;justify-content:center;}
-  .logo-mf{border-radius:16px;display:block;box-shadow:0 4px 14px rgba(0,0,0,.18);}
+  .logo-mf{display:block;}
+  .hero{position:relative;}
+  .tus-maletas-btn{position:absolute;top:10px;right:0;display:inline-flex;align-items:center;gap:6px;background:rgba(246,241,228,.1);border:1px solid rgba(246,241,228,.25);color:var(--paper);font:600 12.5px 'Work Sans',sans-serif;padding:7px 11px;border-radius:999px;cursor:pointer;}
+  body.desde-agencia .tus-maletas-btn{position:relative;top:0;margin:14px 0 0 50%;transform:translateX(-50%);}
+  .legal-menu{display:flex;flex-direction:column;gap:8px;}
+  .legal-menu button{background:var(--paper-dark);border:none;border-radius:12px;padding:13px 14px;text-align:left;font:600 15px 'Work Sans',sans-serif;color:var(--teal-900);cursor:pointer;}
+  .tm-item{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--line);}
+  .tm-item a{flex:1;min-width:0;text-decoration:none;color:var(--teal-900);}
+  .tm-item b{display:block;font-size:15.5px;}
+  .tm-item span{font-size:13px;color:#6B6459;}
+  .tm-item a.tm-abrir{background:var(--rust);color:#fff;font-weight:700;font-size:13px;padding:8px 12px;border-radius:10px;flex:0 0 auto;}
+  .tm-quitar{background:none;border:none;color:#9A9284;font-size:16px;cursor:pointer;padding:6px;}
   .hero p.marca-mf,.marca-mf{font-family:'Fraunces',serif !important;font-weight:700;font-size:28px !important;letter-spacing:-.01em;color:var(--paper) !important;margin:0 !important;line-height:1;white-space:nowrap;}
   .marca-mf span{color:#E9845F;}
   .hero p.marca-mf.marca-peq{font-size:20px !important;}
@@ -948,14 +961,16 @@ body.con-lista .dest-pop,html.ag-cargando .dest-pop,html.dest-cargando .dest-pop
 <div class="wrap">
 
   <div class="hero">
+    <button type="button" class="tus-maletas-btn" id="tusMaletasBtn" style="display:none;" aria-label="Tus maletas"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M9 8V6a3 3 0 0 1 6 0v2" stroke-linecap="round"/></svg>Tus maletas</button>
     <div id="logoHeaderRow" style="display:flex;align-items:center;justify-content:center;gap:13px;margin-bottom:18px;">
-      <img class="logo-mf" src="/img/logo-maleta.png" width="64" height="64" alt="" style="flex-shrink:0;">
+      <img class="logo-mf" src="/img/logo-maleta.png" width="74" height="74" alt="" style="flex-shrink:0;">
       <div style="text-align:left;">
         <p class="marca-mf">Maleta <span>Fácil</span></p>
+        <h1 class="sub-mf">Tu maleta en un minuto.</h1>
       </div>
     </div>
     <p id="poweredByWrap" style="display:none;font-size:11px;letter-spacing:.03em;color:#8FA9A4;margin:-10px 0 18px;"><span style="display:inline-flex;align-items:center;gap:6px;"><img src="/img/logo-maleta.png" width="16" height="16" alt="" style="border-radius:4px;">Powered by <b style="color:#CFE0DC;font-weight:700;">Maleta Fácil</b></span></p>
-    <h1 class="h1-una">Tu maleta en un minuto.</h1>
+    <p class="h1-una" id="h1Agencia">Tu maleta en un minuto.</p>
   </div>
   <div class="carga-lista" aria-live="polite"><i></i>Preparando tu maleta…</div>
 
@@ -1117,15 +1132,36 @@ body.con-lista .dest-pop,html.ag-cargando .dest-pop,html.dest-cargando .dest-pop
   <footer class="site-footer">
     <span>© <span id="footerYear"></span> Maleta Fácil</span>
     <span class="footer-links">
-      <button type="button" class="footer-link" id="abrirLegalModal">Aviso legal</button>
-      <button type="button" class="footer-link" id="abrirPrivacidadModal">Privacidad</button>
-      <button type="button" class="footer-link" id="abrirCookiesModal">Cookies</button>
+      <button type="button" class="footer-link" id="footerTusMaletas">Tus maletas</button>
+      <a class="footer-link" href="mailto:hola@maletafacil.com?subject=Contacto%20desde%20Maleta%20F%C3%A1cil">Contacto</a>
+      <button type="button" class="footer-link" id="abrirLegalMenu">Legal</button>
       <button type="button" class="footer-link footer-link-highlight" id="footerRecomendarBtn">Recomendar</button>
     </span>
   </footer>
 </div>
 
 <div class="toast" id="toast"></div>
+
+<div id="legalMenuOverlay" class="modal-overlay">
+  <div class="modal-card" style="max-width:360px;">
+    <button type="button" class="modal-close" id="legalMenuClose" aria-label="Cerrar">✕</button>
+    <h3 style="font-family:'Fraunces',serif;font-size:20px;color:var(--teal-900);margin:0 0 14px;">Información legal</h3>
+    <div class="legal-menu">
+      <button type="button" id="abrirLegalModal">Aviso legal</button>
+      <button type="button" id="abrirPrivacidadModal">Política de privacidad</button>
+      <button type="button" id="abrirCookiesModal">Política de cookies</button>
+    </div>
+  </div>
+</div>
+
+<div id="tusMaletasOverlay" class="modal-overlay">
+  <div class="modal-card" style="max-width:420px;">
+    <button type="button" class="modal-close" id="tusMaletasClose" aria-label="Cerrar">✕</button>
+    <h3 style="font-family:'Fraunces',serif;font-size:20px;color:var(--teal-900);margin:0 0 4px;">Tus maletas</h3>
+    <p class="hint" style="margin:0 0 14px;">Las últimas que has preparado en este móvil, con lo que ya habías marcado.</p>
+    <div id="tusMaletasLista"></div>
+  </div>
+</div>
 
 <div id="maletaModalOverlay" class="modal-overlay">
   <div class="modal-card">
@@ -1308,9 +1344,21 @@ const cookiesModalOverlay = document.getElementById('cookiesModalOverlay');
 function cerrarLegalModales(){
   [legalModalOverlay, privacidadModalOverlay, cookiesModalOverlay].forEach(m=>m.classList.remove('show'));
 }
-document.getElementById('abrirLegalModal').addEventListener('click', ()=> legalModalOverlay.classList.add('show'));
-document.getElementById('abrirPrivacidadModal').addEventListener('click', ()=> privacidadModalOverlay.classList.add('show'));
-document.getElementById('abrirCookiesModal').addEventListener('click', ()=> cookiesModalOverlay.classList.add('show'));
+// El pie agrupa lo legal en un solo botón «Legal» que abre un pequeño menú
+const legalMenuOverlay = document.getElementById('legalMenuOverlay');
+const cerrarLegalMenu = ()=> legalMenuOverlay.classList.remove('show');
+document.getElementById('abrirLegalMenu').addEventListener('click', ()=> legalMenuOverlay.classList.add('show'));
+document.getElementById('legalMenuClose').addEventListener('click', cerrarLegalMenu);
+legalMenuOverlay.addEventListener('click', (e)=>{ if(e.target === legalMenuOverlay) cerrarLegalMenu(); });
+document.getElementById('abrirLegalModal').addEventListener('click', ()=>{ cerrarLegalMenu(); legalModalOverlay.classList.add('show'); });
+document.getElementById('abrirPrivacidadModal').addEventListener('click', ()=>{ cerrarLegalMenu(); privacidadModalOverlay.classList.add('show'); });
+document.getElementById('abrirCookiesModal').addEventListener('click', ()=>{ cerrarLegalMenu(); cookiesModalOverlay.classList.add('show'); });
+// «Tus maletas»: arriba a la derecha (si hay alguna) y en el pie
+const tusMaletasOverlay = document.getElementById('tusMaletasOverlay');
+document.getElementById('tusMaletasBtn').addEventListener('click', abrirTusMaletas);
+document.getElementById('footerTusMaletas').addEventListener('click', abrirTusMaletas);
+document.getElementById('tusMaletasClose').addEventListener('click', ()=> tusMaletasOverlay.classList.remove('show'));
+tusMaletasOverlay.addEventListener('click', (e)=>{ if(e.target === tusMaletasOverlay) tusMaletasOverlay.classList.remove('show'); });
 document.getElementById('footerRecomendarBtn').addEventListener('click', shareReferral);
 document.getElementById('cookieVerMasBtn').addEventListener('click', ()=>{
   cookiesModalOverlay.classList.add('show');
@@ -2811,7 +2859,7 @@ function construirEnlaceMaleta(){
 
 // ---------- Maletas recientes (solo en este navegador, sin servidor) ----------
 const RECIENTES_KEY = 'mf_recientes';
-const RECIENTES_MAX = 3;
+const RECIENTES_MAX = 8;
 
 function guardarMaletaReciente(destinoLabel, dias){
   const state = {
@@ -2825,7 +2873,8 @@ function guardarMaletaReciente(destinoLabel, dias){
     muj: numMujeres,
     beb: numBebes,
     nin: numNinos,
-    c: recopilarChecked()
+    c: recopilarChecked(),
+    ag: agenciaActiva ? agenciaActiva.slug : ''
   };
   let recientes = [];
   try{ recientes = JSON.parse(localStorage.getItem(RECIENTES_KEY) || '[]'); }catch(e){ recientes = []; }
@@ -2835,26 +2884,25 @@ function guardarMaletaReciente(destinoLabel, dias){
   try{ localStorage.setItem(RECIENTES_KEY, JSON.stringify(recientes)); }catch(e){ /* almacenamiento no disponible: no pasa nada, simplemente no se recuerda */ }
 }
 
+function leerRecientes(){ try{ return JSON.parse(localStorage.getItem(RECIENTES_KEY) || '[]'); }catch(e){ return []; } }
 function renderRecientes(){
-  let recientes = [];
-  try{ recientes = JSON.parse(localStorage.getItem(RECIENTES_KEY) || '[]'); }catch(e){ recientes = []; }
-  const wrap = document.getElementById('recientesWrap');
-  if(!wrap) return; // «Tus maletas recientes» ya no se muestra
-  if(!recientes.length){ wrap.style.display = 'none'; return; }
-  const chipsEl = document.getElementById('recientesChips');
-  chipsEl.innerHTML = recientes.map((r, i)=>{
-    const url = `?m=${encodeURIComponent(JSON.stringify(r.state))}`;
-    const ciudad = escapeHtml(r.label.split(',')[0].trim());
-    return `<div style="flex-shrink:0;display:inline-flex;align-items:center;gap:2px;border:1.3px solid rgba(246,241,228,.4);border-radius:100px;padding:5px 6px 5px 14px;white-space:nowrap;">
-      <a href="${url}" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--paper);text-decoration:none;">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" style="flex-shrink:0;"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M9 8V6a3 3 0 0 1 6 0v2" stroke-linecap="round"/><path d="M12 11v6" stroke-linecap="round"/></svg> ${ciudad}
-      </a>
-      <button type="button" onclick="eliminarReciente(${i})" aria-label="Quitar ${ciudad}" style="width:18px;height:18px;border-radius:50%;background:var(--rust);border:none;color:#fff;font-size:11px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">✕</button>
-    </div>`;
+  const recientes = leerRecientes();
+  const btn = document.getElementById('tusMaletasBtn');
+  if(btn) btn.style.display = recientes.length ? 'inline-flex' : 'none';
+  const lista = document.getElementById('tusMaletasLista'); if(!lista) return;
+  if(!recientes.length){ lista.innerHTML = '<p class="hint" style="margin:6px 0;">Aún no has preparado ninguna maleta en este móvil. Cuando hagas una, aparecerá aquí.</p>'; return; }
+  const M = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+  const fecha = (a,b)=>{ if(!/^\d{4}-\d{2}-\d{2}$/.test(a||'')) return ''; const [,m1,d1]=a.split('-').map(Number); if(!b||b===a) return `${d1} ${M[m1-1]}`; const [,m2,d2]=b.split('-').map(Number); return m1===m2?`${d1}–${d2} ${M[m1-1]}`:`${d1} ${M[m1-1]} – ${d2} ${M[m2-1]}`; };
+  lista.innerHTML = recientes.map((r, i)=>{
+    const st = r.state || {};
+    const url = `/?m=${encodeURIComponent(JSON.stringify(st))}${st.ag ? '&agencia=' + encodeURIComponent(st.ag) : ''}`;
+    const ciudad = escapeHtml((r.label||'').split(',')[0].trim());
+    const f = fecha(st.fi, st.ff), marc = (st.c||[]).length;
+    return `<div class="tm-item"><a href="${url}"><b>${ciudad}</b><span>${f ? f + ' · ' : ''}${r.dias ? r.dias + ' días' : ''}${marc ? ' · ' + marc + ' marcado' + (marc>1?'s':'') : ''}</span></a>
+      <a class="tm-abrir" href="${url}">Abrir</a><button type="button" class="tm-quitar" onclick="eliminarReciente(${i})" aria-label="Quitar ${ciudad}">✕</button></div>`;
   }).join('');
-  wrap.style.display = 'block';
 }
-
+function abrirTusMaletas(){ renderRecientes(); document.getElementById('tusMaletasOverlay').classList.add('show'); }
 function eliminarReciente(index){
   let recientes = [];
   try{ recientes = JSON.parse(localStorage.getItem(RECIENTES_KEY) || '[]'); }catch(e){ recientes = []; }
@@ -3138,6 +3186,11 @@ function toggleItem(id){
   const li = document.getElementById('li-'+id);
   const cb = document.getElementById(id);
   li.classList.toggle('checked', cb.checked);
+  // «Tus maletas» recuerda lo que ya has marcado
+  try{
+    const rec = leerRecientes(), r = rec.find(x => x.label === currentDestinoLabel);
+    if(r && r.state){ r.state.c = recopilarChecked(); localStorage.setItem(RECIENTES_KEY, JSON.stringify(rec)); }
+  }catch(e){}
 }
 
 // ---------- Barra visual de "cuánto ocupará" (estimación, se recalcula sola) ----------

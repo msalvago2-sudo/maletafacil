@@ -10,6 +10,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="MF Agencias">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="/img/favicon-64.png">
 <title>Crear enlace de maleta · Maleta Fácil</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Work+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -19,8 +20,8 @@
 body{margin:0;background:var(--teal);font-family:'Work Sans',sans-serif;color:var(--teal);min-height:100vh}
 .wrap{max-width:520px;margin:0 auto;padding:28px 16px 40px}
 .brand{display:flex;align-items:center;gap:10px;color:var(--paper);margin-bottom:6px}
-.logo{width:46px;height:46px;border-radius:10px;background:var(--paper);position:relative;display:flex;align-items:center;justify-content:center;font:700 25px Fraunces,serif;color:var(--teal)}
-.logo:after{content:'';position:absolute;top:5px;right:5px;width:7px;height:7px;border-radius:50%;background:var(--rust)}
+.logo{width:48px;height:48px;border-radius:12px;display:block;flex-shrink:0;box-shadow:0 3px 10px rgba(0,0,0,.18)}
+.brand b.marca{font:700 23px Fraunces,serif;margin:0;white-space:nowrap}.brand b.marca span{color:#E9845F}
 .brandAg{margin-left:4px;padding-left:14px;border-left:1px solid rgba(246,241,228,.28);height:46px;min-width:0;flex:0 1 auto;display:flex;align-items:center}.brandAg.hide{display:none}.brandAg img{max-height:42px;max-width:100%;border-radius:8px;display:block;object-fit:contain}.brandAg span{font:600 15px Fraunces,serif;color:var(--paper);text-align:left;line-height:1.15}
 .brand b{font:600 19px Fraunces,serif;display:block;line-height:1.1;margin-bottom:4px}
 .etq{display:inline-flex;align-items:center;gap:5px;background:#8B5A2B;color:var(--paper);font:600 11px 'Work Sans',sans-serif;padding:3px 9px;border-radius:100px}
@@ -166,7 +167,7 @@ body.rol-agencia #agForm .two{display:none}
 /* Vista previa de la cabecera */
 .cab{margin-top:10px;background:#12302E;border-radius:14px;padding:16px 10px;display:flex;align-items:center;justify-content:center;gap:10px;min-height:96px}
 .cabmf{display:flex;align-items:center;gap:7px;flex-shrink:0}
-.cabic{width:40px;height:40px;border-radius:10px;background:var(--paper);color:var(--teal);font:700 26px Fraunces,serif;display:flex;align-items:center;justify-content:center;position:relative}
+.cabic{width:40px;height:40px;border-radius:10px;display:block}
 .cabic i{position:absolute;top:-3px;right:-3px;width:9px;height:9px;border-radius:50%;background:var(--rust)}
 .cabmf b{display:block;font:600 14px Fraunces,serif;color:var(--paper);margin-bottom:4px}
 .cabtag{display:inline-block;background:#8B5A2B;color:var(--paper);font-size:9.5px;font-weight:600;padding:3px 8px;border-radius:100px;white-space:nowrap}
@@ -176,7 +177,7 @@ body.rol-agencia #agForm .two{display:none}
 .cab.blanca{flex-direction:column;gap:8px;padding:18px 12px}
 .cab.blanca .cablogo img{max-height:64px;max-width:220px}
 .cabpw{display:flex;align-items:center;gap:5px;font-size:10px;color:rgba(246,241,228,.7)}.cabpw b{color:var(--paper)}
-.cabpw i{font:700 9px Fraunces,serif;font-style:normal;background:var(--paper);color:#12302E;border-radius:3px;width:13px;height:13px;display:inline-flex;align-items:center;justify-content:center}
+.cabpw img{width:13px;height:13px;border-radius:3px}
 .cabh1{font:600 21px Fraunces,serif;color:var(--paper);margin-top:2px}
 .cabbtn{color:#fff;font-weight:700;font-size:13px;border-radius:10px;padding:8px 16px;margin-top:2px}
 .cablogo span{color:var(--paper);font-weight:700;font-size:14px}
@@ -188,6 +189,9 @@ body.rol-agencia #agForm .two{display:none}
 .zona{position:relative;width:100%;background:repeating-conic-gradient(#E8E1D1 0 25%,#F6F1E4 0 50%) 0 0/18px 18px;border-radius:14px;overflow:hidden;touch-action:none;cursor:grab}
 .zona canvas{display:block;width:100%;height:100%}
 .zona .marco{position:absolute;inset:0;border:2px dashed rgba(18,48,46,.55);border-radius:14px;pointer-events:none}
+.zona .asa{display:none;position:absolute;width:26px;height:26px;border-radius:50%;background:#fff;border:3px solid var(--teal);box-shadow:0 2px 6px rgba(0,0,0,.25);pointer-events:auto;touch-action:none;z-index:2}
+.zona.libre .asa{display:block}
+.asa[data-c=tl]{left:-14px;top:-14px}.asa[data-c=tr]{right:-14px;top:-14px}.asa[data-c=bl]{left:-14px;bottom:-14px}.asa[data-c=br]{right:-14px;bottom:-14px}
 .fila{display:flex;align-items:center;gap:10px;margin-top:12px}
 .fila input[type=range]{flex:1;accent-color:var(--teal)}
 .fila .zb{width:40px;min-height:40px;padding:0;background:#E3EFEC;color:var(--teal);font-size:22px}
@@ -222,7 +226,7 @@ body.rol-agencia #agForm .two{display:none}
 </head>
 <body>
 <div class="wrap">
-<div class="brand"><div class="logo">M</div><div><b>Maleta Fácil</b><span class="etq"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" style="transform:rotate(45deg)"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2.5 1.8V22l3.5-1 3.5 1v-1.2L13 19v-5.5l8 2.5z"/></svg>Equipaje sin estrés</span></div><div class="brandAg hide" id="brandAg"></div></div>
+<div class="brand"><img class="logo" src="/img/logo-maleta.png" alt=""><div><b class="marca">Maleta <span>Fácil</span></b></div><div class="brandAg hide" id="brandAg"></div></div>
 <h1>Crear enlace de maleta</h1>
 <p class="sub">Envía a tus clientes su maleta ya preparada, con su destino y sus fechas.</p>
 
@@ -421,9 +425,10 @@ body.rol-agencia #agForm .two{display:none}
 </div></div>
 <div id="edLogo" class="hide"><div class="caja">
 <h3>Ajusta el logo</h3><p class="sub2">Arrastra para moverlo y pellizca o usa + / − para acercar. Lo que está dentro del recuadro es lo que se verá.</p>
-<div class="zona" id="edZona"><canvas id="edCanvas"></canvas><div class="marco" id="edMarco"></div></div>
+<div class="zona" id="edZona"><canvas id="edCanvas"></canvas><div class="marco" id="edMarco"><i class="asa" data-c="tl"></i><i class="asa" data-c="tr"></i><i class="asa" data-c="bl"></i><i class="asa" data-c="br"></i></div></div>
+<p class="sub2 hide" id="edLibreTxt" style="margin:8px 0 0">Mueve las esquinas del recuadro para recortar justo lo que quieras.</p>
 <div class="fila"><button type="button" class="zb" id="edMenos" aria-label="Alejar">−</button><input type="range" id="edZoom" min="0" max="100" value="50" aria-label="Zoom"><button type="button" class="zb" id="edMas" aria-label="Acercar">+</button></div>
-<div class="fila"><span class="lbl">Forma</span><div class="segm" id="edForma"><button type="button" data-v="h">Horizontal</button><button type="button" data-v="c">Cuadrado</button></div></div>
+<div class="fila"><span class="lbl">Forma</span><div class="segm" id="edForma"><button type="button" data-v="h">Horizontal</button><button type="button" data-v="c">Cuadrado</button><button type="button" data-v="l">Libre</button></div></div>
 <div class="fila"><span class="lbl">Fondo</span><div class="segm" id="edFondo"><button type="button" data-v="blanco">Blanco</button><button type="button" data-v="transp">Sin fondo</button></div></div>
 <div class="fila"><button type="button" class="ed" id="edCentrar" style="flex:1">Centrar de nuevo</button></div>
 <div class="two" style="margin-top:12px"><button type="button" class="ed" id="edCancelar">Cancelar</button><button type="button" class="ok" id="edUsar" style="margin:0">Usar este logo</button></div>
@@ -1431,8 +1436,8 @@ function pintarCab(){
   cab.style.background=suyos?$('aFondo').value:'';
   const logo='<div class="cablogo"></div>';
   cab.innerHTML=blanca
-    ? logo+'<div class="cabpw"><i>M</i>Powered by <b>Maleta Fácil</b></div><div class="cabh1">Tu maleta en un minuto</div><div class="cabbtn">Preparar mi maleta</div>'
-    : '<div class="cabmf"><div class="cabic">M<i></i></div><div><b>Maleta Fácil</b><span class="cabtag">✈ Equipaje sin estrés</span></div></div><div class="cabsep"></div>'+logo;
+    ? logo+'<div class="cabpw"><img src="/img/logo-maleta.png" alt="">Powered by <b>Maleta Fácil</b></div><div class="cabh1">Tu maleta en un minuto</div><div class="cabbtn">Preparar mi maleta</div>'
+    : '<div class="cabmf"><img class="cabic" src="/img/logo-maleta.png" alt=""><div><b>Maleta <span style="color:#E9845F">Fácil</span></b></div></div><div class="cabsep"></div>'+logo;
   const btn=cab.querySelector('.cabbtn'); if(btn) btn.style.background=suyos?$('aColor').value:'#B65B3F';
   const h=cab.querySelector('.cablogo');
   if(!im){h.innerHTML='<span></span>';h.firstChild.textContent=nombre;}
@@ -1495,10 +1500,14 @@ function abrirEditor(img){
   marcarBotones(); ajustar(); pintar();
 }
 function marco(){const z=$('edZona'),W=z.clientWidth,H=Math.round(W*.55);z.style.height=H+'px';
+  z.classList.toggle('libre',ED.forma==='l');$('edLibreTxt').classList.toggle('hide',ED.forma!=='l');
+  if(ED.forma==='l'){ if(!ED.fr){const k=Math.min(W*.9/ED.src.width,H*.86/ED.src.height),fw=ED.src.width*k,fh=ED.src.height*k;ED.fr={x:(W-fw)/2,y:(H-fh)/2,w:fw,h:fh};}
+    const f=ED.fr;return{W,H,FW:f.w,FH:f.h,fx:f.x,fy:f.y};}
   let FW,FH;if(ED.forma==='h'){FW=Math.round(W*.9);FH=Math.round(FW/3);}else{FH=Math.round(H*.88);FW=FH;}
   return{W,H,FW,FH,fx:(W-FW)/2,fy:(H-FH)/2};}
 function ajustar(){ // encaja el logo dentro del recuadro, con un pequeño margen
-  const {FW,FH}=marco(); ED.s=Math.min(FW*.92/ED.src.width,FH*.86/ED.src.height); ED.min=ED.s*.3; ED.max=ED.s*6; ED.x=0; ED.y=0;
+  if(ED.forma==='l') ED.fr=null;
+  const {FW,FH}=marco(); ED.s=ED.forma==='l'?Math.min(FW/ED.src.width,FH/ED.src.height):Math.min(FW*.92/ED.src.width,FH*.86/ED.src.height); ED.min=ED.s*.3; ED.max=ED.s*6; ED.x=0; ED.y=0;
   $('edZoom').value=Math.round(100*Math.log(ED.s/ED.min)/Math.log(ED.max/ED.min)); }
 function pintar(){
   const {W,H,FW,FH,fx,fy}=marco(),cv=$('edCanvas'),r=window.devicePixelRatio||2;cv.width=W*r;cv.height=H*r;cv.style.height=H+'px';
@@ -1529,16 +1538,29 @@ function marcarBotones(){document.querySelectorAll('#edForma button').forEach(b=
   document.querySelectorAll('#edForma button').forEach(b=>b.onclick=()=>{ED.forma=b.dataset.v;marcarBotones();ajustar();pintar();});
   document.querySelectorAll('#edFondo button').forEach(b=>b.onclick=()=>{ED.fondo=b.dataset.v;marcarBotones();pintar();});
   $('edCentrar').onclick=()=>{ajustar();pintar();};
+  // Forma libre: las esquinas del recuadro se arrastran
+  document.querySelectorAll('#edMarco .asa').forEach(a=>{
+    let p0=null,f0=null;
+    a.addEventListener('pointerdown',e=>{e.stopPropagation();a.setPointerCapture(e.pointerId);p0={x:e.clientX,y:e.clientY};f0={...ED.fr};});
+    a.addEventListener('pointermove',e=>{if(!p0)return;e.stopPropagation();const {W,H}=marco(),dx=e.clientX-p0.x,dy=e.clientY-p0.y,c=a.dataset.c,M=36;let {x,y,w,h}=f0;
+      if(c.includes('l')){const nx=Math.max(0,Math.min(x+w-M,x+dx));w+=x-nx;x=nx;} else w=Math.max(M,Math.min(W-x,w+dx));
+      if(c.includes('t')){const ny=Math.max(0,Math.min(y+h-M,y+dy));h+=y-ny;y=ny;} else h=Math.max(M,Math.min(H-y,h+dy));
+      ED.fr={x,y,w,h};pintar();});
+    const fin=e=>{p0=null;};a.addEventListener('pointerup',fin);a.addEventListener('pointercancel',fin);
+  });
   window.addEventListener('resize',()=>{if(!$('edLogo').classList.contains('hide'))pintar();});
   const cerrar=()=>{$('edLogo').classList.add('hide');document.body.style.overflow='';$('aLogo').value='';};
   $('edCancelar').onclick=cerrar;
   $('edUsar').onclick=()=>{
     // Resultado final: 600x200 (horizontal) o 400x400 (cuadrado)
-    const {FW,FH}=marco(),OW=ED.forma==='h'?600:400,OH=ED.forma==='h'?200:400,k=OW/FW;
+    const {W,H,FW,FH,fx,fy}=marco();
+    const k=ED.forma==='h'?600/FW:ED.forma==='c'?400/FW:Math.min(600/FW,400/FH);
+    const OW=Math.round(FW*k),OH=Math.round(FH*k);
     const c=document.createElement('canvas');c.width=OW;c.height=OH;const x=c.getContext('2d');
     if(ED.fondo==='blanco'){x.fillStyle='#fff';x.fillRect(0,0,OW,OH);}
     const w=ED.src.width*ED.s*k,h=ED.src.height*ED.s*k;x.imageSmoothingQuality='high';
-    x.drawImage(imgActual(),OW/2-w/2+ED.x*k,OH/2-h/2+ED.y*k,w,h);
+    // misma posición que en pantalla: el logo está centrado en la zona y desplazado ED.x/ED.y; el recuadro empieza en fx,fy
+    x.drawImage(imgActual(),(W/2-ED.src.width*ED.s/2+ED.x-fx)*k,(H/2-ED.src.height*ED.s/2+ED.y-fy)*k,w,h);
     logoData=ED.fondo==='blanco'?c.toDataURL('image/jpeg',.92):c.toDataURL('image/png');
     $('aPrev').innerHTML='<img alt="">';$('aPrev').querySelector('img').src=logoData;
     $('edLogo').classList.add('hide');document.body.style.overflow='';
@@ -1601,29 +1623,22 @@ async function hacerTarjeta(logoSrc,nombre,op={}){
     x.textBaseline='middle';x.textAlign='left';
     x.font='500 34px "Work Sans", sans-serif';const w1=x.measureText(t1).width;x.font='700 34px "Work Sans", sans-serif';const wB=x.measureText(t2).width;
     const tot=IC+14+w1+wB,px=(W-tot)/2;
-    rr(px,py-IC/2,IC,IC,10);x.fillStyle='#F6F1E4';x.fill();
-    x.fillStyle='#13302E';x.font='700 30px Fraunces, Georgia, serif';x.textAlign='center';x.fillText('M',px+IC/2,py+2);
+    const mf=await cargarImg('/img/logo-maleta.png'); if(mf){x.save();rr(px,py-IC/2,IC,IC,10);x.clip();x.drawImage(mf,px,py-IC/2,IC,IC);x.restore();}
     x.textAlign='left';x.globalAlpha=.75;x.fillStyle='#F6F1E4';x.font='500 34px "Work Sans", sans-serif';x.fillText(t1,px+IC+14,py);
     x.globalAlpha=1;x.font='700 34px "Work Sans", sans-serif';x.fillText(t2,px+IC+14+w1,py);
     return c.toDataURL('image/jpeg',0.88);
   }
-  // Bloque Maleta Fácil como en la cabecera: icono + nombre + etiqueta "Equipaje sin estrés" con avión
-  x.font='700 56px Fraunces, Georgia, serif';const nw=x.measureText('Maleta Fácil').width;
-  x.font='700 28px "Work Sans", sans-serif';const et='Equipaje sin estrés',ew=x.measureText(et).width,pw=22+30+10+ew+24;
-  const tw=Math.max(nw,pw);
+  // Bloque Maleta Fácil como en la cabecera: logo de la maleta + «Maleta Fácil»
+  const mf=await cargarImg('/img/logo-maleta.png');
+  x.font='700 64px Fraunces, Georgia, serif';const wM=x.measureText('Maleta ').width,wF=x.measureText('Fácil').width,tw=wM+wF;
   let lw,lh;
   if(img){const k=Math.min(330/img.width,140/img.height);lw=img.width*k;lh=img.height*k;}
   else{x.font='700 40px "Work Sans", sans-serif';lw=Math.min(330,x.measureText(nombre).width);lh=60;}
-  const IC=160,total=IC+30+tw+46+3+46+lw, x0=(W-total)/2, top=190, cy=top+IC/2;
-  rr(x0,top,IC,IC,38);x.fillStyle='#F6F1E4';x.fill();
-  x.fillStyle='#13302E';x.font='700 110px Fraunces, Georgia, serif';x.textAlign='center';x.textBaseline='middle';x.fillText('M',x0+IC/2,cy+6);
-  x.beginPath();x.arc(x0+IC-10,top+10,22,0,Math.PI*2);x.fillStyle='#B65B3F';x.fill();
-  const tx=x0+IC+30;
-  x.textAlign='left';x.fillStyle='#F6F1E4';x.font='700 56px Fraunces, Georgia, serif';x.fillText('Maleta Fácil',tx,cy-34);
-  const py=cy+14,ph=54;rr(tx,py,pw,ph,27);x.fillStyle='#8B5A2B';x.fill();
-  x.save();x.translate(tx+22+15,py+ph/2);x.rotate(Math.PI/4);x.scale(30/24,30/24);x.translate(-12,-12);
-  x.fillStyle='#F6F1E4';x.fill(new Path2D('M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2.5 1.8V22l3.5-1 3.5 1v-1.2L13 19v-5.5l8 2.5z'));x.restore();
-  x.fillStyle='#F6F1E4';x.font='700 28px "Work Sans", sans-serif';x.fillText(et,tx+22+30+10,py+ph/2+1);
+  const IC=150,total=IC+28+tw+46+3+46+lw, x0=(W-total)/2, top=195, cy=top+IC/2;
+  if(mf){x.save();rr(x0,top,IC,IC,34);x.clip();x.drawImage(mf,x0,top,IC,IC);x.restore();}
+  const tx=x0+IC+28;
+  x.textAlign='left';x.textBaseline='middle';x.font='700 64px Fraunces, Georgia, serif';
+  x.fillStyle='#F6F1E4';x.fillText('Maleta ',tx,cy+4);x.fillStyle='#E9845F';x.fillText('Fácil',tx+wM,cy+4);
   const sx=tx+tw+46;x.fillStyle='rgba(246,241,228,.3)';x.fillRect(sx,top,3,IC);
   const lx=sx+49;
   if(img){x.save();rr(lx,cy-lh/2,lw,lh,14);x.clip();x.drawImage(img,lx,cy-lh/2,lw,lh);x.restore();}

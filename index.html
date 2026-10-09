@@ -16,7 +16,7 @@
 <meta name="twitter:title" content="Maleta Fácil · Tu lista de maleta según tu destino">
 <meta name="twitter:description" content="Consultamos el clima real de tu viaje y armamos tu lista de ropa y productos.">
 <meta name="twitter:image" content="https://maletafacil.com/og-maletafacil.png">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 160'%3E%3Crect width='160' height='160' rx='30' fill='%2312302E'/%3E%3Ctext x='80' y='112' text-anchor='middle' font-family='Georgia,serif' font-weight='bold' font-size='88' fill='%23F6F1E4'%3EM%3C/text%3E%3Ccircle cx='132' cy='30' r='8' fill='%23B65B3F'/%3E%3C/svg%3E">
+<link rel="icon" type="image/png" href="/img/favicon-64.png">
 <!-- Google tag (gtag.js) — el script real solo se inyecta si el usuario acepta cookies (ver cookieConsent.js más abajo) -->
 <script>
   window.dataLayer = window.dataLayer || [];
@@ -751,6 +751,8 @@
   }
   .actions button.wa-btn:hover{background:#20BD5A;}
 
+  .disclosure{display:none;}
+  body.con-lista .disclosure{display:block;}
   .disclosure{
     color:#8FA9A4;
     font-size:11.5px;
@@ -771,6 +773,10 @@
     color:#8FA9A4;
   }
   .footer-links{display:flex;gap:10px 16px;flex-wrap:wrap;justify-content:center;}
+  .logo-mf{border-radius:16px;display:block;box-shadow:0 4px 14px rgba(0,0,0,.18);}
+  .hero p.marca-mf,.marca-mf{font-family:'Fraunces',serif !important;font-weight:700;font-size:28px !important;letter-spacing:-.01em;color:var(--paper) !important;margin:0 !important;line-height:1;white-space:nowrap;}
+  .marca-mf span{color:#E9845F;}
+  .hero p.marca-mf.marca-peq{font-size:20px !important;}
   .footer-link{
     background:none;border:none;padding:0;
     color:#8FA9A4;font-size:12px;
@@ -942,22 +948,14 @@ body.con-lista .dest-pop,html.ag-cargando .dest-pop,html.dest-cargando .dest-pop
 <div class="wrap">
 
   <div class="hero">
-    <div id="logoHeaderRow" style="display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:18px;">
-      <svg width="70" height="70" viewBox="0 0 130 130" style="flex-shrink:0;">
-        <rect x="0" y="0" width="130" height="130" rx="26" fill="#F6F1E4"/>
-        <text x="65" y="98" text-anchor="middle" font-family="Georgia, serif" font-weight="bold" font-size="78" fill="#12302E">M</text>
-        <circle cx="107" cy="20" r="9" fill="#B65B3F"/>
-      </svg>
+    <div id="logoHeaderRow" style="display:flex;align-items:center;justify-content:center;gap:13px;margin-bottom:18px;">
+      <img class="logo-mf" src="/img/logo-maleta.png" width="64" height="64" alt="" style="flex-shrink:0;">
       <div style="text-align:left;">
-        <p style="font-family:'Fraunces',serif;font-weight:600;font-size:19px;color:var(--paper);margin:0 0 8px;">Maleta Fácil</p>
-        <span class="tag" style="margin:0;gap:6px;">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0;"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2.5 1.8V22l3.5-1 3.5 1v-1.2L13 19v-5.5l8 2.5z"/></svg>
-          Equipaje sin estrés
-        </span>
+        <p class="marca-mf">Maleta <span>Fácil</span></p>
       </div>
     </div>
-    <p id="poweredByWrap" style="display:none;font-size:11px;letter-spacing:.03em;color:#8FA9A4;margin:-10px 0 18px;"><span style="display:inline-flex;align-items:center;gap:6px;"><span aria-hidden="true" style="width:16px;height:16px;border-radius:4px;background:#F6F1E4;color:#12302E;font:700 11px Fraunces,Georgia,serif;display:inline-flex;align-items:center;justify-content:center;">M</span>Powered by <b style="color:#CFE0DC;font-weight:700;">Maleta Fácil</b></span></p>
-    <h1 class="h1-una">Tu maleta en un minuto</h1>
+    <p id="poweredByWrap" style="display:none;font-size:11px;letter-spacing:.03em;color:#8FA9A4;margin:-10px 0 18px;"><span style="display:inline-flex;align-items:center;gap:6px;"><img src="/img/logo-maleta.png" width="16" height="16" alt="" style="border-radius:4px;">Powered by <b style="color:#CFE0DC;font-weight:700;">Maleta Fácil</b></span></p>
+    <h1 class="h1-una">Tu maleta en un minuto.</h1>
   </div>
   <div class="carga-lista" aria-live="polite"><i></i>Preparando tu maleta…</div>
 
@@ -966,13 +964,13 @@ body.con-lista .dest-pop,html.ag-cargando .dest-pop,html.dest-cargando .dest-pop
 
     <div class="field">
       <div class="step-label"><span class="step-num">1</span> Destino y fechas</div>
-      <label class="field-label" for="destino">Destino</label>
+      <label class="field-label" for="destino">¿Dónde te vas?</label>
       <div style="position:relative;">
-        <input type="text" id="destino" placeholder="Ej. Lisboa, Cancún, los Alpes..." autocomplete="off" onfocus="this.select();">
+        <input type="text" id="destino" placeholder="Ej. Lisboa, Roma, los Alpes..." autocomplete="off" onfocus="this.select();">
         <div id="destinoSugerencias" class="suggest-list"></div>
       </div>
 
-      <p class="hint" id="origenResumen" style="display:none;margin-top:8px;">
+      <p class="hint" id="origenResumen" style="margin-top:8px;">
         Sales desde <span id="origenResumenPais">España</span> ·
         <a href="#" id="origenCambiarLink" style="color:var(--teal-700);font-weight:600;">cambiar</a>
       </p>
@@ -991,7 +989,7 @@ body.con-lista .dest-pop,html.ag-cargando .dest-pop,html.dest-cargando .dest-pop
     </div>
 
     <div class="field">
-      <label class="field-label">Fechas del viaje</label>
+      <label class="field-label">¿Cuándo?</label>
       <button type="button" id="fechasTrigger" class="fechas-trigger">
         <span id="fechasTriggerTexto">dd/mm/aaaa — dd/mm/aaaa</span>
         <svg class="fechas-trigger-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="16" rx="3"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/></svg>
@@ -1026,7 +1024,7 @@ body.con-lista .dest-pop,html.ag-cargando .dest-pop,html.dest-cargando .dest-pop
     </div>
 
     <div class="field">
-      <div class="step-label"><span class="step-num">3</span> Personaliza (opcional)</div>
+      <div class="step-label"><span class="step-num">3</span> ¿Quién viaja?</div>
 
       <div style="display:flex;gap:10px;justify-content:center;">
         <button type="button" class="gender-icon-btn" id="genHombre" aria-label="Hombre">
@@ -1083,7 +1081,7 @@ body.con-lista .dest-pop,html.ag-cargando .dest-pop,html.dest-cargando .dest-pop
 
 
     <div class="field">
-      <p class="field-label" style="margin-bottom:8px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" style="vertical-align:-3px;margin-right:2px;"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M9 8V6a3 3 0 0 1 6 0v2" stroke-linecap="round"/><path d="M12 11v6" stroke-linecap="round"/></svg> Cuánto ocupará</p>
+      <p class="field-label" style="margin-bottom:8px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round" style="vertical-align:-3px;margin-right:2px;"><rect x="4" y="8" width="16" height="12" rx="2"/><path d="M9 8V6a3 3 0 0 1 6 0v2" stroke-linecap="round"/><path d="M12 11v6" stroke-linecap="round"/></svg> Tu maleta</p>
       <div class="barra-track-wrap">
         <div class="barra-track"><div class="barra-fill" id="barraFill"></div></div>
         <div class="barra-marker barra-marker-cabina" title="Límite de cabina">
@@ -1148,6 +1146,7 @@ body.con-lista .dest-pop,html.ag-cargando .dest-pop,html.dest-cargando .dest-pop
       <option value="otra">Otra / no está en la lista</option>
     </select>
     <div id="maletaResultado"></div>
+    <p class="hint" style="font-size:11px;margin:12px 0 0;">Como participantes del Programa de Afiliados de Amazon, recibimos una comisión por las compras que cumplan los requisitos, sin coste adicional para ti.</p>
   </div>
 </div>
 
@@ -2185,8 +2184,8 @@ function mostrarOrigenDetectado(pais){
   origenCampo.style.display = 'none';
 }
 function mostrarOrigenManual(){
-  origenResumen.style.display = 'none';
-  origenCampo.style.display = 'block';
+  // Si no sabemos el país, se da por hecho España en una línea pequeña («cambiar» abre el campo)
+  mostrarOrigenDetectado(origenEl.value || 'España');
 }
 
 (async function detectarPaisOrigen(){
@@ -2994,11 +2993,9 @@ async function aplicarAgenciaDesdeURL(){
     // Marca compartida (por defecto): Maleta Fácil a la izquierda | logo de la agencia a la derecha, en una fila
     const fila = document.getElementById('logoHeaderRow');
     const [icono, textos] = [fila.children[0], fila.children[1]];
-    icono.setAttribute('width', '48'); icono.setAttribute('height', '48');
+    icono.style.width = '46px'; icono.style.height = '46px';
     const titulo = textos.querySelector('p');
-    titulo.style.fontSize = '16px'; titulo.style.marginBottom = '5px';
-    const etiqueta = textos.querySelector('.tag');
-    etiqueta.style.fontSize = '10.5px'; etiqueta.style.padding = '4px 9px'; etiqueta.style.whiteSpace = 'nowrap';
+    titulo.classList.add('marca-peq');
     const marca = document.createElement('div');
     marca.style.cssText = 'display:flex;align-items:center;gap:9px;flex-shrink:0;';
     marca.append(icono, textos);

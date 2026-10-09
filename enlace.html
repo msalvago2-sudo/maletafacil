@@ -50,6 +50,12 @@ button,.btn{font:700 15px 'Work Sans',sans-serif;border:0;border-radius:100px;pa
 .wa{background:#25D366;color:#0B3B21}
 .btns .wa{grid-column:1/-1}
 .copy{background:var(--teal);color:var(--paper)}
+.lanz-paso{background:#fff;border:1.5px solid #E4DCCB;border-radius:12px;padding:12px;margin-top:10px}.lanz-paso b{display:block;font-size:14.5px;margin-bottom:4px}
+.lanz-resumen{font-weight:700;margin:12px 0 0;font-size:15px}
+.lanz-lista{margin-top:8px}.lanz-fila{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #F0EADF}.lanz-fila:last-child{border-bottom:0}
+.lanz-fila span{flex:1;min-width:0;font-size:14.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.lanz-fila small{display:block;color:#8A8478;font-size:12.5px}
+.lanz-fila a{min-height:36px;padding:6px 16px;font-size:14px;background:#25D366;color:#12302E;border-radius:100px;text-decoration:none;font-weight:700;display:flex;align-items:center}
+.lanz-fila.ok a{background:#E4DCCB;color:#6B6459}.lanz-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px}.lanz-nav button{min-height:38px;padding:6px 14px;background:#F6F1E4;color:var(--teal);font-size:14px}.lanz-nav span{font-size:13px;color:#6B6459}
 .lanz-msg{width:100%;box-sizing:border-box;border:1.5px solid #E4DCCB;border-radius:12px;padding:12px;font:15px/1.4 'Work Sans',sans-serif;color:#12302E;background:#fff;resize:vertical}.lanzF.hide{display:none}
 .test{background:#F5C86A;color:var(--teal)}
 .mail{background:#E3EFEC;color:var(--teal)}
@@ -369,7 +375,21 @@ body.rol-agencia #agForm .two{display:none}
 <div class="hint" style="margin:0 0 8px">Manda este mensaje a tu lista de difusión de WhatsApp. Al abrir el enlace verán tu marca y la web les invitará a guardarla en el móvil como una app.</div>
 <textarea id="lanzMsg" rows="6" class="lanz-msg"></textarea>
 <div class="sec2" style="margin-top:8px"><button type="button" class="copy" id="lanzCopiar">Copiar mensaje</button><button type="button" class="btn wa" id="lanzCompartir">Compartir…</button></div>
-<div class="hint" style="margin-top:6px">Solo el enlace: <a href="#" id="lanzLink" style="word-break:break-all"></a></div></div>
+<div class="hint" style="margin-top:6px">Solo el enlace: <a href="#" id="lanzLink" style="word-break:break-all"></a></div>
+<div class="lanz-tels">
+<label class="drop" for="lanzFich" style="margin-top:12px"><b>Subir Excel con los teléfonos</b><span class="hint">.xlsx o .csv con una columna de teléfono (y si quieres, el nombre). No se guarda en ningún servidor: se lee solo en este móvil.</span></label>
+<input type="file" id="lanzFich" accept=".xls,.xlsx,.xlsm,.csv,application/vnd.ms-excel,text/csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" class="hide">
+<p class="hint" id="lanzErr" style="display:none;color:#B3261E"></p>
+<div id="lanzRes" class="hide">
+<p class="lanz-resumen" id="lanzResumen"></p>
+<div class="lanz-paso"><b>Opción 1 · Lista de difusión (lo más rápido)</b>
+<span class="hint">Descarga los contactos, añádelos al móvil y en WhatsApp crea una «Nueva difusión» con ellos (hasta 256 por lista). Solo lo reciben quienes tengan guardado el número de la agencia.</span>
+<button type="button" class="copy" id="lanzVcf" style="margin-top:8px;width:100%">Descargar contactos para el móvil</button></div>
+<div class="lanz-paso"><b>Opción 2 · Uno a uno</b>
+<span class="hint">Toca «Enviar» y se abre WhatsApp con el mensaje escrito; vuelve aquí y sigue con el siguiente. Se queda marcado lo ya enviado.</span>
+<div id="lanzLista" class="lanz-lista"></div>
+<div class="lanz-nav"><button type="button" id="lanzAnt">‹ Anteriores</button><span id="lanzPag"></span><button type="button" id="lanzSig">Siguientes ›</button></div></div>
+</div></div></div>
 <div class="f resumenF"><label>Resumen diario de envíos</label>
 <div class="hint" style="margin:0 0 8px">Cada mañana la agencia recibe la lista de clientes a los que toca enviar la maleta por WhatsApp.</div>
 <input id="aEmail" type="email" inputmode="email" placeholder="Email para el resumen (ej. reservas@agencia.es)" autocomplete="off">
@@ -1427,6 +1447,55 @@ function pintarLanzamiento(slug,d){
 $('lanzCopiar').onclick=()=>copiar($('lanzMsg').value);
 $('lanzCompartir').onclick=()=>{const t=$('lanzMsg').value; if(navigator.share) navigator.share({text:t}).catch(()=>{}); else copiar(t);};
 $('lanzLink').onclick=e=>{e.preventDefault();copiar($('lanzLink').textContent);};
+// Excel con los teléfonos de los clientes → contactos para el móvil (.vcf) o envío uno a uno. Todo en el navegador.
+let LANZ=[], LANZ_PAG=0; const LANZ_POR=25;
+const lanzEnviados=()=>{try{return new Set(JSON.parse(localStorage.getItem('mf_lanz_env:'+(editando||''))||'[]'));}catch(e){return new Set();}};
+function lanzMarcar(tel){const s=lanzEnviados();s.add(tel);try{localStorage.setItem('mf_lanz_env:'+(editando||''),JSON.stringify([...s]));}catch(e){}}
+$('lanzFich').addEventListener('change',async e=>{
+  const f=e.target.files[0]; if(!f) return; const err=$('lanzErr'); err.style.display='none';
+  try{
+    let rows; if(/\.csv$/i.test(f.name)) rows=leerCsv(await f.text()); else if(/\.(xls|xlsx|xlsm)$/i.test(f.name)) rows=await leerHojas(f); else throw new Error('tipo');
+    rows=rows.filter(r=>r.some(c=>String(c).trim()!==''));
+    // Columna de teléfono: la que más números de móvil válidos tiene. Nombre: la de cabecera «nombre/cliente…» o la primera con texto
+    const nCol=Math.max(...rows.map(r=>r.length)); let best=-1,bestN=0;
+    for(let j=0;j<nCol;j++){const n=rows.filter(r=>telWa(r[j],editando)).length; if(n>bestN){bestN=n;best=j;}}
+    if(best<0||!bestN) throw new Error('sin');
+    const cab=rows.find(r=>!telWa(r[best],editando))||[];
+    let nom=cab.findIndex((h,j)=>j!==best&&/nombre|cliente|pasajero|titular|contacto/i.test(String(h)));
+    if(nom<0){for(let j=0;j<nCol;j++){if(j===best)continue; if(rows.filter(r=>/[a-záéíóúñ]{3}/i.test(String(r[j]||''))&&!/@/.test(String(r[j]||''))).length>rows.length/2){nom=j;break;}}}
+    const vistos=new Set(); let fijos=0,rep=0; LANZ=[];
+    rows.forEach(r=>{const bruto=String(r[best]||'').trim(); if(!bruto)return; const t=telWa(bruto,editando);
+      if(!t){ if(/\d{6,}/.test(bruto.replace(/\D/g,''))) fijos++; return; }
+      if(vistos.has(t)){rep++;return;} vistos.add(t);
+      LANZ.push({tel:t,nombre:nom>=0?String(r[nom]||'').trim():''});});
+    if(!LANZ.length) throw new Error('sin');
+    $('lanzResumen').textContent=`📱 ${LANZ.length} móviles listos`+(rep||fijos?` (quitados ${[rep?rep+(rep>1?' repetidos':' repetido'):'',fijos?fijos+(fijos>1?' fijos o no válidos':' fijo o no válido'):''].filter(Boolean).join(' y ')})`:'');
+    $('lanzRes').classList.remove('hide'); LANZ_PAG=0; pintarLanzLista();
+  }catch(x){ err.textContent=x.message==='tipo'?'Sube un archivo .xlsx o .csv.':x.message==='sin'?'No encuentro teléfonos móviles en ese archivo.':'No he podido leer el archivo. Prueba a guardarlo como .xlsx o .csv.'; err.style.display='block'; }
+  e.target.value='';
+});
+function pintarLanzLista(){
+  const env=lanzEnviados(), tot=Math.ceil(LANZ.length/LANZ_POR), box=$('lanzLista'); box.innerHTML='';
+  LANZ.slice(LANZ_PAG*LANZ_POR,(LANZ_PAG+1)*LANZ_POR).forEach(c=>{
+    const d=document.createElement('div'); d.className='lanz-fila'+(env.has(c.tel)?' ok':'');
+    const sp=document.createElement('span'); sp.textContent=c.nombre||('+'+c.tel); if(c.nombre){const sm=document.createElement('small');sm.textContent='+'+c.tel;sp.appendChild(sm);}
+    const a=document.createElement('a'); a.href='https://wa.me/'+c.tel+'?text='+encodeURIComponent($('lanzMsg').value); a.target='_blank'; a.rel='noopener';
+    a.textContent=env.has(c.tel)?'Enviado ✓':'Enviar'; a.addEventListener('click',()=>{lanzMarcar(c.tel); setTimeout(pintarLanzLista,300);});
+    d.append(sp,a); box.appendChild(d);});
+  const hechos=LANZ.filter(c=>env.has(c.tel)).length;
+  $('lanzPag').textContent=`${LANZ_PAG+1} de ${tot} · enviados ${hechos}/${LANZ.length}`;
+  document.querySelector('.lanz-nav').style.display=tot>1?'':'none';
+  $('lanzAnt').disabled=LANZ_PAG===0; $('lanzSig').disabled=LANZ_PAG>=tot-1;
+}
+$('lanzMsg').addEventListener('input',()=>{if(LANZ.length)pintarLanzLista();});
+$('lanzAnt').onclick=()=>{if(LANZ_PAG>0){LANZ_PAG--;pintarLanzLista();}};
+$('lanzSig').onclick=()=>{if((LANZ_PAG+1)*LANZ_POR<LANZ.length){LANZ_PAG++;pintarLanzLista();}};
+$('lanzVcf').onclick=()=>{
+  const ag=(AG[editando]||{}).nombre||editando||'';
+  const esc=v=>String(v).replace(/[\\;,]/g,m=>'\\'+m);
+  const vcf=LANZ.map((c,i)=>{const n=c.nombre||('Cliente '+(i+1));return `BEGIN:VCARD\r\nVERSION:3.0\r\nFN:${esc(n)}\r\nN:${esc(n)};;;;\r\nTEL;TYPE=CELL:+${c.tel}\r\nORG:${esc(ag)}\r\nNOTE:Cliente de ${esc(ag)}\r\nEND:VCARD`;}).join('\r\n');
+  const b=new Blob([vcf],{type:'text/vcard'}); const u=URL.createObjectURL(b); const a=document.createElement('a'); a.href=u; a.download=`clientes-${editando||'agencia'}.vcf`; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u),4000);
+};
 function abrirForm(slug){
   editando=slug||null; logoData=''; const d=slug?AG[slug]||{}:{}; pintarLanzamiento(slug,d);
   $('agTit').textContent=slug?'Editar agencia':'Nueva agencia';

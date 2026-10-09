@@ -5,7 +5,7 @@
 // Los datos de los clientes se borran solos al terminar el viaje (lo hace resumen-diario).
 import { getStore } from "@netlify/blobs";
 import { quien } from "./agencias.mjs";
-import { sumar, leerEstadisticas, statsAgencia, leerRango, borrarStats } from "./evento.mjs";
+import { sumar, leerEstadisticas, statsAgencia, leerRango, borrarStats, leerWeb } from "./evento.mjs";
 import { createHmac, createHash, createECDH, createCipheriv, randomBytes, createPrivateKey, sign as firmar } from "node:crypto";
 
 /* ---------- Avisos al móvil (Web Push) sin librerías: cifrado aes128gcm (RFC 8291) + firma VAPID (RFC 8292) ---------- */
@@ -474,6 +474,12 @@ a{display:block;background:#25D366;color:#073B1C;font-weight:700;font-size:16px;
     for (const a of Object.values(r.agencias)) delete a.amazon;
     const { blobs } = await getStore({ name: "estadisticas", consistency: "strong" }).list({ prefix: `st:${yo.slug}:` });
     return json({ ok: true, rango: true, ...r, meses: blobs.map(x => x.key.split(":")[2]).sort().reverse() });
+  }
+
+  if (b.accion === "web") {
+    // Cómo se usa la web (embudo anónimo): solo el administrador
+    if (yo.rol !== "admin" || !esFecha(b.desde) || !esFecha(b.hasta)) return json({ error: "rol" }, 403);
+    return json({ ok: true, ...(await leerWeb(b.desde <= b.hasta ? b.desde : b.hasta, b.desde <= b.hasta ? b.hasta : b.desde)) });
   }
 
   if (b.accion === "stats") {

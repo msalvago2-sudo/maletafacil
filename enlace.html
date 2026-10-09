@@ -132,6 +132,13 @@ body.rol-agencia #agForm .two{display:none}
 .hitem .ok2{color:#2E827C;font-weight:700;font-size:12px}
 .hsec{font:700 18px Fraunces,serif;margin:14px 0 2px;display:flex;justify-content:space-between;align-items:baseline}
 .hsec small{font:500 12px 'Work Sans',sans-serif;color:#6B665B}
+.wem{margin:4px 0 12px}.wem h4{font:700 15px 'Work Sans',sans-serif;margin:12px 0 6px}
+.wpaso{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center;margin:0 0 7px}
+.wpaso span{font-size:14px}.wpaso em{font-style:normal;font-size:13px;color:#6B665B;text-align:right}
+.wbar{grid-column:1/-1;height:10px;background:#EAE1CB;border-radius:6px;overflow:hidden}.wbar i{display:block;height:100%;background:#2E827C;border-radius:6px}
+.wpaso.peor .wbar i{background:#B65B3F}.wpaso.peor em{color:#B65B3F;font-weight:700}
+.wcon{background:#fff;border-radius:12px;padding:10px 12px;margin:6px 0;font-size:14px;line-height:1.4}.wcon b{color:#B65B3F}
+.wchips{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 8px}.wchips span{background:#fff;border-radius:100px;padding:4px 10px;font-size:12.5px}
 .hag{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #EEE7D8;cursor:pointer}
 .hag img{height:26px;max-width:80px;object-fit:contain;border-radius:4px}
 .hag b{flex:1;font-size:14px}.hag span{font-size:13px;color:#6B665B;text-align:right}
@@ -828,14 +835,14 @@ function pintarPanel(cont){
   // Solo cuentan las agencias con algo que enviar hoy o más adelante (los viajes ya enviados esperan a borrarse solos al terminar)
   const ags=Object.entries(HOYDATA).filter(([,a])=>a.pend.length+a.hechos.length+a.prox.length>0);let pend=0,hechos=0,prox=0;ags.forEach(([,a])=>{pend+=a.pend.length;hechos+=a.hechos.length;prox+=a.prox.length;});
   cont.innerHTML=`<div class="kpis"><div class="kpi"><b>${pend+hechos}</b><span>envíos para hoy</span></div><div class="kpi"><b>${hechos}</b><span>ya enviados hoy</span></div><div class="kpi"><b>${prox}</b><span>programados próximos días</span></div><div class="kpi"><b>${ags.length}</b><span>agencias con viajes</span></div></div>`;
-  if(!ags.length){cont.insertAdjacentHTML('beforeend','<p class="vacio2">Aún no hay envíos programados. Crea un enlace en «Un cliente» o sube un Excel en «Varios» y pulsa Programar.</p>');if(ROL==='admin')pintarStats(cont);return;}
+  if(!ags.length){cont.insertAdjacentHTML('beforeend','<p class="vacio2">Aún no hay envíos programados. Crea un enlace en «Un cliente» o sube un Excel en «Varios» y pulsa Programar.</p>');if(ROL==='admin'){pintarStats(cont);pintarWeb(cont);}return;}
   ags.sort((x,y)=>(y[1].pend.length+y[1].hechos.length)-(x[1].pend.length+x[1].hechos.length)).forEach(([k,a])=>{
     const d=document.createElement('div');d.className='hag';const lg=logoUrl((AG[k]||{}).logo);
     d.innerHTML='<b></b><span></span>';
     d.querySelector('b').textContent=nomAg(k);const tot=a.pend.length+a.hechos.length;
     d.querySelector('span').textContent=tot?`${tot} hoy · ${a.hechos.length} enviado${a.hechos.length===1?'':'s'}`:`${a.prox.length} programado${a.prox.length===1?'':'s'}`;
     d.onclick=()=>{$('agHoy').value=k;cargarHoy();};cont.appendChild(d);});
-  if(ROL==='admin'){pintarStats(cont);pintarAlertas(cont);}
+  if(ROL==='admin'){pintarStats(cont);pintarWeb(cont);pintarAlertas(cont);}
 }
 async function pintarAlertas(cont){
   const r=await apiV({accion:'alertas'}).catch(()=>({ok:false}));if(!r.ok)return;
@@ -938,6 +945,53 @@ $('wa').addEventListener('click',()=>evento('envio',slugActual(),ciudadDe($('des
 let STATS_PER='mes';
 const diaMad=(n=0)=>{const d=new Date(Date.now()-n*864e5);return new Intl.DateTimeFormat('en-CA',{timeZone:'Europe/Madrid',year:'numeric',month:'2-digit',day:'2-digit'}).format(d);};
 const fCorta=f=>{const [a,m,d]=f.split('-');return (+d)+'/'+(+m);};
+/* ---------- Cómo se usa la web: embudo anónimo (solo administrador) ---------- */
+let WEB_DIAS='7';
+async function pintarWeb(cont){
+  const box=document.createElement('div');box.id='webBox';box.innerHTML='<div class="hsec">📈 Cómo se usa la web <small></small></div><p class="hint">Cargando…</p>';
+  const viejo=document.getElementById('webBox'); if(viejo) viejo.replaceWith(box); else cont.appendChild(box);
+  const sel=document.createElement('select');sel.style.cssText='width:auto;min-height:36px;padding:4px 8px;font-size:13px';
+  [['1','Hoy'],['7','Últimos 7 días'],['28','Últimos 28 días'],['90','Últimos 90 días']].forEach(([v,t])=>{const o=document.createElement('option');o.value=v;o.textContent=t;sel.appendChild(o);});
+  sel.value=WEB_DIAS; sel.onchange=()=>{WEB_DIAS=sel.value;pintarWeb(cont);}; box.querySelector('small').appendChild(sel);
+  const r=await apiV({accion:'web',desde:diaMad(+WEB_DIAS-1),hasta:diaMad()}).catch(()=>({ok:false}));
+  const p=box.querySelector('p'); if(!r.ok){p.textContent='No se han podido cargar.';return;}
+  const suma=(ors,k)=>ors.reduce((a,o)=>a+((r.o[o]||{})[k]||0),0);
+  const PORTADA=['web','agencia','lanzamiento','app','guias'], ENLACE=['cliente','guardada'];
+  const visitas=suma([...PORTADA,...ENLACE],'visita');
+  if(!visitas){p.textContent='Todavía no hay datos en estas fechas. Se cuentan desde el 10/10/2026, sin cookies y sin datos personales.';return;}
+  p.remove();
+  const pc=(a,b)=>b?Math.round(a/b*100):0;
+  const dev=r.dev||{}, dt=(dev.iphone||0)+(dev.android||0)+(dev.ordenador||0);
+  box.insertAdjacentHTML('beforeend',`<div class="kpis"><div class="kpi"><b>${visitas}</b><span>visitas</span></div><div class="kpi"><b>${suma([...PORTADA,...ENLACE],'lista')}</b><span>maletas preparadas o abiertas</span></div></div>
+   <div class="wchips"><span>📱 iPhone ${pc(dev.iphone||0,dt)} %</span><span>🤖 Android ${pc(dev.android||0,dt)} %</span><span>💻 Ordenador ${pc(dev.ordenador||0,dt)} %</span></div>`);
+  const NOM={web:'Portada directa',agencia:'Enlace de agencia (sin destino)',lanzamiento:'Enlace de lanzamiento',app:'App instalada',guias:'Guías «Qué llevar»',cliente:'Maleta enviada por agencia',guardada:'Maleta guardada/compartida'};
+  const ch=Object.keys(NOM).filter(o=>(r.o[o]||{}).visita).map(o=>`<span>${NOM[o]}: <b>${r.o[o].visita}</b></span>`).join('');
+  if(ch) box.insertAdjacentHTML('beforeend','<h4 style="font:700 14px Work Sans,sans-serif;margin:8px 0 4px">Por dónde entran</h4><div class="wchips">'+ch+'</div>');
+  const CONSEJO={destino:'La portada no anima a empezar: miran y se van sin escribir destino.',fechas:'El calendario frena: escriben el destino pero no ponen las fechas.',preparar:'Lo tienen todo puesto pero no pulsan «Preparar mi maleta».',lista:'Algo falla al preparar la maleta (lentitud o errores).',marca:'Ven la lista pero no la usan (no marcan nada).',amazon:'Usan la lista pero no entran en Amazon.',fin:'No bajan hasta el final de la lista.'};
+  const embudo=(tit,ors,pasos)=>{
+    const base=suma(ors,'visita'); if(!base) return;
+    const N={visita:'Entran',destino:'Escriben destino',fechas:'Ponen fechas',preparar:'Pulsan «Preparar»',lista:'Ven su lista',marca:'Marcan algo',amazon:'Entran en Amazon',fin:'Llegan al final'};
+    let peor=null,ant=base; const vals=pasos.map(k=>{const v=k==='visita'?base:suma(ors,k);return [k,v];});
+    vals.forEach(([k,v],i)=>{if(i&&k!=='amazon'&&k!=='fin'){const caida=ant?1-v/ant:0;if(!peor||caida>peor.caida)peor={k,caida,de:vals[i-1][0]};} if(k!=='amazon'&&k!=='fin')ant=v;});
+    const w=document.createElement('div');w.className='wem';w.innerHTML='<h4></h4>';w.firstChild.textContent=tit+' ('+base+')';
+    vals.forEach(([k,v])=>{const d=document.createElement('div');d.className='wpaso'+(peor&&peor.k===k&&peor.caida>.15?' peor':'');
+      d.innerHTML=`<span>${N[k]}</span><em>${v} · ${pc(v,base)} %</em><div class="wbar"><i style="width:${Math.max(2,pc(v,base))}%"></i></div>`;w.appendChild(d);});
+    if(peor&&peor.caida>.15) w.insertAdjacentHTML('beforeend',`<div class="wcon">👉 Donde más gente se va: <b>entre «${N[peor.de]}» y «${N[peor.k]}» (${Math.round(peor.caida*100)} %)</b>. ${CONSEJO[peor.k]||''}</div>`);
+    box.appendChild(w);
+  };
+  embudo('Entran por la portada',PORTADA,['visita','destino','fechas','preparar','lista','marca','amazon','fin']);
+  embudo('Abren una maleta ya hecha',ENLACE,['visita','lista','marca','amazon','fin']);
+  // Diagnósticos concretos
+  const cal=suma(PORTADA,'cal'),fe=suma(PORTADA,'fechas'),err=suma([...PORTADA,...ENLACE],'error'),li=suma([...PORTADA,...ENLACE],'lista');
+  if(cal>=5&&fe/cal<.75) box.insertAdjacentHTML('beforeend',`<div class="wcon">📅 De cada 10 que abren el calendario, <b>${Math.round((1-fe/cal)*10)} lo cierran sin elegir fechas</b>.</div>`);
+  if(li>=10&&err/li>.05) box.insertAdjacentHTML('beforeend',`<div class="wcon">⚠️ En el ${pc(err,li)} % de las maletas no encontramos el destino escrito.</div>`);
+  const iv=suma([...PORTADA,...ENLACE],'inst_ver'),is=suma([...PORTADA,...ENLACE],'inst_si'),ia=(r.o.app||{}).visita||0;
+  if(iv) box.insertAdjacentHTML('beforeend',`<div class="wcon">📲 Aviso de instalar: lo vieron <b>${iv}</b>, pulsaron «Añadir» <b>${is}</b> (${pc(is,iv)} %). Visitas desde la app instalada: <b>${ia}</b>.</div>`);
+  const com=suma([...PORTADA,...ENLACE],'comparte'); if(li) box.insertAdjacentHTML('beforeend',`<div class="wcon">🔗 Guardan o comparten su maleta: <b>${pc(com,li)} %</b> de quienes tienen lista.</div>`);
+  const des=Object.entries(r.des||{}).slice(0,8).map(([x,n])=>`<span>${x} · ${n}</span>`).join('');
+  if(des) box.insertAdjacentHTML('beforeend','<h4 style="font:700 14px Work Sans,sans-serif;margin:10px 0 4px">Destinos más buscados</h4><div class="wchips">'+des+'</div>');
+  box.insertAdjacentHTML('beforeend','<p class="hint" style="margin-top:6px">Datos anónimos, sin cookies: cuentan a todo el mundo (acepte o no las cookies). Cada paso cuenta una vez por visita.</p>');
+}
 async function pintarStats(cont,mes){
   if(mes) STATS_PER='m:'+mes;
   const per=STATS_PER; let q={accion:'stats'},etiq='';

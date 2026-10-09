@@ -99,9 +99,50 @@ export async function leerEstadisticas(mes) {
   return { mes, meses: [...meses].sort().reverse(), agencias: out };
 }
 
+// ---------- Cómo se usa la web (anónimo, sin cookies): pasos por los que pasa cada visita ----------
+// Cada visita manda cada paso una sola vez. Se guarda por día: web:AAAA-MM-DD → {o:{origen:{paso:n}}, dev:{}, des:{}}
+const PASOS = new Set(["visita", "destino", "cal", "fechas", "preparar", "lista", "marca", "amazon", "civitatis", "comparte", "fin", "inst_ver", "inst_si", "instalada", "error"]);
+const ORIGENES = new Set(["web", "agencia", "lanzamiento", "cliente", "guardada", "app", "guias"]);
+export async function sumarPaso(paso, origen, dev, des) {
+  if (!PASOS.has(paso)) return false;
+  const o = ORIGENES.has(origen) ? origen : "web";
+  const store = getStore({ name: "estadisticas", consistency: "strong" });
+  const k = `web:${diaEn()}`;
+  const d = (await store.get(k, { type: "json" })) || { o: {}, dev: {}, des: {} };
+  const x = d.o[o] || (d.o[o] = {});
+  x[paso] = (x[paso] || 0) + 1;
+  if (paso === "visita") { const v = ["iphone", "android", "ordenador"].includes(dev) ? dev : "ordenador"; d.dev[v] = (d.dev[v] || 0) + 1; }
+  const dd = bonito(des);
+  if (paso === "lista" && dd) {
+    d.des[dd] = (d.des[dd] || 0) + 1;
+    d.des = Object.fromEntries(Object.entries(d.des).sort((a, b) => b[1] - a[1]).slice(0, 60));
+  }
+  await store.setJSON(k, d);
+  return true;
+}
+export async function leerWeb(desde, hasta) {
+  const store = getStore({ name: "estadisticas", consistency: "strong" });
+  const { blobs } = await store.list({ prefix: "web:" });
+  const out = { o: {}, dev: {}, des: {}, dias: {} };
+  for (const b of blobs) {
+    const f = b.key.slice(4); if (f < desde || f > hasta) continue;
+    const d = (await store.get(b.key, { type: "json" })) || {};
+    for (const [o, pasos] of Object.entries(d.o || {})) { const t = out.o[o] || (out.o[o] = {}); for (const [p, n] of Object.entries(pasos)) t[p] = (t[p] || 0) + n; }
+    for (const [v, n] of Object.entries(d.dev || {})) out.dev[v] = (out.dev[v] || 0) + n;
+    for (const [v, n] of Object.entries(d.des || {})) out.des[v] = (out.des[v] || 0) + n;
+    out.dias[f] = Object.values(d.o || {}).reduce((a, x) => a + (x.visita || 0), 0);
+  }
+  out.des = Object.fromEntries(Object.entries(out.des).sort((a, b) => b[1] - a[1]).slice(0, 10));
+  return out;
+}
+
 export default async (req) => {
   const url = new URL(req.url);
   const p = url.searchParams;
+  if (p.get("ev") === "paso") {
+    try { await sumarPaso(p.get("p"), p.get("o"), p.get("dev"), p.get("des")); } catch (e) {}
+    return new Response(null, { status: 204, headers: { "cache-control": "no-store" } });
+  }
   try { await sumar(String(p.get("ag") || "").toLowerCase(), p.get("ev"), p.get("des"), p.get("k")); } catch (e) {}
   return new Response(null, { status: 204, headers: { "cache-control": "no-store" } });
 };

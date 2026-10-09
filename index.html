@@ -1487,6 +1487,7 @@ function actualizarFechasTrigger(){
 }
 
 function aplicarFechas(startStr, endStr){
+  if(USUARIO_ACTUA && startStr && endStr && calModalOverlay.classList.contains('show')) paso('fechas');
   fechaInicioEl.value = startStr || '';
   fechaFinEl.value = endStr || '';
   fechaInicioEl.classList.toggle('has-value', !!startStr);
@@ -1504,6 +1505,7 @@ function abrirCalModal(){
   calViewYear = base.y; calViewMonth = base.m;
   renderCalGrid();
   calModalOverlay.classList.add('show');
+  if(USUARIO_ACTUA) paso('cal');
 }
 function cerrarCalModal(){ calModalOverlay.classList.remove('show'); }
 
@@ -2014,6 +2016,7 @@ async function buscarSugerencias(texto){
 }
 
 destinoEl.addEventListener('input', ()=>{
+  if(USUARIO_ACTUA && destinoEl.value.trim().length >= 2) paso('destino');
   selectedDestinoGeo = null; // el usuario ha vuelto a escribir, ya no vale la selección anterior
   const texto = destinoEl.value.trim();
   clearTimeout(sugDebounce);
@@ -2822,6 +2825,10 @@ async function generarMaleta(){
     document.body.classList.add('con-lista'); // ya hay botones grandes: el pie no los repite
     mostrarTarjetaInstalar();
     setTimeout(()=>abrirHojaInstalar('maleta'), 4000);
+    paso('lista', String(destinoLabel || '').split(',')[0]);
+    if(destinoNoEncontrado) paso('error');
+    // ¿Bajan hasta el final de la lista?
+    try{ const fin = document.querySelector('.site-footer'); if(fin && 'IntersectionObserver' in window){ const io = new IntersectionObserver(en=>{ if(en.some(x=>x.isIntersecting)){ paso('fin'); io.disconnect(); } }); setTimeout(()=>io.observe(fin), 1500); } }catch(e){}
     resultsEl.style.display = 'block';
 
     if(window.__desdeEnlace){
@@ -2845,7 +2852,7 @@ async function generarMaleta(){
     generateBtn.textContent = 'Preparar mi maleta';
   }
 }
-generateBtn.addEventListener('click', generarMaleta);
+generateBtn.addEventListener('click', e=>{ if(e.isTrusted) paso('preparar'); generarMaleta(); });
 
 // ---------- Guardar / recuperar mi maleta mediante un enlace (todo vive en la URL, sin servidor) ----------
 function recopilarChecked(){
@@ -2921,6 +2928,7 @@ const ESTADO_URL = (()=>{
   return null;
 })();
 function construirEnlaceMaleta(){
+  if(USUARIO_ACTUA) paso('comparte');
   const state = {
     d: document.getElementById('destino').value.trim(),
     o: document.getElementById('origen').value.trim(),
@@ -3159,6 +3167,33 @@ async function aplicarAgenciaDesdeURL(){
 aplicarAgenciaDesdeURL().finally(()=>document.documentElement.classList.remove('ag-cargando'));
 
 // ---------- Estadísticas anónimas para las agencias (maletas abiertas, clics a Amazon y Civitatis) ----------
+// ---------- Cómo se usa la web: pasos anónimos (sin cookies ni datos personales), cada uno una vez por visita ----------
+// Sirve para ver en qué pantalla se queda la gente (panel «Cómo se usa la web» de la herramienta, solo administrador).
+let ORIGEN_VISITA = '';
+function origenVisita(){
+  if(ORIGEN_VISITA) return ORIGEN_VISITA;
+  const q = new URLSearchParams(location.search), seg = location.pathname.split('/').filter(Boolean);
+  const instalada = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone === true;
+  ORIGEN_VISITA = ESTADO_URL ? 'guardada'
+    : (APP_RUTA || q.get('app') === '1') ? 'lanzamiento'
+    : (rutaCorta || q.get('destino') || (seg.length === 1 && !AG_RUTA && !/\./.test(seg[0]))) ? 'cliente'
+    : instalada ? 'app'
+    : (AG_RUTA || q.get('agencia') || q.get('utm_source')) ? 'agencia'
+    : /\/que-llevar\//.test(document.referrer) ? 'guias' : 'web';
+  return ORIGEN_VISITA;
+}
+let USUARIO_ACTUA = false; // los pasos «destino», «fechas», «preparar» solo cuentan si los hace la persona (no el enlace)
+['pointerdown','keydown'].forEach(t => addEventListener(t, ()=>{ USUARIO_ACTUA = true; }, {capture:true, once:true}));
+function paso(p, des){
+  try{
+    if(sessionStorage.getItem('mf_p_' + p)) return; sessionStorage.setItem('mf_p_' + p, '1');
+  }catch(e){}
+  try{
+    const ua = navigator.userAgent, dev = /iPhone|iPad|iPod/i.test(ua) ? 'iphone' : /Android/i.test(ua) ? 'android' : 'ordenador';
+    const u = '/.netlify/functions/evento?ev=paso&p=' + p + '&o=' + origenVisita() + '&dev=' + dev + (des ? '&des=' + encodeURIComponent(des) : '');
+    if(navigator.sendBeacon) navigator.sendBeacon(u); else fetch(u, {method:'POST', keepalive:true}).catch(()=>{});
+  }catch(e){}
+}
 function evento(ev, ag, des, k){
   try{
     const u = '/.netlify/functions/evento?ev='+encodeURIComponent(ev)+'&ag='+encodeURIComponent(ag||'maletafacil')+'&des='+encodeURIComponent(des||'')+(k?'&k='+encodeURIComponent(k):'');
@@ -3169,7 +3204,7 @@ document.addEventListener('click', e=>{
   const a = e.target.closest && e.target.closest('a[href]'); if(!a) return;
   const h = a.href || '';
   const tipo = /amazon\./i.test(h) ? 'amazon' : /civitatis\.com/i.test(h) ? 'civitatis' : '';
-  if(tipo) evento(tipo, (typeof agenciaActiva!=='undefined' && agenciaActiva && agenciaActiva.slug) || 'maletafacil', document.getElementById('destino') ? document.getElementById('destino').value : '');
+  if(tipo){ evento(tipo, (typeof agenciaActiva!=='undefined' && agenciaActiva && agenciaActiva.slug) || 'maletafacil', document.getElementById('destino') ? document.getElementById('destino').value : ''); paso(tipo); }
 }, true);
 
 async function cargarDestinoDesdeURL(){
@@ -3258,6 +3293,7 @@ if(ESTADO_URL){
   cargarDestinoDesdeURL();
 }
 renderRecientes();
+paso('visita');
 
 function toggleCategoria(headerEl){
   const cat = headerEl.closest('.category');
@@ -3268,6 +3304,7 @@ function toggleCategoria(headerEl){
 function toggleItem(id){
   const li = document.getElementById('li-'+id);
   const cb = document.getElementById(id);
+  if(cb && cb.checked && USUARIO_ACTUA) paso('marca');
   li.classList.toggle('checked', cb.checked);
   // «Tus maletas» recuerda lo que ya has marcado
   try{
@@ -3345,6 +3382,7 @@ document.getElementById('verAerolineasLink').addEventListener('click', (e)=>{
 });
 
 function buildListText(){
+  paso('comparte');
   const cats = document.querySelectorAll('#results .category');
   let text = `🧳 Mi lista de maleta para ${currentDestinoLabel} (${textoDiasNoches(currentDias)})\n\n`;
   cats.forEach(cat=>{
@@ -3388,7 +3426,7 @@ function abrirHojaInstalar(motivo, forzar){
   hojaVista = true;
   const h = document.getElementById('instalarHoja'); if(!h) return;
   h.classList.add('show'); h.setAttribute('aria-hidden','false');
-  gtag('event', 'ver_aviso_instalar', {motivo});
+  gtag('event', 'ver_aviso_instalar', {motivo}); paso('inst_ver');
 }
 function cerrarHojaInstalar(){
   const h = document.getElementById('instalarHoja'); if(h){ h.classList.remove('show'); h.setAttribute('aria-hidden','true'); }
@@ -3406,7 +3444,7 @@ window.addEventListener('beforeinstallprompt', e=>{ e.preventDefault(); avisoIns
 // Enlace de lanzamiento de la agencia (…&app=1): la hoja sale nada más entrar
 const LLEGA_LANZAMIENTO = new URLSearchParams(location.search).get('app') === '1' || APP_RUTA;
 if(LLEGA_LANZAMIENTO && esIOS) setTimeout(()=>abrirHojaInstalar('enlace', true), 1500);
-window.addEventListener('appinstalled', ()=>{ avisoInstalar = null; mostrarTarjetaInstalar(); gtag('event', 'app_instalada'); });
+window.addEventListener('appinstalled', ()=>{ avisoInstalar = null; mostrarTarjetaInstalar(); gtag('event', 'app_instalada'); paso('instalada'); });
 async function instalarApp(){
   // La app se abre siempre limpia (sin nada marcado), con la marca de la agencia si viene de una.
   // Las maletas anteriores siguen a mano en "Tus maletas recientes".
@@ -3414,7 +3452,7 @@ async function instalarApp(){
     const slug = (typeof agenciaActiva !== 'undefined' && agenciaActiva) ? agenciaActiva.slug : '';
     history.replaceState(null, '', slug ? '/?agencia=' + encodeURIComponent(slug) : '/'); // la app instalada guarda esta dirección (también sin conexión)
   }catch(e){}
-  gtag('event', 'pulsar_instalar', {ios: esIOS});
+  gtag('event', 'pulsar_instalar', {ios: esIOS}); paso('inst_si');
   const h = document.getElementById('instalarHoja'); if(h){ h.classList.remove('show'); h.setAttribute('aria-hidden','true'); }
   if(avisoInstalar){
     avisoInstalar.prompt();

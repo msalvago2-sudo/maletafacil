@@ -73,16 +73,37 @@ export async function efectiva(store, slug) {
 }
 const minutosEn = tz => { const [h, m] = new Intl.DateTimeFormat("en-GB", { timeZone: tz, hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date()).split(":").map(Number); return (h % 24) * 60 + m; };
 
-export function clasificar(viajes, hoy, dias) {
-  const pend = [], hechos = [], prox = [];
+// Opciones de seguimiento de cada agencia (las elige en «Mi agencia»): BAJA para todas; check-in, «¿qué tal?» y app con su marca, plan Pro
+export const opcionesDe = ag => { const o = (ag && ag.opc) || {}, pro = !!ag && ag.plan === "pro";
+  return { baja: o.baja !== false, checkin: pro && o.checkin !== false, quetal: pro && !!o.quetal, resena: /^https:\/\//.test(o.resena || "") ? o.resena : "", app: pro && !!o.app }; };
+// Mensajes de seguimiento (se escriben aquí para que la herramienta, el email y el aviso digan lo mismo)
+const nombrePila = c => String(c || "").trim().split(/\s+/)[0] || "";
+const LINEA_BAJA = "\n\n(Si prefieres no recibir más mensajes nuestros, respóndenos BAJA)";
+export function msgCheckin(v, hoy, nombreAg) {
+  const n = nombrePila(v.cli), cuando = v.ida === hoy ? "Hoy empieza" : "Mañana empieza";
+  return `¡Hola${n ? " " + n : ""}! ✈️ ${cuando} tu viaje${v.des ? " a " + v.des : ""}. Recuerda hacer el check-in online de tu vuelo (suele abrirse 24-48 horas antes) y llevar a mano el DNI o el pasaporte.` +
+    (v.url ? `\n\nTu maleta, por si quieres repasarla: ${v.url}` : "") + `\n\n¡Buen viaje!${nombreAg ? " " + nombreAg : ""}`;
+}
+export function msgQueTal(v, nombreAg, opc) {
+  const n = nombrePila(v.cli);
+  return `¡Hola${n ? " " + n : ""}! 😊 ¿Qué tal${v.des ? " por " + v.des : " el viaje"}? Esperamos que lo hayas disfrutado mucho.` +
+    (opc.resena ? `\n\nSi te apetece, nos ayudarías un montón dejando tu opinión aquí: ${opc.resena}` : "") +
+    `\n\nY cuando quieras, preparamos el próximo ✈️${nombreAg ? "\n" + nombreAg : ""}` + (opc.baja ? LINEA_BAJA : "");
+}
+export function clasificar(viajes, hoy, dias, opc = {}) {
+  const pend = [], hechos = [], prox = [], checkin = [], quetal = [];
   for (const v of viajes) {
+    // ¿Qué tal el viaje?: del día siguiente a la vuelta hasta 3 días después
+    if (opc.quetal && v.vu && hoy >= sumaDias(v.vu, 1) && hoy <= sumaDias(v.vu, 3) && (!v.qtEnv || v.qtDia === hoy)) quetal.push(v);
+    // Check-in: el día antes de salir (y el mismo día, por si se pasó)
+    if (opc.checkin && (v.ida === sumaDias(hoy, 1) || v.ida === hoy) && (!v.ciEnv || v.ciDia === hoy)) checkin.push(v);
     if (v.ida < hoy) continue;
     const env = fechaEnvio(v, dias);
     if (v.enviado) { if (String(v.enviadoDia || "") === hoy) hechos.push(v); continue; }
     if (env <= hoy) pend.push(v); else prox.push(v);
   }
   const orden = (a, b) => a.ida.localeCompare(b.ida);
-  return { pend: pend.sort(orden), hechos: hechos.sort(orden), prox: prox.sort((a, b) => fechaEnvio(a, dias).localeCompare(fechaEnvio(b, dias))) };
+  return { pend: pend.sort(orden), hechos: hechos.sort(orden), prox: prox.sort((a, b) => fechaEnvio(a, dias).localeCompare(fechaEnvio(b, dias))), checkin, quetal };
 }
 
 /* ---------- Recuento diario (lo llama resumen-diario cada hora, o "Probar ahora" desde la herramienta) ---------- */
@@ -99,8 +120,13 @@ async function nombresAgencias() {
   return {};
 }
 
-function htmlEmail(nombreAg, hoy, pend) {
+function htmlEmail(nombreAg, hoy, pend, ci = [], qt = [], titulo = "") {
   const [a, m, d] = hoy.split("-").map(Number); const f = new Date(Date.UTC(a, m - 1, d));
+  const seccion = (lista, k, txt) => !lista.length ? "" : `<p style="margin:16px 0 4px;font-weight:bold;font-size:15px;color:#12302E">${txt}</p><table width="100%" cellpadding="0" cellspacing="0">` + lista.map(v => {
+    const ir = `${WEB}/.netlify/functions/viajes?ir=${v.slug}.${v.id}&t=${token(v.slug + "." + v.id)}&k=${k}`;
+    const btn = v.tel ? `<a href="${ir}" style="background:#25D366;color:#0B3B21;text-decoration:none;font-weight:700;font-size:14px;padding:10px 16px;border-radius:100px;display:inline-block">WhatsApp</a>` : `<span style="background:#F3E1D8;color:#8F4430;font-weight:700;font-size:12px;padding:6px 10px;border-radius:100px;display:inline-block">Sin teléfono</span>`;
+    return `<tr><td style="padding:10px 0;border-bottom:1px solid #EEE7D8"><b style="font-size:15px;color:#12302E">${esc(v.cli || "Cliente")} · ${esc(v.des || "viaje")}</b><br><span style="font-size:13px;color:#6B665B">${rango(v)}</span></td><td align="right" style="padding:10px 0;border-bottom:1px solid #EEE7D8">${btn}</td></tr>`;
+  }).join("") + "</table>";
   const filas = pend.map(v => {
     const ir = `${WEB}/.netlify/functions/viajes?ir=${v.slug}.${v.id}&t=${token(v.slug + "." + v.id)}`;
     const btn = v.tel
@@ -113,10 +139,12 @@ function htmlEmail(nombreAg, hoy, pend) {
 <table width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#fff;border-radius:14px;overflow:hidden">
 <tr><td style="background:#12302E;padding:16px 20px;color:#F6F1E4"><b style="font-family:Georgia,serif;font-size:18px">Maleta Fácil</b><br><span style="font-size:12px;color:#9FC2BC">Resumen del ${DIAS[f.getUTCDay()]} ${d} de ${["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"][m - 1]} · ${esc(nombreAg)}</span></td></tr>
 <tr><td style="padding:18px 20px">
-<div style="font-family:Georgia,serif;font-size:22px;font-weight:bold;color:#12302E;margin-bottom:6px">Hoy toca enviar la maleta a ${pend.length} cliente${pend.length > 1 ? "s" : ""}</div>
+<div style="font-family:Georgia,serif;font-size:22px;font-weight:bold;color:#12302E;margin-bottom:6px">${esc(String(titulo || "").replace(/^\S+\s/, "")) || `Hoy toca enviar la maleta a ${pend.length} cliente${pend.length > 1 ? "s" : ""}`}</div>
 <p style="font-size:14px;color:#555;line-height:1.5;margin:0 0 8px">Toca <b>WhatsApp</b> en cada uno: se abre su chat con el mensaje ya escrito. Solo tienes que pulsar enviar.</p>
-<table width="100%" cellpadding="0" cellspacing="0">${filas}</table>
-<p style="margin:18px 0 0"><a href="${WEB}/enlace.html?ag=${pend[0].slug}#hoy" style="color:#B65B3F;font-weight:bold">Ver la lista en la herramienta</a></p>
+${pend.length ? `<table width="100%" cellpadding="0" cellspacing="0">${filas}</table>` : ""}
+${seccion(ci, "checkin", "✈️ Recordar el check-in (salen mañana)")}
+${seccion(qt, "quetal", "😊 Preguntar qué tal el viaje (ya han vuelto)")}
+<p style="margin:18px 0 0"><a href="${WEB}/enlace.html?ag=${(pend[0] || ci[0] || qt[0]).slug}#hoy" style="color:#B65B3F;font-weight:bold">Ver la lista en la herramienta</a></p>
 </td></tr>
 <tr><td style="padding:0 20px 16px;font-size:11px;color:#999;line-height:1.4">Recibes este resumen porque ${esc(nombreAg)} usa Maleta Fácil. Los datos de los clientes se borran automáticamente al terminar el viaje.</td></tr>
 </table></td></tr></table></body></html>`;
@@ -247,9 +275,9 @@ export async function ejecutarResumen(forzarSlug = "") {
     const hoy = hoyEn(cfg.tz);
     let lista = (await store.get("ag:" + slug, { type: "json" })) || [];
 
-    // Borrar viajes ya terminados (el día después de la vuelta)
+    // Borrar viajes ya terminados (3 días después de la vuelta: así da tiempo a preguntar «¿qué tal el viaje?»)
     const antes = lista.length;
-    lista = lista.filter(v => (v.vu || v.ida) >= sumaDias(hoy, -1));
+    lista = lista.filter(v => (v.vu || v.ida) >= sumaDias(hoy, -3));
     if (lista.length !== antes) await store.setJSON("ag:" + slug, lista);
 
     // ¿Es la hora del resumen de esta agencia y aún no se ha mandado hoy?
@@ -264,19 +292,23 @@ export async function ejecutarResumen(forzarSlug = "") {
       cfgGuardada.informe = toca.clave;
     }
 
-    const { pend } = clasificar(lista, hoy, cfg.dias);
+    const opc = opcionesDe(nombres[slug]);
+    const { pend, checkin, quetal } = clasificar(lista, hoy, cfg.dias, opc);
+    const ci = checkin.filter(v => !v.ciEnv), qt = quetal.filter(v => !v.qtEnv);
     if (!forzar) await store.setJSON("cfg:" + slug, { ...cfgGuardada, ultimo: hoy }); // "Probar ahora" no gasta el resumen del día
-    if (!pend.length) { informe.push({ slug, pend: 0 }); continue; }
-    pend.forEach(v => { v.slug = slug; });
+    if (!pend.length && !ci.length && !qt.length) { informe.push({ slug, pend: 0 }); continue; }
+    [...pend, ...ci, ...qt].forEach(v => { v.slug = slug; });
     const nombreAg = (nombres[slug] && nombres[slug].nombre) || slug;
-    const titulo = `🧳 Hoy toca enviar la maleta a ${pend.length} cliente${pend.length > 1 ? "s" : ""}`;
+    const partes = [pend.length ? `enviar la maleta a ${pend.length} cliente${pend.length > 1 ? "s" : ""}` : "", ci.length ? `recordar el check-in a ${ci.length}` : "", qt.length ? `preguntar qué tal el viaje a ${qt.length}` : ""].filter(Boolean);
+    const titulo = (pend.length ? "🧳 " : ci.length ? "✈️ " : "😊 ") + "Hoy toca " + partes.join(", ").replace(/, ([^,]*)$/, " y $1");
 
     // 1) Aviso al móvil de cada agente
     const subs = (await store.get("push:" + slug, { type: "json" })) || [];
     const vivas = []; let avisos = 0;
     for (const s of subs) {
       try {
-        const r = await enviarPush(s, { title: titulo, body: pend.slice(0, 4).map(v => `${v.cli || "Cliente"} · ${v.des || "viaje"}`).join(", ") + (pend.length > 4 ? "…" : ""), url: `/enlace.html?ag=${slug}#hoy` });
+        const todos = [...pend, ...ci, ...qt];
+        const r = await enviarPush(s, { title: titulo, body: todos.slice(0, 4).map(v => `${v.cli || "Cliente"} · ${v.des || "viaje"}`).join(", ") + (todos.length > 4 ? "…" : ""), url: `/enlace.html?ag=${slug}#hoy` });
         if (r.ok) avisos++;
         if (r.status !== 404 && r.status !== 410) vivas.push(s);
       } catch (e) { vivas.push(s); }
@@ -285,7 +317,7 @@ export async function ejecutarResumen(forzarSlug = "") {
 
     // 2) Email a la agencia (si tiene email configurado)
     let email = false;
-    try { email = await enviarEmail(cfg.email, titulo, htmlEmail(nombreAg, hoy, pend)); } catch (e) {}
+    try { email = await enviarEmail(cfg.email, titulo, htmlEmail(nombreAg, hoy, pend, ci, qt, titulo)); } catch (e) {}
     informe.push({ slug, pend: pend.length, avisos, email });
 
     // 3) Si algo ha fallado, aviso para el administrador (en su panel y por email)
@@ -293,7 +325,7 @@ export async function ejecutarResumen(forzarSlug = "") {
       let problema = "";
       if (cfg.email && !email) problema = `no se ha podido mandar el email del resumen a ${cfg.email}`;
       else if (!cfg.email && !avisos) problema = subs.length ? "el aviso al móvil no ha llegado a ningún móvil" : "no tiene email ni ningún móvil con avisos, así que nadie se ha enterado";
-      if (problema) await apuntarAlerta(store, { slug, dia: hoy, texto: `${nombreAg}: hoy tocaba enviar ${pend.length} maleta${pend.length > 1 ? "s" : ""} y ${problema}.` });
+      if (problema && pend.length) await apuntarAlerta(store, { slug, dia: hoy, texto: `${nombreAg}: hoy tocaba enviar ${pend.length} maleta${pend.length > 1 ? "s" : ""} y ${problema}.` });
     }
   }
   if (!forzar) await store.setJSON("latido", { t: Date.now() }); // prueba de que el recuento automático sigue funcionando
@@ -321,9 +353,17 @@ export default async (req) => {
     const [slug, id] = ir.split(".");
     if (!esSlug(slug) || !/^[a-f0-9]{16}$/.test(id || "") || url.searchParams.get("t") !== token(ir)) return new Response("Enlace no válido", { status: 400 });
     const lista = (await store.get("ag:" + slug, { type: "json" })) || [];
-    const v = lista.find(x => x.id === id);
-    if (!v) return new Response("Este viaje ya no está en la lista.", { status: 404, headers: { "content-type": "text/plain; charset=utf-8" } });
-    if (!v.enviado) {
+    const v0 = lista.find(x => x.id === id);
+    if (!v0) return new Response("Este viaje ya no está en la lista.", { status: 404, headers: { "content-type": "text/plain; charset=utf-8" } });
+    const k = url.searchParams.get("k") || "";
+    let v = v0;
+    if (k === "checkin" || k === "quetal") {
+      // Recordatorio de check-in o «¿qué tal el viaje?»: se marca y se abre WhatsApp con su mensaje
+      const cfg = await efectiva(store, slug), hoy = hoyEn(cfg.tz), ags = await nombresAgencias(), ag = ags[slug] || {}, opc = opcionesDe(ag);
+      if (k === "checkin") { v0.ciEnv = Date.now(); v0.ciDia = hoy; } else { v0.qtEnv = Date.now(); v0.qtDia = hoy; }
+      await store.setJSON("ag:" + slug, lista);
+      v = { ...v0, msg: k === "checkin" ? msgCheckin(v0, hoy, ag.nombre || "") : msgQueTal(v0, ag.nombre || "", opc) };
+    } else if (!v.enviado) {
       const cfg = await efectiva(store, slug);
       v.enviado = Date.now(); v.enviadoDia = hoyEn(cfg.tz);
       await store.setJSON("ag:" + slug, lista);
@@ -339,7 +379,7 @@ export default async (req) => {
 .c{max-width:340px}.m{width:56px;height:56px;border-radius:14px;display:inline-block;margin-bottom:18px}
 h1{font:600 22px Georgia,serif;margin:0 0 8px}p{color:#B9CCC8;font-size:15px;line-height:1.45;margin:0 0 22px}
 a{display:block;background:#25D366;color:#073B1C;font-weight:700;font-size:16px;text-decoration:none;padding:15px;border-radius:12px;margin-bottom:10px}a.s{background:transparent;color:#B9CCC8;font-weight:500;font-size:14px}</style></head>
-<body><div class="c"><img class="m" src="/img/logo-maleta.png" alt="" width="56" height="56"><h1>✓ Maleta de ${h(v.cli || "tu cliente")} lista</h1><p>Se abre WhatsApp con el mensaje ya escrito. Cuando lo envíes, puedes cerrar esta página.</p>
+<body><div class="c"><img class="m" src="/img/logo-maleta.png" alt="" width="56" height="56"><h1>${k === "checkin" ? "✈️ Recordatorio de check-in" : k === "quetal" ? "😊 ¿Qué tal el viaje?" : "✓ Maleta de " + h(v.cli || "tu cliente") + " lista"}</h1><p>Se abre WhatsApp con el mensaje ya escrito. Cuando lo envíes, puedes cerrar esta página.</p>
 <a href="${h(app)}">Abrir WhatsApp</a><a class="s" href="/enlace.html#hoy">Volver a la herramienta</a></div>
 <script>setTimeout(function(){location.href=${JSON.stringify(app).replace(/</g, "\\u003c")}},150)</script></body></html>`, { headers: { "content-type": "text/html; charset=utf-8", "cache-control": "no-store" } });
   }
@@ -412,13 +452,15 @@ a{display:block;background:#25D366;color:#073B1C;font-weight:700;font-size:16px;
   if (b.accion === "hoy") {
     // Una agencia o todas (panel general)
     const slugs = esSlug(slug) ? [slug] : (await store.list({ prefix: "ag:" })).blobs.map(x => x.key.slice(3));
-    const out = {};
+    const out = {}, ags = await nombresAgencias();
     for (const s of slugs) {
       const cfg = await efectiva(store, s);
-      const hoy = hoyEn(cfg.tz);
-      const { pend, hechos, prox } = clasificar((await store.get("ag:" + s, { type: "json" })) || [], hoy, cfg.dias);
+      const hoy = hoyEn(cfg.tz), ag = ags[s] || {}, opc = opcionesDe(ag);
+      const { pend, hechos, prox, checkin, quetal } = clasificar((await store.get("ag:" + s, { type: "json" })) || [], hoy, cfg.dias, opc);
       const conLink = v => ({ ...v, ir: `/.netlify/functions/viajes?ir=${s}.${v.id}&t=${token(s + "." + v.id)}`, envio: fechaEnvio(v, cfg.dias) });
-      out[s] = { hoy, cfg, pend: pend.map(conLink), hechos: hechos.map(conLink), prox: prox.slice(0, 400).map(conLink), avisos: ((await store.get("push:" + s, { type: "json" })) || []).length, ultExcel: ((await store.get("meta:" + s, { type: "json" })) || {}).ultExcel || 0, ultExcelN: ((await store.get("meta:" + s, { type: "json" })) || {}).ultExcelN || 0 };
+      out[s] = { hoy, cfg, opc, pend: pend.map(conLink), hechos: hechos.map(conLink), prox: prox.slice(0, 400).map(conLink),
+        checkin: checkin.map(v => ({ ...conLink(v), ir: conLink(v).ir + "&k=checkin", msg: msgCheckin(v, hoy, ag.nombre || "") })),
+        quetal: quetal.map(v => ({ ...conLink(v), ir: conLink(v).ir + "&k=quetal", msg: msgQueTal(v, ag.nombre || "", opc) })), avisos: ((await store.get("push:" + s, { type: "json" })) || []).length, ultExcel: ((await store.get("meta:" + s, { type: "json" })) || {}).ultExcel || 0, ultExcelN: ((await store.get("meta:" + s, { type: "json" })) || {}).ultExcelN || 0 };
     }
     return json({ ok: true, agencias: out });
   }
@@ -429,7 +471,10 @@ a{display:block;background:#25D366;color:#073B1C;font-weight:700;font-size:16px;
     const i = lista.findIndex(x => x.id === b.id);
     if (i < 0) return json({ error: "viaje" }, 404);
     if (b.accion === "borrar") lista.splice(i, 1);
-    else {
+    else if (b.tipo === "checkin" || b.tipo === "quetal") {
+      const cfg = await efectiva(store, slug), hoy = hoyEn(cfg.tz), pre = b.tipo === "checkin" ? "ci" : "qt";
+      lista[i][pre + "Env"] = b.enviado ? Date.now() : null; lista[i][pre + "Dia"] = b.enviado ? hoy : "";
+    } else {
       const cfg = await efectiva(store, slug), antes = !!lista[i].enviado;
       lista[i].enviado = b.enviado ? Date.now() : null; lista[i].enviadoDia = b.enviado ? hoyEn(cfg.tz) : "";
       if (b.enviado && !antes) { try { await sumar(slug, "envio", lista[i].des, lista[i].url || lista[i].id); } catch (e) {} }

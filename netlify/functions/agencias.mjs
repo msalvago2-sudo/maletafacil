@@ -45,11 +45,25 @@ export default async (req) => {
   const store = getStore({ name: "agencias", consistency: "strong" });
 
   if (req.method === "GET") {
+    // App instalada con la marca de la agencia (plan Pro): su propio manifiesto (nombre, icono y colores)
+    const man = url.searchParams.get("manifest");
+    if (man) {
+      if (!/^[a-z0-9-]+$/.test(man)) return new Response("", { status: 400 });
+      const extra = (await store.get("lista", { type: "json" })) || {}, a = extra[man];
+      if (!a || a.borrada || a.plan !== "pro" || !(a.opc && a.opc.app) || !a.icono) return Response.redirect(new URL("/manifest.json", url.origin), 302);
+      const color = /^#[0-9a-f]{6}$/i.test(a.fondo || "") ? a.fondo : "#12302E";
+      const nombre = a.nombre || man, corto = nombre.length > 14 ? nombre.replace(/^viajes\s+/i, "").slice(0, 14) : nombre;
+      const icono = new URL(a.icono, url.origin).pathname + new URL(a.icono, url.origin).search;
+      return new Response(JSON.stringify({ name: nombre, short_name: corto, description: "Tu maleta en un minuto, de la mano de " + nombre, id: "/?agencia=" + man, start_url: "/?agencia=" + man, scope: "/", display: "standalone", orientation: "portrait", background_color: color, theme_color: color, lang: "es",
+        icons: [{ src: icono, sizes: "512x512", type: "image/png", purpose: "any" }, { src: icono, sizes: "512x512", type: "image/png", purpose: "maskable" }] }),
+        { headers: { "content-type": "application/manifest+json; charset=utf-8", "cache-control": "public, max-age=300" } });
+    }
     const og = url.searchParams.get("og");
-    const logo = url.searchParams.get("logo") || og;
+    const ico = url.searchParams.get("icono");
+    const logo = url.searchParams.get("logo") || og || ico;
     if (logo) {
       if (!/^[a-z0-9-]+$/.test(logo)) return new Response("", { status: 400 });
-      const r = await store.getWithMetadata((og ? "og:" : "logo:") + logo, { type: "arrayBuffer" });
+      const r = await store.getWithMetadata((og ? "og:" : ico ? "icono:" : "logo:") + logo, { type: "arrayBuffer" });
       if (!r || !r.data) return new Response("", { status: 404 });
       return new Response(r.data, { headers: { "content-type": r.metadata?.tipo || "image/png", "cache-control": "public, max-age=300" } });
     }
@@ -93,6 +107,26 @@ export default async (req) => {
       return json({ ok: true, token: firmarToken({ r: "agencia", s: u.slug, e: yo.email, v: u.v }) });
     }
 
+    // Opciones de seguimiento y de la app: las cambia la propia agencia (o el administrador)
+    if (body.accion === "opciones") {
+      const slug = yo.rol === "agencia" ? yo.slug : slugify(body.slug);
+      const extra = (await store.get("lista", { type: "json" })) || {};
+      let a = extra[slug] && !extra[slug].borrada ? extra[slug] : null;
+      if (!a) { // agencia que solo estaba en agencias.json: se copia para poder guardar sus opciones
+        try { const r = await fetch(new URL("/agencias/agencias.json", url.origin)); if (r.ok) { const base = await r.json(); if (base[slug]) a = { ...base[slug] }; } } catch (e) {}
+      }
+      if (!a) return json({ error: "slug" }, 404);
+      const pro = a.plan === "pro", resena = limpio(body.resena, 400);
+      if (resena && !/^https:\/\//i.test(resena)) return json({ error: "resena" }, 400);
+      a.opc = { baja: body.baja !== false, checkin: pro && body.checkin !== false, quetal: pro && !!body.quetal, resena, app: pro && !!body.app };
+      if (body.icono) {
+        const m = String(body.icono).match(/^data:image\/png;base64,([A-Za-z0-9+/=]+)$/);
+        if (m) { const bytes = Buffer.from(m[1], "base64"); if (bytes.length <= 500000) { await store.set("icono:" + slug, new Blob([bytes]), { metadata: { tipo: "image/png" } }); a.icono = "/.netlify/functions/agencias?icono=" + slug + "&v=" + Date.now(); } }
+      }
+      extra[slug] = a; await store.setJSON("lista", extra);
+      return json({ ok: true, opc: a.opc, icono: a.icono || "" });
+    }
+
     // Solo el administrador: accesos, nombre, logo y códigos de afiliado
     // (desde cualquier otra cuenta, todo lo demás se rechaza)
     if (yo.rol !== "admin") return json({ error: "rol" }, 403);
@@ -129,7 +163,7 @@ export default async (req) => {
       if (!slug) return json({ error: "slug" }, 400);
       extra[slug] = { borrada: true };
       await store.setJSON("lista", extra);
-      try { await store.delete("logo:" + slug); await store.delete("og:" + slug); } catch (e) {}
+      try { await store.delete("logo:" + slug); await store.delete("og:" + slug); await store.delete("icono:" + slug); } catch (e) {}
       return json({ ok: true });
     }
 

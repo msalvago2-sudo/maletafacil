@@ -1242,11 +1242,11 @@ body.con-lista .dest-pop,html.ag-cargando .dest-pop,html.dest-cargando .dest-pop
 <div id="instalarIosOverlay" class="modal-overlay">
   <div class="modal-card" style="max-width:380px;">
     <button type="button" class="modal-close" aria-label="Cerrar" onclick="document.getElementById('instalarIosOverlay').classList.remove('show')">✕</button>
-    <h3 style="font-family:'Fraunces',serif;font-size:20px;color:var(--teal-900);margin:0 0 6px;">Instala Maleta Fácil</h3>
+    <h3 style="font-family:'Fraunces',serif;font-size:20px;color:var(--teal-900);margin:0 0 6px;" id="iosInstTit">Instala Maleta Fácil</h3>
     <p class="hint" id="iosInstHint" style="margin-bottom:16px;">En iPhone se instala desde Safari en dos toques:</p>
     <div style="display:flex;gap:12px;align-items:center;margin-bottom:14px;"><span class="tv-icono">1</span><p style="margin:0;font-size:15px;color:#12302E;">Toca el botón <b>Compartir</b> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2E827C" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-3px;" aria-hidden="true"><path d="M12 3v12M8 7l4-4 4 4"/><path d="M6 11H5a1 1 0 0 0-1 1v8a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-8a1 1 0 0 0-1-1h-1"/></svg> de Safari <span style="color:#6E6A60;font-size:13.5px;">(si no lo ves, está dentro de <b>···</b>)</span></p></div>
     <div style="display:flex;gap:12px;align-items:center;margin-bottom:14px;"><span class="tv-icono">2</span><p style="margin:0;font-size:15px;color:#12302E;">Elige <b>Añadir a pantalla de inicio</b> <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2E827C" stroke-width="2" stroke-linecap="round" style="vertical-align:-3px;" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M12 8v8M8 12h8"/></svg></p></div>
-    <p class="hint" style="margin:6px 0 0;">Aparecerá el icono de Maleta Fácil junto a tus apps. Si no ves la opción, abre esta página en Safari.</p>
+    <p class="hint" style="margin:6px 0 0;">Aparecerá el icono de <span class="nom-app">Maleta Fácil</span> junto a tus apps. Si no ves la opción, abre esta página en Safari.</p>
   </div>
 </div>
 
@@ -3105,6 +3105,14 @@ async function aplicarAgenciaDesdeURL(){
   const agencia = lista[slug];
   if(!agencia) return;
   agenciaActiva = {slug, ...agencia};
+  // Plan Pro con «app con su marca»: el aviso de instalar habla de la agencia y enseña su icono
+  if(agencia.plan === 'pro' && agencia.opc && agencia.opc.app && agencia.icono){
+    const nom = agencia.nombre || slug;
+    const t = document.getElementById('instalarTitulo'); if(t) t.textContent = 'Llévate ' + nom + ' en el móvil';
+    const ic = document.querySelector('#instalarHoja .inst-ic'); if(ic) ic.src = agencia.icono;
+    const h = document.getElementById('iosInstTit'); if(h) h.textContent = 'Instala ' + nom;
+    document.querySelectorAll('.nom-app').forEach(e => e.textContent = nom);
+  }
   document.body.classList.add('desde-agencia'); // los clientes de una agencia no ven «Destinos populares»
   // Plan Pro: la web se pinta con el color de la agencia (los botones de Amazon se quedan amarillos)
   if(agencia.plan === 'pro' && /^#[0-9a-f]{6}$/i.test(agencia.color || '')) aplicarColorAgencia(agencia.color, agencia.fondo);

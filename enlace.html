@@ -57,7 +57,11 @@ button,.btn{font:700 15px 'Work Sans',sans-serif;border:0;border-radius:100px;pa
 .lanz-fila span{flex:1;min-width:0;font-size:14.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.lanz-fila small{display:block;color:#8A8478;font-size:12.5px}
 .lanz-fila a{min-height:36px;padding:6px 16px;font-size:14px;background:#25D366;color:#12302E;border-radius:100px;text-decoration:none;font-weight:700;display:flex;align-items:center}
 .lanz-fila.ok a{background:#E4DCCB;color:#6B6459}.lanz-nav{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px}.lanz-nav button{min-height:38px;padding:6px 14px;background:#F6F1E4;color:var(--teal);font-size:14px}.lanz-nav span{font-size:13px;color:#6B6459}
-.lanz-msg{width:100%;box-sizing:border-box;border:1.5px solid #E4DCCB;border-radius:12px;padding:12px;font:15px/1.4 'Work Sans',sans-serif;color:#12302E;background:#fff;resize:vertical}.lanzF.hide{display:none}
+.lanz-msg{width:100%;box-sizing:border-box;border:1.5px solid #E4DCCB;border-radius:12px;padding:12px;font:15px/1.4 'Work Sans',sans-serif;color:#12302E;background:#fff;resize:vertical}.lanzF.hide{display:none}.opcF.hide{display:none}
+.f label.chk.opc{display:flex!important;flex-direction:row!important;gap:10px;font-weight:500;margin-bottom:0}
+.chk.opc{align-items:flex-start;font-size:14.5px;color:#12302E;margin-top:10px;line-height:1.35}.chk.opc input{width:20px;height:20px;margin-top:1px;flex-shrink:0;accent-color:#2E827C}
+.chk.opc small{color:#2E827C;font-weight:600}.chk.opc i.pro{font-style:normal;font-size:11px;font-weight:700;background:#12302E;color:#F6F1E4;border-radius:100px;padding:2px 7px;margin-left:4px;vertical-align:1px}
+.chk.opc.off{opacity:.5}.opc-resena{margin:6px 0 0 28px;width:calc(100% - 28px)!important;font-size:14px!important}
 .test{background:#F5C86A;color:var(--teal)}
 .mail{background:#E3EFEC;color:var(--teal)}
 .err{color:var(--rust);font-size:13px;font-weight:600;margin-top:8px;display:none}
@@ -380,6 +384,14 @@ body.rol-agencia #agForm .two{display:none}
 <div class="f soloAg" id="miCabF"><label id="miCabTit">Así ven tus clientes tu cabecera</label>
 <div class="cab" id="miCab"></div>
 <div class="hint" id="miCabHint">¿Quieres cambiar el nombre o el logo? Habla con Maleta Fácil y te lo dejamos perfecto.</div></div>
+<div class="f opcF hide" id="opcF"><label>⚙️ Mensajes de seguimiento y app</label>
+<label class="chk opc"><input type="checkbox" id="oBaja"><span>Añadir «Si prefieres no recibir más mensajes, respóndenos BAJA» al anuncio y al «¿qué tal?» <small>Recomendado</small></span></label>
+<label class="chk opc"><input type="checkbox" id="oCheckin"><span>Recordar el check-in el día antes de salir <i class="pro">Pro</i></span></label>
+<label class="chk opc"><input type="checkbox" id="oQuetal"><span>Preguntar «¿Qué tal el viaje?» al día siguiente de volver <i class="pro">Pro</i></span></label>
+<input type="url" id="oResena" class="opc-resena" placeholder="Enlace para dejar reseña en Google (opcional)">
+<label class="chk opc"><input type="checkbox" id="oApp"><span>Que la app instalada lleve tu nombre y tu logo <i class="pro">Pro</i></span></label>
+<div class="hint" id="opcHint"></div>
+<button type="button" class="btn recor" id="opcGuardar" style="margin-top:8px">Guardar opciones</button></div>
 <div class="f lanzF hide" id="lanzF"><label>📣 Anúncialo a todos tus clientes</label>
 <div class="hint" style="margin:0 0 8px">Manda este mensaje a tu lista de difusión de WhatsApp. Al abrir el enlace verán tu marca y la web les invitará a guardarla en el móvil como una app.</div>
 <textarea id="lanzMsg" rows="6" class="lanz-msg"></textarea>
@@ -791,9 +803,15 @@ async function cargarHoy(){
   h.innerHTML='<div class="hsec">Hoy toca enviar <small></small></div>';
   h.querySelector('small').textContent=a.hoy?new Date(a.hoy+'T12:00').toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'short'}):'';
   cont.appendChild(h);
-  if(!a.pend.length&&!a.hechos.length){const p=document.createElement('p');p.className='vacio2';p.textContent='🎉 Hoy no hay envíos pendientes.';cont.appendChild(p);}
+  if(!a.pend.length&&!a.hechos.length){const p=document.createElement('p');p.className='vacio2';p.textContent='🎉 Hoy no hay maletas pendientes de enviar.';cont.appendChild(p);}
   a.pend.forEach(v=>cont.appendChild(itemHoy(s,v,false)));
   a.hechos.forEach(v=>cont.appendChild(itemHoy(s,v,true)));
+  // Seguimiento (plan Pro): recordar el check-in y preguntar qué tal el viaje
+  [['checkin','✈️ Recordar el check-in','Salen mañana: recuérdales hacer el check-in online.'],['quetal','😊 ¿Qué tal el viaje?','Ya han vuelto: pregúntales qué tal y pídeles su opinión.']].forEach(([k,tit,sub])=>{
+    const l=a[k]||[]; if(!l.length) return;
+    const t=document.createElement('div');t.className='hsec';t.innerHTML=`${tit} <small>${l.length} cliente${l.length>1?'s':''}</small>`;cont.appendChild(t);
+    const p=document.createElement('p');p.className='hint';p.style.margin='0 0 6px';p.textContent=sub;cont.appendChild(p);
+    l.forEach(v=>cont.appendChild(itemSeg(s,v,k)));});
   if(a.prox.length){
     const g={}; a.prox.forEach(v=>(g[v.envio]=g[v.envio]||[]).push(v));
     const t=document.createElement('div');t.className='hsec';t.innerHTML=`Próximos envíos <small>${a.prox.length} viaje${a.prox.length>1?'s':''}</small>`;cont.appendChild(t);
@@ -816,6 +834,19 @@ async function cargarHoy(){
   const c=a.cfg||{}; $('hoyAjustes').classList.remove('hide');
   $('avisoTxt').textContent=`Resumen cada día a las ${c.hora||'09:30'} · envío ${c.dias??7} días antes${c.email?' · email a '+c.email:''}. ${a.avisos?`Avisos activados en ${a.avisos} móvil${a.avisos>1?'es':''}.`:'Aún no hay ningún móvil con avisos.'} ${ROL==='agencia'?'':'Puedes cambiarlo en Agencias.'}`;
 }
+function itemSeg(s,v,k){
+  const hecho=!!(k==='checkin'?v.ciEnv:v.qtEnv);
+  const d=document.createElement('div');d.className='hitem'+(hecho?' hecho':'');
+  d.innerHTML='<div><b></b><span></span></div><div class="acc"></div>';
+  d.querySelector('b').textContent=(v.cli||'Cliente')+' · '+(v.des||'viaje');
+  const info=()=>rangoV(v)+(v.tel?' · +'+v.tel:' · sin teléfono');
+  d.querySelector('span').textContent=info()+(hecho?' · ✓ enviado':'');
+  const acc=d.querySelector('.acc'), marca=()=>{d.classList.add('hecho');d.querySelector('span').textContent=info()+' · ✓ enviado';};
+  if(v.tel){const a=document.createElement('a');a.className='btn wa2';a.target='_blank';a.rel='noopener';a.href=v.ir;a.textContent=hecho?'Reenviar':'WhatsApp';
+    a.onclick=e=>{if(MOVIL){e.preventDefault();fetch(v.ir,{keepalive:true,redirect:'manual'}).catch(()=>{});location.href='whatsapp://send?phone='+v.tel+'&text='+encodeURIComponent(v.msg||'');}marca();a.textContent='Reenviar';};acc.appendChild(a);}
+  else{const b=document.createElement('button');b.type='button';b.className='cp2';b.textContent='Copiar';b.onclick=async()=>{copiar(v.msg||'');await apiV({accion:'marcar',slug:s,id:v.id,enviado:true,tipo:k}).catch(()=>{});marca();};acc.appendChild(b);}
+  return d;
+}
 function itemHoy(s,v,hecho){
   const d=document.createElement('div');d.className='hitem'+(hecho?' hecho':'');
   d.innerHTML='<div><b></b><span></span></div><div class="acc"></div>';
@@ -833,7 +864,7 @@ function itemHoy(s,v,hecho){
 }
 function pintarPanel(cont){
   // Solo cuentan las agencias con algo que enviar hoy o más adelante (los viajes ya enviados esperan a borrarse solos al terminar)
-  const ags=Object.entries(HOYDATA).filter(([,a])=>a.pend.length+a.hechos.length+a.prox.length>0);let pend=0,hechos=0,prox=0;ags.forEach(([,a])=>{pend+=a.pend.length;hechos+=a.hechos.length;prox+=a.prox.length;});
+  const ags=Object.entries(HOYDATA).filter(([,a])=>a.pend.length+a.hechos.length+a.prox.length+(a.checkin||[]).length+(a.quetal||[]).length>0);let pend=0,hechos=0,prox=0;ags.forEach(([,a])=>{pend+=a.pend.length;hechos+=a.hechos.length;prox+=a.prox.length;});
   cont.innerHTML=`<div class="kpis"><div class="kpi"><b>${pend+hechos}</b><span>envíos para hoy</span></div><div class="kpi"><b>${hechos}</b><span>ya enviados hoy</span></div><div class="kpi"><b>${prox}</b><span>programados próximos días</span></div><div class="kpi"><b>${ags.length}</b><span>agencias con viajes</span></div></div>`;
   if(!ags.length){cont.insertAdjacentHTML('beforeend','<p class="vacio2">Aún no hay envíos programados. Crea un enlace en «Un cliente» o sube un Excel en «Varios» y pulsa Programar.</p>');if(ROL==='admin'){pintarStats(cont);pintarWeb(cont);}return;}
   ags.sort((x,y)=>(y[1].pend.length+y[1].hechos.length)-(x[1].pend.length+x[1].hechos.length)).forEach(([k,a])=>{
@@ -1503,11 +1534,42 @@ function pintarAgencias(){
 // Si no se pone email para el resumen y el informe, se usa el email con el que la agencia entra
 function ponerPhEmail(c){const ac=(ACCESOS[editando]||{}).email||(c&&c.emailAuto?c.email:'')||(ROL==='agencia'?MIEMAIL:'');
   $('aEmail').placeholder=ac?'Vacío = se usa el de acceso: '+ac:'Email para el resumen (ej. reservas@agencia.es)';}
+// Opciones de seguimiento y app (BAJA para todas; check-in, «¿qué tal?» y app con su marca, plan Pro)
+const opcDe=d=>{const o=(d&&d.opc)||{},pro=!!d&&d.plan==='pro';return{baja:o.baja!==false,checkin:pro&&o.checkin!==false,quetal:pro&&!!o.quetal,resena:o.resena||'',app:pro&&!!o.app};};
+function pintarOpciones(slug,d){
+  const f=$('opcF'); if(!slug){f.classList.add('hide');return;} f.classList.remove('hide');
+  const o=opcDe(d),pro=!!d&&d.plan==='pro';
+  $('oBaja').checked=o.baja; $('oCheckin').checked=o.checkin; $('oQuetal').checked=o.quetal; $('oResena').value=o.resena; $('oApp').checked=o.app;
+  ['oCheckin','oQuetal','oApp'].forEach(id=>{$(id).disabled=!pro;$(id).closest('label').classList.toggle('off',!pro);});
+  $('oResena').disabled=!pro; $('oResena').style.display=pro&&o.quetal?'':'none';
+  $('opcHint').textContent=pro?'':'Las opciones marcadas con «Pro» están incluidas en el plan Pro.';
+}
+$('oQuetal').addEventListener('change',()=>{$('oResena').style.display=$('oQuetal').checked?'':'none';});
+// Icono de la app con la marca de la agencia: su logo centrado sobre su color de fondo (512×512)
+async function hacerIcono(src,fondo){
+  const img=await cargarImg(src); if(!img) return '';
+  const c=document.createElement('canvas');c.width=c.height=512;const x=c.getContext('2d');
+  x.fillStyle=/^#[0-9a-f]{6}$/i.test(fondo||'')?fondo:'#12302E';x.fillRect(0,0,512,512);
+  const k=Math.min(440/img.width,400/img.height),w=img.width*k,h=img.height*k; // logos anchos: casi todo el ancho; cuadrados: con margen
+  x.save();const r=24,X=(512-w)/2,Y=(512-h)/2;x.beginPath();x.moveTo(X+r,Y);x.arcTo(X+w,Y,X+w,Y+h,r);x.arcTo(X+w,Y+h,X,Y+h,r);x.arcTo(X,Y+h,X,Y,r);x.arcTo(X,Y,X+w,Y,r);x.closePath();x.clip();
+  x.drawImage(img,X,Y,w,h);x.restore();
+  return c.toDataURL('image/png');
+}
+$('opcGuardar').onclick=async()=>{
+  const slug=editando; if(!slug) return; const d=AG[slug]||{};
+  const resena=$('oResena').value.trim(); if(resena&&!/^https:\/\//i.test(resena)) return toast('El enlace de reseñas debe empezar por https://');
+  const q={accion:'opciones',slug,baja:$('oBaja').checked,checkin:$('oCheckin').checked,quetal:$('oQuetal').checked,resena,app:$('oApp').checked};
+  $('opcGuardar').disabled=true;
+  if(q.app){ try{ q.icono=await hacerIcono(logoUrl(d.logo),d.fondo||(d.color?tonosAgencia(d.color).fondoHex:'')); }catch(e){} }
+  const r=await api(q).catch(()=>({ok:false})); $('opcGuardar').disabled=false;
+  if(!r.ok) return toast('No se han podido guardar');
+  AG[slug]={...d,opc:r.opc,...(r.icono?{icono:r.icono}:{})}; pintarOpciones(slug,AG[slug]); pintarLanzamiento(slug,AG[slug]); toast('✅ Opciones guardadas');
+};
 function enlaceLanzamiento(slug){return `https://maletafacil.com/app/${encodeURIComponent(slug)}`;} // redirige a /?agencia=…&app=1&utm_… (ver _redirects)
 function pintarLanzamiento(slug,d){
   const f=$('lanzF'); if(!slug){f.classList.add('hide');return;} f.classList.remove('hide');
   const url=enlaceLanzamiento(slug), nombre=(d&&d.nombre)||slug;
-  $('lanzMsg').value=`¡Hola! 👋 En ${nombre} estrenamos una herramienta gratis para tus viajes: te prepara la maleta en un minuto según tu destino, tus fechas y el tiempo que va a hacer allí 🧳☀️\n\nPruébala y guárdala en tu móvil como una app:\n${url}`;
+  $('lanzMsg').value=`¡Hola! 👋 En ${nombre} estrenamos una herramienta gratis para tus viajes: te prepara la maleta en un minuto según tu destino, tus fechas y el tiempo que va a hacer allí 🧳☀️\n\nPruébala y guárdala en tu móvil como una app:\n${url}`+(opcDe(d).baja?'\n\n(Si prefieres no recibir más mensajes nuestros, respóndenos BAJA)':'');
   $('lanzLink').textContent=url; $('lanzLink').href=url;
 }
 $('lanzCopiar').onclick=()=>copiar($('lanzMsg').value);
@@ -1563,7 +1625,7 @@ $('lanzVcf').onclick=()=>{
   const b=new Blob([vcf],{type:'text/vcard'}); const u=URL.createObjectURL(b); const a=document.createElement('a'); a.href=u; a.download=`clientes-${editando||'agencia'}.vcf`; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u),4000);
 };
 function abrirForm(slug){
-  editando=slug||null; logoData=''; const d=slug?AG[slug]||{}:{}; pintarLanzamiento(slug,d);
+  editando=slug||null; logoData=''; const d=slug?AG[slug]||{}:{}; pintarLanzamiento(slug,d); pintarOpciones(slug,d);
   $('agTit').textContent=slug?'Editar agencia':'Nueva agencia';
   ponerPlan(d.plan==='pro'?'pro':'gratis',false); $('aColor').value=/^#[0-9a-f]{6}$/i.test(d.color||'')?d.color:'#12302E';
   $('aFondo').value=/^#[0-9a-f]{6}$/i.test(d.fondo||'')?d.fondo:(/^#[0-9a-f]{6}$/i.test(d.color||'')?tonosAgencia(d.color).fondoHex:'#12302E'); pintarMuestra();
@@ -1826,6 +1888,7 @@ $('aGuardar').onclick=async()=>{
   if(!r.ok) return fallo(r.status===401?'La sesión ha caducado: vuelve a entrar.':'No se ha podido guardar. Inténtalo de nuevo.');
   const cfg={email:emailR,hora:$('aHora').value||'09:30',dias:+$('aDias').value||0,tz:$('aTz').value,informeCada:$('aInfCada').value,informeCanal:$('aInfCanal').value,informeContenido:$('aInfCont').value,plan};
   await apiV({accion:'config',slug,...cfg}).catch(()=>{}); CFGS[slug]={...(CFGS[slug]||{}),...cfg};
+  try{ const dd={...(AG[slug]||{}),plan}; if(opcDe(dd).app){ const ic=await hacerIcono(logoData||logoUrl(dd.logo),fondo||(color?tonosAgencia(color).fondoHex:'')); const o=opcDe(dd); if(ic) await api({accion:'opciones',slug,...o,icono:ic}); } }catch(e){}
   toast('Agencia guardada'); if(ROL!=='agencia'){$('agForm').classList.add('hide'); $('agLista').classList.remove('hide');} cargarAgencias();
 };
 </script>

@@ -45,12 +45,13 @@ export default async (req) => {
   const store = getStore({ name: "agencias", consistency: "strong" });
 
   if (req.method === "GET") {
-    // App instalada con la marca de la agencia (plan Pro): su propio manifiesto (nombre, icono y colores)
+    // App instalada con la marca de la agencia: su propio manifiesto (nombre, icono y colores)
     const man = url.searchParams.get("manifest");
     if (man) {
       if (!/^[a-z0-9-]+$/.test(man)) return new Response("", { status: 400 });
       const extra = (await store.get("lista", { type: "json" })) || {}, a = extra[man];
-      if (!a || a.borrada || a.plan !== "pro" || !(a.opc && a.opc.app) || !a.icono) return Response.redirect(new URL("/manifest.json", url.origin), 302);
+      const appOn = a && (a.opc && a.opc.app != null ? !!a.opc.app : a.plan === "pro");
+      if (!a || a.borrada || !appOn || !a.icono) return Response.redirect(new URL("/manifest.json", url.origin), 302);
       const color = /^#[0-9a-f]{6}$/i.test(a.fondo || "") ? a.fondo : "#12302E";
       const nombre = a.nombre || man, corto = nombre.length > 14 ? nombre.replace(/^viajes\s+/i, "").slice(0, 14) : nombre;
       const icono = new URL(a.icono, url.origin).pathname + new URL(a.icono, url.origin).search;
@@ -116,9 +117,9 @@ export default async (req) => {
         try { const r = await fetch(new URL("/agencias/agencias.json", url.origin)); if (r.ok) { const base = await r.json(); if (base[slug]) a = { ...base[slug] }; } } catch (e) {}
       }
       if (!a) return json({ error: "slug" }, 404);
-      const pro = a.plan === "pro", resena = limpio(body.resena, 400);
+      const resena = limpio(body.resena, 400);
       if (resena && !/^https:\/\//i.test(resena)) return json({ error: "resena" }, 400);
-      a.opc = { baja: body.baja !== false, checkin: pro && body.checkin !== false, quetal: pro && !!body.quetal, pideResena: !!body.pideResena, resena, app: pro && !!body.app };
+      a.opc = { baja: body.baja !== false, checkin: !!body.checkin, quetal: !!body.quetal, pideResena: !!body.pideResena, resena, app: !!body.app };
       if (body.icono) {
         const m = String(body.icono).match(/^data:image\/png;base64,([A-Za-z0-9+/=]+)$/);
         if (m) { const bytes = Buffer.from(m[1], "base64"); if (bytes.length <= 500000) { await store.set("icono:" + slug, new Blob([bytes]), { metadata: { tipo: "image/png" } }); a.icono = "/.netlify/functions/agencias?icono=" + slug + "&v=" + Date.now(); } }

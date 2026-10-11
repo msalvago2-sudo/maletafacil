@@ -73,9 +73,11 @@ export async function efectiva(store, slug) {
 }
 const minutosEn = tz => { const [h, m] = new Intl.DateTimeFormat("en-GB", { timeZone: tz, hour: "2-digit", minute: "2-digit", hour12: false }).format(new Date()).split(":").map(Number); return (h % 24) * 60 + m; };
 
-// Opciones de seguimiento de cada agencia (las elige en «Mi agencia»): BAJA para todas; check-in, «¿qué tal?» y app con su marca, plan Pro
+// Opciones de seguimiento de cada agencia (las elige en «Mi agencia»). Todas valen para cualquier plan;
+// en el plan Pro vienen activadas de serie (la agencia quita las que no quiera). BAJA, siempre activada de serie.
+const deSerie = (v, pro) => v == null ? pro : !!v;
 export const opcionesDe = ag => { const o = (ag && ag.opc) || {}, pro = !!ag && ag.plan === "pro";
-  return { baja: o.baja !== false, checkin: pro && o.checkin !== false, quetal: pro && !!o.quetal, resena: o.pideResena !== false && /^https:\/\//.test(o.resena || "") ? o.resena : "", app: pro && !!o.app }; };
+  return { baja: o.baja !== false, checkin: deSerie(o.checkin, pro), quetal: deSerie(o.quetal, pro), resena: o.pideResena !== false && /^https:\/\//.test(o.resena || "") ? o.resena : "", app: deSerie(o.app, pro) }; };
 // Mensajes de seguimiento (se escriben aquí para que la herramienta, el email y el aviso digan lo mismo)
 const nombrePila = c => String(c || "").trim().split(/\s+/)[0] || "";
 const LINEA_BAJA = "\n\n(Si prefieres no recibir más mensajes nuestros, respóndenos BAJA)";

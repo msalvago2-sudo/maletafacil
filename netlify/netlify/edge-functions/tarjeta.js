@@ -69,7 +69,8 @@ export default async (req, context) => {
         html = html.replace(/(<meta name="theme-color" content=")[^"]*/, `$1${c.fondo}`);
       }
       // Plan Pro con «app con su marca»: al instalarla, la app lleva el nombre y el icono de la agencia
-      if (ag.plan === "pro" && ag.opc && ag.opc.app && ag.icono) {
+      const appOn = ag.opc && ag.opc.app != null ? !!ag.opc.app : ag.plan === "pro"; // en Pro, activada de serie
+      if (appOn && ag.icono) {
         html = html.replace('<link rel="manifest" href="/manifest.json">', `<link rel="manifest" href="/.netlify/functions/agencias?manifest=${slug}">`)
                    .replace('<link rel="apple-touch-icon" href="/apple-touch-icon.png">', `<link rel="apple-touch-icon" href="${esc(ag.icono)}">`)
                    .replace(/(<meta name="apple-mobile-web-app-title" content=")[^"]*/, `$1${esc(ag.nombre || slug)}`);

@@ -3105,8 +3105,9 @@ async function aplicarAgenciaDesdeURL(){
   const agencia = lista[slug];
   if(!agencia) return;
   agenciaActiva = {slug, ...agencia};
-  // Plan Pro con «app con su marca»: el aviso de instalar habla de la agencia y enseña su icono
-  if(agencia.plan === 'pro' && agencia.opc && agencia.opc.app && agencia.icono){
+  // «App con su marca» (de serie en Pro): el aviso de instalar habla de la agencia y enseña su icono
+  const appMarca = agencia.opc && agencia.opc.app != null ? !!agencia.opc.app : agencia.plan === 'pro';
+  if(appMarca && agencia.icono){
     const nom = agencia.nombre || slug;
     const t = document.getElementById('instalarTitulo'); if(t) t.textContent = 'Llévate ' + nom + ' en el móvil';
     const ic = document.querySelector('#instalarHoja .inst-ic'); if(ic) ic.src = agencia.icono;

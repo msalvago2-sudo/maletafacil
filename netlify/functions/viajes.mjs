@@ -75,7 +75,7 @@ const minutosEn = tz => { const [h, m] = new Intl.DateTimeFormat("en-GB", { time
 
 // Opciones de seguimiento de cada agencia (las elige en «Mi agencia»): BAJA para todas; check-in, «¿qué tal?» y app con su marca, plan Pro
 export const opcionesDe = ag => { const o = (ag && ag.opc) || {}, pro = !!ag && ag.plan === "pro";
-  return { baja: o.baja !== false, checkin: pro && o.checkin !== false, quetal: pro && !!o.quetal, resena: /^https:\/\//.test(o.resena || "") ? o.resena : "", app: pro && !!o.app }; };
+  return { baja: o.baja !== false, checkin: pro && o.checkin !== false, quetal: pro && !!o.quetal, resena: o.pideResena !== false && /^https:\/\//.test(o.resena || "") ? o.resena : "", app: pro && !!o.app }; };
 // Mensajes de seguimiento (se escriben aquí para que la herramienta, el email y el aviso digan lo mismo)
 const nombrePila = c => String(c || "").trim().split(/\s+/)[0] || "";
 const LINEA_BAJA = "\n\n(Si prefieres no recibir más mensajes nuestros, respóndenos BAJA)";

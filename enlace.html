@@ -61,7 +61,7 @@ button,.btn{font:700 15px 'Work Sans',sans-serif;border:0;border-radius:100px;pa
 .f label.chk.opc{display:flex!important;flex-direction:row!important;gap:10px;font-weight:500;margin-bottom:0}
 .chk.opc{align-items:flex-start;font-size:14.5px;color:#12302E;margin-top:10px;line-height:1.35}.chk.opc input{width:20px;height:20px;margin-top:1px;flex-shrink:0;accent-color:#2E827C}
 .chk.opc small{color:#2E827C;font-weight:600}.chk.opc i.pro{font-style:normal;font-size:11px;font-weight:700;background:#12302E;color:#F6F1E4;border-radius:100px;padding:2px 7px;margin-left:4px;vertical-align:1px}
-.chk.opc.off{opacity:.5}.opc-resena{margin:6px 0 0 28px;width:calc(100% - 28px)!important;font-size:14px!important}
+.chk.opc.off{opacity:.5}.opc-sub{margin-left:30px}.opc-sub .chk.opc{font-size:14px;margin-top:8px}.opc-resena{margin:6px 0 0 30px;width:calc(100% - 30px)!important;font-size:14px!important}
 .test{background:#F5C86A;color:var(--teal)}
 .mail{background:#E3EFEC;color:var(--teal)}
 .err{color:var(--rust);font-size:13px;font-weight:600;margin-top:8px;display:none}
@@ -388,7 +388,9 @@ body.rol-agencia #agForm .two{display:none}
 <label class="chk opc"><input type="checkbox" id="oBaja"><span>Añadir «Si prefieres no recibir más mensajes, respóndenos BAJA» al anuncio y al «¿qué tal?» <small>Recomendado</small></span></label>
 <label class="chk opc"><input type="checkbox" id="oCheckin"><span>Recordar el check-in el día antes de salir <i class="pro">Pro</i></span></label>
 <label class="chk opc"><input type="checkbox" id="oQuetal"><span>Preguntar «¿Qué tal el viaje?» al día siguiente de volver <i class="pro">Pro</i></span></label>
-<input type="url" id="oResena" class="opc-resena" placeholder="Enlace para dejar reseña en Google (opcional)">
+<div class="opc-sub" id="oQuetalSub"><label class="chk opc"><input type="radio" name="oQtModo" id="oQtResena"><span>Pedir que dejen una reseña y ofrecer el próximo viaje</span></label>
+<input type="url" id="oResena" class="opc-resena" placeholder="Enlace de vuestras reseñas de Google">
+<label class="chk opc"><input type="radio" name="oQtModo" id="oQtSolo"><span>Solo preguntar qué tal y ofrecer el próximo viaje</span></label></div>
 <label class="chk opc"><input type="checkbox" id="oApp"><span>Que la app instalada lleve tu nombre y tu logo <i class="pro">Pro</i></span></label>
 <div class="hint" id="opcHint"></div>
 <button type="button" class="btn recor" id="opcGuardar" style="margin-top:8px">Guardar opciones</button></div>
@@ -1535,16 +1537,17 @@ function pintarAgencias(){
 function ponerPhEmail(c){const ac=(ACCESOS[editando]||{}).email||(c&&c.emailAuto?c.email:'')||(ROL==='agencia'?MIEMAIL:'');
   $('aEmail').placeholder=ac?'Vacío = se usa el de acceso: '+ac:'Email para el resumen (ej. reservas@agencia.es)';}
 // Opciones de seguimiento y app (BAJA para todas; check-in, «¿qué tal?» y app con su marca, plan Pro)
-const opcDe=d=>{const o=(d&&d.opc)||{},pro=!!d&&d.plan==='pro';return{baja:o.baja!==false,checkin:pro&&o.checkin!==false,quetal:pro&&!!o.quetal,resena:o.resena||'',app:pro&&!!o.app};};
+const opcDe=d=>{const o=(d&&d.opc)||{},pro=!!d&&d.plan==='pro';return{baja:o.baja!==false,checkin:pro&&o.checkin!==false,quetal:pro&&!!o.quetal,pideResena:o.pideResena!=null?!!o.pideResena:!!o.resena,resena:o.resena||'',app:pro&&!!o.app};};
 function pintarOpciones(slug,d){
   const f=$('opcF'); if(!slug){f.classList.add('hide');return;} f.classList.remove('hide');
   const o=opcDe(d),pro=!!d&&d.plan==='pro';
   $('oBaja').checked=o.baja; $('oCheckin').checked=o.checkin; $('oQuetal').checked=o.quetal; $('oResena').value=o.resena; $('oApp').checked=o.app;
   ['oCheckin','oQuetal','oApp'].forEach(id=>{$(id).disabled=!pro;$(id).closest('label').classList.toggle('off',!pro);});
-  $('oResena').disabled=!pro; $('oResena').style.display=pro&&o.quetal?'':'none';
+  $('oQtResena').checked=o.pideResena; $('oQtSolo').checked=!o.pideResena; pintarQtSub();
   $('opcHint').textContent=pro?'':'Las opciones marcadas con «Pro» están incluidas en el plan Pro.';
 }
-$('oQuetal').addEventListener('change',()=>{$('oResena').style.display=$('oQuetal').checked?'':'none';});
+function pintarQtSub(){ $('oQuetalSub').style.display=$('oQuetal').checked&&!$('oQuetal').disabled?'':'none'; $('oResena').style.display=$('oQtResena').checked?'':'none'; }
+['oQuetal','oQtResena','oQtSolo'].forEach(id=>$(id).addEventListener('change',pintarQtSub));
 // Icono de la app con la marca de la agencia: su logo centrado sobre su color de fondo (512×512)
 async function hacerIcono(src,fondo){
   const img=await cargarImg(src); if(!img) return '';
@@ -1557,8 +1560,10 @@ async function hacerIcono(src,fondo){
 }
 $('opcGuardar').onclick=async()=>{
   const slug=editando; if(!slug) return; const d=AG[slug]||{};
-  const resena=$('oResena').value.trim(); if(resena&&!/^https:\/\//i.test(resena)) return toast('El enlace de reseñas debe empezar por https://');
-  const q={accion:'opciones',slug,baja:$('oBaja').checked,checkin:$('oCheckin').checked,quetal:$('oQuetal').checked,resena,app:$('oApp').checked};
+  const resena=$('oResena').value.trim(), pideResena=$('oQtResena').checked;
+  if(resena&&!/^https:\/\//i.test(resena)) return toast('El enlace de reseñas debe empezar por https://');
+  if($('oQuetal').checked&&pideResena&&!resena) return toast('Pega el enlace de vuestras reseñas de Google (o elige «Solo preguntar qué tal»)');
+  const q={accion:'opciones',slug,baja:$('oBaja').checked,checkin:$('oCheckin').checked,quetal:$('oQuetal').checked,pideResena,resena,app:$('oApp').checked};
   $('opcGuardar').disabled=true;
   if(q.app){ try{ q.icono=await hacerIcono(logoUrl(d.logo),d.fondo||(d.color?tonosAgencia(d.color).fondoHex:'')); }catch(e){} }
   const r=await api(q).catch(()=>({ok:false})); $('opcGuardar').disabled=false;

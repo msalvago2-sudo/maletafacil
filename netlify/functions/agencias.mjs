@@ -118,7 +118,7 @@ export default async (req) => {
       if (!a) return json({ error: "slug" }, 404);
       const pro = a.plan === "pro", resena = limpio(body.resena, 400);
       if (resena && !/^https:\/\//i.test(resena)) return json({ error: "resena" }, 400);
-      a.opc = { baja: body.baja !== false, checkin: pro && body.checkin !== false, quetal: pro && !!body.quetal, resena, app: pro && !!body.app };
+      a.opc = { baja: body.baja !== false, checkin: pro && body.checkin !== false, quetal: pro && !!body.quetal, pideResena: !!body.pideResena, resena, app: pro && !!body.app };
       if (body.icono) {
         const m = String(body.icono).match(/^data:image\/png;base64,([A-Za-z0-9+/=]+)$/);
         if (m) { const bytes = Buffer.from(m[1], "base64"); if (bytes.length <= 500000) { await store.set("icono:" + slug, new Blob([bytes]), { metadata: { tipo: "image/png" } }); a.icono = "/.netlify/functions/agencias?icono=" + slug + "&v=" + Date.now(); } }
